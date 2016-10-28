@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>lgk.nsbc</groupId>
+        <artifactId>search</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lgk-generated</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <project.encoding>UTF-8</project.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.source.version>1.8</project.source.version>
+        <project.target.version>1.8</project.target.version>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-meta</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-codegen</artifactId>
+            <version>3.8.0</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>3.8.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.firebirdsql.jdbc</groupId>
+                        <artifactId>jaybird-jdk18</artifactId>
+                        <version>2.2.10</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!--  JDBC connection parameters  -->
+                    <jdbc>
+                        <driver>org.firebirdsql.jdbc.FBDriver</driver>
+                        <url>jdbc:firebirdsql://localhost:3050/lgknew</url>
+                        <user>SYSDBA</user>
+                        <password>masterkey</password>
+                    </jdbc>
+                    <!--  Generator parameters  -->
+                    <generator>
+                        <!-- <name>org.jooq.util.JavaGenerator</name>  -->
+                        <database>
+                            <name>org.jooq.util.firebird.FirebirdDatabase</name>
+                            <includes>.*</includes>
+                            <excludes/>
+                            <inputSchema/>
+                        </database>
+                        <target>
+                            <packageName>lgk.nsbc.generated</packageName>
+                            <directory>src/main/java/</directory>
+                        </target>
+                    </generator>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

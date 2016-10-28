@@ -1,0 +1,10 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+
+### IntelliJ IDEA ###
+.idea
+*.iml
+/lgk-generated/src/main/java/lgk/nsbc/generated
+/lgk-application/target
+/lgk-generated/target
