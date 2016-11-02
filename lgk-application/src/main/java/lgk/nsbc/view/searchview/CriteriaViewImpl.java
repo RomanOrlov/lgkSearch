@@ -1,11 +1,19 @@
 package lgk.nsbc.view.searchview;
 
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.backend.search.dbsearch.Criteria;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import lgk.nsbc.presenter.SearchPresenter;
 import lgk.nsbc.view.TwinTablesSelect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -14,9 +22,12 @@ import java.util.function.Consumer;
  * Класс, реализующий логику настроек критериев
  * Created by Роман on 03.05.2016.
  */
-public class CriteriaViewImpl implements CriteriaView {
-    private UI ui;
-    private Window window = new Window("Настройка критериев");
+@VaadinSessionScope
+@SpringView
+public class CriteriaViewImpl extends Window implements View{
+    @Autowired
+    private SearchPresenter searchPresenter;
+
     private TwinTablesSelect<Criteria> twinTablesSelect;
     // Маленькая форма, для возможности изменения параметров критериев поиска
     private FormLayout formLayout = new FormLayout();
@@ -24,11 +35,15 @@ public class CriteriaViewImpl implements CriteriaView {
     private Button acceptButton = new Button("Принять");
     private Button cancelButton = new Button("Отмена");
 
-    public CriteriaViewImpl(UI ui, List<Criteria> criteria, Consumer<List<Criteria>> listConsumer) {
-        this.ui = ui;
-        twinTablesSelect = new TwinTablesSelect<>(new BeanItemContainer<>(Criteria.class, criteria),
+    public CriteriaViewImpl() {
+        super("Настройка критериев");
+    }
+
+    @PostConstruct
+    private void init() {
+        twinTablesSelect = new TwinTablesSelect<>(new BeanItemContainer<>(Criteria.class, searchPresenter.getAllCriteria()),
                 new BeanItemContainer<>(Criteria.class),
-                listConsumer);
+                searchPresenter::acceptCriteriaChange);
         twinTablesSelect.addSelectionsValueChangeListener(valueChangeEvent -> {
             Set selected = (Set) valueChangeEvent.getProperty().getValue();
             if (selected.size() == 1) {
@@ -38,16 +53,16 @@ public class CriteriaViewImpl implements CriteriaView {
         twinTablesSelect.setCaption("Выберите критерии");
         twinTablesSelect.setCaptionAlignment(Alignment.MIDDLE_LEFT);
 
-        window.addCloseListener(closeEvent -> twinTablesSelect.discardChanges());
+        addCloseListener(closeEvent -> twinTablesSelect.discardChanges());
 
         acceptButton.addClickListener(event -> {
             twinTablesSelect.acceptChanges();
-            window.close();
+            close();
         });
 
         cancelButton.addClickListener(event -> {
             twinTablesSelect.discardChanges();
-            window.close();
+            close();
         });
         initLayout();
     }
@@ -65,22 +80,21 @@ public class CriteriaViewImpl implements CriteriaView {
         layout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
         layout.setSizeFull();
         layout.setMargin(new MarginInfo(true, true, false, true));
-        window.setHeight("700px");
-        window.setWidth("75%");
-        window.setContent(layout);
-        window.center();
-        window.setModal(true);
-        window.setResizable(true);
+        setHeight("700px");
+        setWidth("75%");
+        setContent(layout);
+        center();
+        setModal(true);
+        setResizable(true);
         buttons.setSizeUndefined();
     }
 
-    @Override
-    public void setUpCriteria() {
-        ui.addWindow(window);
+    public void refreshCriteriaData(List<Criteria> criteriaList) {
+        twinTablesSelect.refreshData(criteriaList);
     }
 
     @Override
-    public void refreshCriteriaData(List<Criteria> criteriaList) {
-        twinTablesSelect.refreshData(criteriaList);
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        getUI().addWindow(this);
     }
 }

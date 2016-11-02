@@ -1,5 +1,9 @@
 package lgk.nsbc.view.searchview;
 
+import com.vaadin.navigator.View;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.backend.Target;
 import lgk.nsbc.backend.samples.Sample;
 import lgk.nsbc.backend.search.dbsearch.SelectColumn;
@@ -8,15 +12,21 @@ import com.vaadin.navigator.ViewChangeListener;
 import lgk.nsbc.presenter.SearchPresenter;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.*;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static lgk.nsbc.view.Util.getColumnFilter;
 
-public class SearchViewImpl extends CustomComponent implements SearchView {
+@VaadinSessionScope
+@SpringComponent
+public class SearchViewImpl extends CustomComponent implements SearchView,View {
     private NativeSelect selectTarget = new NativeSelect("Искать:", Arrays.asList(Target.values()));
     private NativeSelect selectSample = new NativeSelect("Текущая выборка:");
 
@@ -38,25 +48,23 @@ public class SearchViewImpl extends CustomComponent implements SearchView {
     private Button viewSQLRequest = new Button("SQL");
 
     private Grid searchResult = new Grid();
+    @Autowired
     private SelectColumnsWindow selectColumnsWindow;
-    private Window createNewSampleWindow;
-    private SQLViewWindow lastSQLRequest = new SQLViewWindow("Последний SQL запрос");
+    @Autowired
+    private CreateNewSampleWindow createNewSampleWindow;
+    @Autowired
+    private SQLViewWindow lastSQLRequest;
+    @Autowired
+    private CriteriaViewImpl criteriaViewWindow;
+    @Autowired
     private SearchPresenter searchPresenter;
-    private CriteriaView criteriaView;
 
-    public SearchViewImpl(SearchPresenter searchPresenter) {
-        this.searchPresenter = searchPresenter;
-        selectColumnsWindow = new SelectColumnsWindow("Настроить выводимую информацию",
-                searchPresenter::acceptSelectColumnsChange);
+    public SearchViewImpl() {
+    }
 
-        criteriaView = new CriteriaViewImpl(getUI(),
-                searchPresenter.getAllCriteria(),
-                searchPresenter::acceptCriteriaChange);
-
-        createNewSampleWindow = new CreateNewSampleWindow("Создать новую выборку", searchPresenter::createNewSample);
-
-        setUpCriteria.addClickListener(clickEvent -> criteriaView.setUpCriteria());
-
+    @PostConstruct
+    private void init() {
+        setUpCriteria.addClickListener(clickEvent -> getUI().addWindow(criteriaViewWindow));
         selectColumns.addClickListener(clickEvent -> getUI().addWindow(selectColumnsWindow));
 
         // Подразумевается, что имзенить цель поиска можем только при создании новой выборки
@@ -167,7 +175,7 @@ public class SearchViewImpl extends CustomComponent implements SearchView {
 
     @Override
     public void refreshCriteria() {
-        criteriaView.refreshCriteriaData(searchPresenter.getAllCriteria());
+        criteriaViewWindow.refreshCriteriaData(searchPresenter.getAllCriteria());
     }
 
     @Override

@@ -11,6 +11,7 @@ import org.jooq.InsertValuesStep3;
 import org.jooq.InsertValuesStep4;
 import org.jooq.Record3;
 import org.jooq.Result;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import static org.jooq.impl.DSL.val;
  * Класс, отвечающий за CRUD операции выборок, а также данных этих выборок.
  * Created by Роман on 11.07.2016.
  */
+@Service
 public class SamplesManager {
 
     /**

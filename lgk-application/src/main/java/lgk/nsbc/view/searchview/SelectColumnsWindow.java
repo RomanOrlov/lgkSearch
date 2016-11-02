@@ -1,22 +1,38 @@
 package lgk.nsbc.view.searchview;
 
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.backend.search.dbsearch.SelectColumn;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import lgk.nsbc.presenter.SearchPresenter;
 import lgk.nsbc.view.TwinTablesSelect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SelectColumnsWindow extends Window {
+@VaadinSessionScope
+@SpringView
+public class SelectColumnsWindow extends Window implements View{
+    @Autowired
+    private SearchPresenter searchPresenter;
     private TwinTablesSelect<SelectColumn> viewColumnSelect;
 
-    public SelectColumnsWindow(String caption, Consumer<List<SelectColumn>> saveToDbSelected) {
-        super(caption);
+    public SelectColumnsWindow() {
+        super("Настроить выводимую информацию");
+    }
+
+    @PostConstruct
+    private void init() {
         viewColumnSelect = new TwinTablesSelect<>(
                 new BeanItemContainer<>(SelectColumn.class),
                 new BeanItemContainer<>(SelectColumn.class),
-                saveToDbSelected);
+                searchPresenter::acceptSelectColumnsChange);
         viewColumnSelect.setWidth("100%");
         viewColumnSelect.setHeight("500px");
         setModal(true);
@@ -46,5 +62,10 @@ public class SelectColumnsWindow extends Window {
 
     public void refreshDisplayInfo(List<SelectColumn> selectColumns) {
         viewColumnSelect.refreshData(selectColumns);
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        getUI().addWindow(this);
     }
 }

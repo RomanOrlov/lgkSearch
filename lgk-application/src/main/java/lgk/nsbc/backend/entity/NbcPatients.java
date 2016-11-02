@@ -12,32 +12,26 @@ public class NbcPatients implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "BAS_PEOPLE_N")
-    @PrimaryKeyJoinColumn
     private BasPeople basPeople;
 
     @ManyToOne
     @JoinColumn(name = "DIAGNOSIS")
-    @PrimaryKeyJoinColumn
     private NbcPatientsDiagnosis nbcPatientsDiagnosis;
 
     @ManyToOne
     @JoinColumn(name = "NBC_DIAG_2015_N")
-    @PrimaryKeyJoinColumn
     private NbcDiag2015 nbcDiag2015;
 
     @ManyToOne
     @JoinColumn(name = "NBC_DIAG_LOC_N")
-    @PrimaryKeyJoinColumn
     private NbcDiagLoc nbcDiagLoc;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_ORGANIZATIONS_N")
-    @PrimaryKeyJoinColumn
     private NbcOrganizations nbcOrganizations;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_STAFF_N")
-    @PrimaryKeyJoinColumn
     private NbcStaff nbcStaff;
 
     @OneToMany(mappedBy = "nbcPatients", fetch = FetchType.LAZY)
@@ -47,9 +41,6 @@ public class NbcPatients implements Serializable {
     @Column(name = "N")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer n;
-
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
 
     @Column(name = "CASE_HISTORY_NUM")
     private Integer caseHistoryNum;
@@ -91,14 +82,6 @@ public class NbcPatients implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public Integer getCaseHistoryNum() {

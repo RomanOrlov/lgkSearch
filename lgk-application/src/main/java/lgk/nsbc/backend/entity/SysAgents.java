@@ -5,25 +5,27 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "SYS_AGENTS")
+@NamedEntityGraphs({
+        @NamedEntityGraph(name = "allSysAgents",
+                attributeNodes = {
+                        @NamedAttributeNode("basPeople"),
+                        @NamedAttributeNode("nbcOrganizations")
+                })
+})
 public class SysAgents implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "PEOPLE_N")
-    @PrimaryKeyJoinColumn
     private BasPeople basPeople;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_ORG_N_DEAFULT")
-    @PrimaryKeyJoinColumn
     private NbcOrganizations nbcOrganizations;
 
     @Id
     @Column(name = "N")
     private Integer n;
-
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
 
     @Column(name = "NAME")
     private String name;
@@ -38,9 +40,8 @@ public class SysAgents implements Serializable {
         this.n = n;
     }
 
-    public SysAgents(Integer n, Integer opCreate, String name, String pid) {
+    public SysAgents(Integer n, Long opCreate, String name, String pid) {
         this.n = n;
-        this.opCreate = opCreate;
         this.name = name;
         this.pid = pid;
     }
@@ -51,14 +52,6 @@ public class SysAgents implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public long getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getName() {
@@ -91,5 +84,15 @@ public class SysAgents implements Serializable {
 
     public void setNbcOrganizations(NbcOrganizations nbcOrganizations) {
         this.nbcOrganizations = nbcOrganizations;
+    }
+
+    @Override
+    public String toString() {
+        return "SysAgents{" +
+                "basPeople=" + basPeople +
+                ", n=" + n +
+                ", name='" + name + '\'' +
+                ", pid='" + pid + '\'' +
+                '}';
     }
 }

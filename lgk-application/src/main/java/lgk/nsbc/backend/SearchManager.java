@@ -1,6 +1,7 @@
 package lgk.nsbc.backend;
 
 import org.jooq.*;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
  * Класс, отвечающий за формирование SQL запроса и получение результатов поиска из базы.
  * Created by Роман on 10.05.2016.
  */
+@Service
 public class SearchManager {
     /**
      * @param whereToSearch           Цель поиска - Пациент, процедура, Мишень или Follow Up

@@ -160,7 +160,6 @@ public class Sample {
                 .filter(SelectColumn::isSelected)
                 .collect(Collectors.toList());
     }
-    //endregion
 
     @Override
     public boolean equals(Object obj) {

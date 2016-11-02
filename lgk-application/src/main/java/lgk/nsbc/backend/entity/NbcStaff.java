@@ -22,9 +22,6 @@ public class NbcStaff implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "POST")
     private String post;
 
@@ -41,25 +38,12 @@ public class NbcStaff implements Serializable {
         this.n = n;
     }
 
-    public NbcStaff(Integer n, Integer opCreate) {
-        this.n = n;
-        this.opCreate = opCreate;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getPost() {

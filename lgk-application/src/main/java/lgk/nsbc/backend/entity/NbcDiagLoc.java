@@ -15,9 +15,6 @@ public class NbcDiagLoc implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "UP_N")
     private Integer upN;
 
@@ -42,29 +39,12 @@ public class NbcDiagLoc implements Serializable {
     public NbcDiagLoc() {
     }
 
-    public NbcDiagLoc(Integer n) {
-        this.n = n;
-    }
-
-    public NbcDiagLoc(Integer n, Integer opCreate) {
-        this.n = n;
-        this.opCreate = opCreate;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public Integer getUpN() {

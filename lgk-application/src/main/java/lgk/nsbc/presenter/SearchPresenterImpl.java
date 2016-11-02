@@ -1,56 +1,79 @@
 package lgk.nsbc.presenter;
 
 import com.vaadin.addon.tableexport.ExcelExport;
+import com.vaadin.data.Item;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Notification;
 import lgk.nsbc.backend.*;
+import lgk.nsbc.backend.dao.SysSessionsRepository;
 import lgk.nsbc.backend.entity.Session;
+import lgk.nsbc.backend.entity.SysSessions;
 import lgk.nsbc.backend.samples.Sample;
 import lgk.nsbc.backend.samples.SampleData;
 import lgk.nsbc.backend.search.dbsearch.Criteria;
 import lgk.nsbc.backend.search.dbsearch.SelectColumn;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Notification;
 import lgk.nsbc.view.searchview.SearchView;
 import org.jooq.*;
+import org.jooq.Condition;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+@VaadinSessionScope
+@Service
 public class SearchPresenterImpl implements SearchPresenter {
-    private SelectColumnManager selectColumnManager = new SelectColumnManager();
-    private DBStructureInfo structureInfo = new DBStructureInfo();
-    private SearchManager searchManager = new SearchManager();
-    private SamplesManager samplesManager = new SamplesManager();
-    // TODO Migrate to syssession
-    private Session session;
+    @Autowired
+    private SysSessionsRepository sysSessionsRepository;
+    @Autowired
+    private SelectColumnManager selectColumnManager;
+    @Autowired
+    private DBStructureInfo structureInfo;
+    @Autowired
+    private SearchManager searchManager;
+    @Autowired
+    private SamplesManager samplesManager;
+    @Autowired
+    private SearchView searchView;
+
+    private SysSessions session;
 
     // Текущая выборка - по дефолту новая выборка. Но возможно поставить сразу и какую то другую
     private Sample currentSample;
     // Всегда работаем с выборкой (особенно когда выбрали новую выборку, - она уже существует)
-    private Sample newSample = getNewTemplateSample();
+    private Sample newSample;
 
     // Выборки пользователя, инициализируем в конструкторе, и собираем.
     private BeanItemContainer<Sample> userSamples;
 
     // Нужен для экспорта в Excel
     private IndexedContainer lastResult;
-    ArrayList<Long> uniqueIdentifiers = new ArrayList<>();
+    private ArrayList<Long> uniqueIdentifiers = new ArrayList<>();
 
     // Информация, необходимая для корректного отображения столбцов в таблице
     private ArrayList<String> selectFieldsId = new ArrayList<>();
 
-    private SearchView searchView;
+    public SearchPresenterImpl() {
+    }
 
-    public SearchPresenterImpl(String lgkSessionId) {
-        this.session =  new SessionManager().loadSession(lgkSessionId);
+    @PostConstruct
+    private void init() {
+        newSample = getNewTemplateSample();
+        String lgkSessionId = "9ec2104e97256dc639754ae07b5eb7bf";
+        this.session = sysSessionsRepository.findBySid(lgkSessionId);
         try {
             // Загружаем сами выборки (а также информацию о выбранных критериях и столбцах)
-            userSamples = new BeanItemContainer<>(Sample.class, samplesManager.getSamples(session.getNLongValue()));
+            userSamples = new BeanItemContainer<>(Sample.class, samplesManager.getSamples(session.getSysAgents().getN()));
             // Для каждой выборки восстаналиваем о выбранных критериях/столбцах
             selectColumnManager.parseSamples(userSamples.getItemIds());
             userSamples.addItemAt(0, newSample);
@@ -168,9 +191,7 @@ public class SearchPresenterImpl implements SearchPresenter {
 
     @Override
     public void handleSampleChanged(Sample sample) {
-        if (currentSample == sample) {
-            return;
-        }
+        if (currentSample == sample) return;
         // Меняем текущую выборку
         currentSample = sample == newSample ? newSample : sample;
         refreshView();
@@ -195,9 +216,7 @@ public class SearchPresenterImpl implements SearchPresenter {
 
     private IndexedContainer parseResult(Result<Record> result) {
         IndexedContainer resultContainer = new IndexedContainer();
-        if (result.isEmpty()) {
-            return resultContainer;
-        }
+        if (result.isEmpty()) return resultContainer;
         // Очищаем результаты предыдущего поиска
         uniqueIdentifiers = new ArrayList<>();
 
@@ -222,7 +241,6 @@ public class SearchPresenterImpl implements SearchPresenter {
                 newItem.getItemProperty(selectFieldsId.get(i)).setValue(values[i]);
             }
         }
-        // Вывод ID в консоль
         lastResult = resultContainer;
         return resultContainer;
     }
@@ -269,7 +287,7 @@ public class SearchPresenterImpl implements SearchPresenter {
             searchView.showErrorMessage("Ничего не выбрано для удаления из выборки!");
             return;
         }
-        if (currentSample!=newSample) {
+        if (currentSample != newSample) {
             ArrayList<Long> uniqueIdentifersSelected = new ArrayList<>();
             for (Integer o : (Collection<Integer>) selectedRows) {
                 // Не забываем, что selectFieldsId.get(0) - уникальный проперти UniqueId, невидимый в результатах
@@ -302,7 +320,7 @@ public class SearchPresenterImpl implements SearchPresenter {
         try {
             currentSample.setName(name);
             currentSample.setComments(comment);
-            currentSample.setUser_id(session.getNLongValue());
+            currentSample.setUser_id(session.getSysAgents().getN());
             // Добавляем в базу
             samplesManager.addSample(currentSample);
 
@@ -355,7 +373,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     public void handleExportToExcel() {
         if (lastResult != null) {
             com.vaadin.ui.Table table = new com.vaadin.ui.Table("Результат поиска", lastResult);
-            ExcelExport excelExport = new ExcelExport(table, "Экспортированные данные", "Выгрузка", session.getLogin() + ".xls");
+            ExcelExport excelExport = new ExcelExport(table, "Экспортированные данные", "Выгрузка", session.getSysAgents().getName() + ".xls");
             excelExport.export();
         } else {
             searchView.showErrorMessage("Нет результатов поиска");
@@ -398,14 +416,5 @@ public class SearchPresenterImpl implements SearchPresenter {
                 Logger.getGlobal().log(Level.SEVERE, "", e);
             }
         }
-    }
-
-    public Component getSearchView() {
-        return searchView;
-    }
-
-    public void setSearchView(SearchView searchView) {
-        this.searchView = searchView;
-        refreshView();
     }
 }

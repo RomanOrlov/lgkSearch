@@ -3,6 +3,7 @@ package lgk.nsbc.backend;
 import lgk.nsbc.generated.tables.*;
 import org.jooq.Condition;
 import org.jooq.Table;
+import org.springframework.stereotype.Service;
 
 import java.util.IdentityHashMap;
 
@@ -13,6 +14,7 @@ import java.util.IdentityHashMap;
  * Возможно, следует хранить информацию о структуре базы данных в одной из таблиц базы.
  * Created by Роман on 15.05.2016.
  */
+@Service
 public class DBStructureInfo {
 
     // Словарь для JOIN к таблице PATIENTS

@@ -18,9 +18,6 @@ public class NbcProc implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "NBC_PATIENTS_N")
     private Integer nbcPatientsN;
 
@@ -68,7 +65,6 @@ public class NbcProc implements Serializable {
 
     public NbcProc(Integer n, Integer opCreate, Integer nbcPatientsN) {
         this.n = n;
-        this.opCreate = opCreate;
         this.nbcPatientsN = nbcPatientsN;
     }
 
@@ -78,14 +74,6 @@ public class NbcProc implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public long getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public long getNbcPatientsN() {

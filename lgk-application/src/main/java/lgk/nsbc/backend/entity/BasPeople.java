@@ -14,9 +14,6 @@ public class BasPeople implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "SURNAME")
     private String surname;
 
@@ -52,14 +49,6 @@ public class BasPeople implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getSurname() {
@@ -131,7 +120,6 @@ public class BasPeople implements Serializable {
         return "BasPeople{" +
                 "birthday=" + birthday +
                 ", n=" + n +
-                ", opCreate=" + opCreate +
                 ", surname='" + surname + '\'' +
                 ", name='" + name + '\'' +
                 ", patronymic='" + patronymic + '\'' +

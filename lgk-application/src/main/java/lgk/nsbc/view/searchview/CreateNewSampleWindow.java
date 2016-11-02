@@ -1,15 +1,26 @@
 package lgk.nsbc.view.searchview;
 
 import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
+import lgk.nsbc.presenter.SearchPresenter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 import java.util.function.BiConsumer;
 
-public class CreateNewSampleWindow extends Window {
+@VaadinSessionScope
+@SpringView
+public class CreateNewSampleWindow extends Window implements View {
+    @Autowired
+    private SearchPresenter searchPresenter;
 
-    public CreateNewSampleWindow(String caption, BiConsumer<String, String> createNewSample) {
-        super(caption);
+    public CreateNewSampleWindow() {
+        super("Создать новую выборку");
         setModal(true);
         setWidth("50%");
         setHeight("50%");
@@ -24,7 +35,7 @@ public class CreateNewSampleWindow extends Window {
 
         Button accept = new Button("Принять", event -> {
             if (!name.isValid()) return;
-            createNewSample.accept(name.getValue(), comments.getValue());
+            searchPresenter.createNewSample(name.getValue(), comments.getValue());
             close();
         });
         accept.setStyleName("primary");
@@ -41,5 +52,10 @@ public class CreateNewSampleWindow extends Window {
         content.setSizeFull();
 
         setContent(content);
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        getUI().addWindow(this);
     }
 }

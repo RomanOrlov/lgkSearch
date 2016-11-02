@@ -6,35 +6,28 @@ import java.util.Date;
 
 @Entity
 @Table(name = "SYS_SESSIONS")
+@NamedEntityGraph(name = "allSysSessions",
+        attributeNodes = {@NamedAttributeNode("sysAgents")})
 public class SysSessions implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @OneToOne
+    @JoinColumn(name = "AGENT_N")
+    private SysAgents sysAgents;
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "N")
     private Integer n;
 
     @Column(name = "SID")
     private String sid;
 
-    @Column(name = "AGENT_N")
-    private Integer agentN;
-
     @Column(name = "OPENED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date opened;
 
     public SysSessions() {
-    }
-
-    public SysSessions(Integer n) {
-        this.n = n;
-    }
-
-    public SysSessions(Integer n, String sid, Integer agentN, Date opened) {
-        this.n = n;
-        this.sid = sid;
-        this.agentN = agentN;
-        this.opened = opened;
     }
 
     public Integer getN() {
@@ -53,19 +46,29 @@ public class SysSessions implements Serializable {
         this.sid = sid;
     }
 
-    public long getAgentN() {
-        return agentN;
-    }
-
-    public void setAgentN(Integer agentN) {
-        this.agentN = agentN;
-    }
-
     public Date getOpened() {
         return opened;
     }
 
     public void setOpened(Date opened) {
         this.opened = opened;
+    }
+
+    public SysAgents getSysAgents() {
+        return sysAgents;
+    }
+
+    public void setSysAgents(SysAgents sysAgents) {
+        this.sysAgents = sysAgents;
+    }
+
+    @Override
+    public String toString() {
+        return "SysSessions{" +
+                "sysAgents=" + sysAgents +
+                ", n=" + n +
+                ", sid='" + sid + '\'' +
+                ", opened=" + opened +
+                '}';
     }
 }

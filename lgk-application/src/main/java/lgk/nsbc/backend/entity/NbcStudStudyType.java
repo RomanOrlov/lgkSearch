@@ -15,9 +15,6 @@ public class NbcStudStudyType implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "NAME")
     private String name;
 
@@ -31,25 +28,12 @@ public class NbcStudStudyType implements Serializable {
         this.n = n;
     }
 
-    public NbcStudStudyType(Integer n, Integer opCreate) {
-        this.n = n;
-        this.opCreate = opCreate;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public long getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getName() {

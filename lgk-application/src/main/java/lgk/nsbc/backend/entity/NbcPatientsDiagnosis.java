@@ -13,9 +13,6 @@ public class NbcPatientsDiagnosis implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "UP_N")
     private Integer upN;
 
@@ -37,7 +34,6 @@ public class NbcPatientsDiagnosis implements Serializable {
 
     public NbcPatientsDiagnosis(Integer n, Integer opCreate) {
         this.n = n;
-        this.opCreate = opCreate;
     }
 
     public Integer getN() {
@@ -46,14 +42,6 @@ public class NbcPatientsDiagnosis implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public long getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public Integer getUpN() {
@@ -92,7 +80,6 @@ public class NbcPatientsDiagnosis implements Serializable {
     public String toString() {
         return "NbcPatientsDiagnosis{" +
                 "n=" + n +
-                ", opCreate=" + opCreate +
                 ", upN=" + upN +
                 ", name='" + name + '\'' +
                 ", text='" + text + '\'' +

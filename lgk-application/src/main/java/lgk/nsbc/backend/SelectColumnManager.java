@@ -2,6 +2,7 @@ package lgk.nsbc.backend;
 
 import lgk.nsbc.backend.samples.Sample;
 import lgk.nsbc.backend.search.dbsearch.*;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -19,6 +20,7 @@ import static lgk.nsbc.generated.tables.NbcPatientsDiagnosis.*;
  * Как и в случае с SearchManager, возможно слудет вынести данные критерии в базу или куда то еще.
  * Created by Роман on 08.05.2016.
  */
+@Service
 public class SelectColumnManager {
 
     // Основной список всех доступных критериев/столбцов

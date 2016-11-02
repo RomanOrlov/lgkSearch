@@ -25,7 +25,6 @@ import java.util.function.Predicate;
  * Created by Роман on 11.06.2016.
  */
 public class TwinTablesSelect<T extends SelectableInfo> extends CustomComponent {
-
     private Table optionsTable = new Table();
     private Table selectionsTable = new Table();
     private Label caption = new Label();
@@ -151,13 +150,8 @@ public class TwinTablesSelect<T extends SelectableInfo> extends CustomComponent 
         @Override
         public void handleAction(Action action, Object sender, Object target) {
             Table from = (Table) sender;
-            Table to;
-            Collection<T> selectedValues = (Collection<T>) from.getValue();
-            if (from == optionsTable) {
-                to = selectionsTable;
-            } else {
-                to = optionsTable;
-            }
+            Table to = from == optionsTable ? selectionsTable : optionsTable;
+            Collection selectedValues = (Collection) from.getValue();
             if (action == ADD_TO_SELECTIONS || action == REMOVE_FROM_SELECTIONS) {
                 if (selectedValues.contains(target)) {
                     for (Object itemId : selectedValues) {
@@ -210,16 +204,12 @@ public class TwinTablesSelect<T extends SelectableInfo> extends CustomComponent 
             Object previsionsItemId = target.getItemIdOver();
             // Если пустой или добавляем в таблицу, не указав конкретно куда, то просто всё добавить
             if (toContainer.size() == 0 || previsionsItemId == null) {
-                for (Object itemId : dropItems) {
-                    fromContainer.removeItem(itemId);
-                }
+                dropItems.forEach(fromContainer::removeItem);
                 toContainer.addAll(dropItems);
                 return;
             }
             // Cначала удаляем (чтобы не было конфликтов)
-            for (Object itemId : dropItems) {
-                fromContainer.removeItem(itemId);
-            }
+            dropItems.forEach(fromContainer::removeItem);
             // А вот теперь уже вставляем куда надо
             for (Object itemId : dropItems) {
                 if (target.getDropLocation() == VerticalDropLocation.TOP) {

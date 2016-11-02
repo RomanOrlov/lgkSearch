@@ -26,9 +26,6 @@ public class NbcStud implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "NBC_PROCEDURES_N")
     private Integer nbcProceduresN;
 
@@ -61,25 +58,12 @@ public class NbcStud implements Serializable {
         this.n = n;
     }
 
-    public NbcStud(Integer n, Integer opCreate) {
-        this.n = n;
-        this.opCreate = opCreate;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public Integer getNbcProceduresN() {

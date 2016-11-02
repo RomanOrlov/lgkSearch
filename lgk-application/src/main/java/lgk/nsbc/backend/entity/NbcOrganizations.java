@@ -15,9 +15,6 @@ public class NbcOrganizations implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
-
     @Column(name = "NAME")
     private String name;
 
@@ -26,21 +23,6 @@ public class NbcOrganizations implements Serializable {
 
     @Column(name = "BAS_ADDRESES_N")
     private Integer basAddresesN;
-
-    @Column(name = "INN")
-    private String inn;
-
-    @Column(name = "KPP")
-    private String kpp;
-
-    @Column(name = "BANK_NAME")
-    private String bankName;
-
-    @Column(name = "BANK_PLACE")
-    private String bankPlace;
-
-    @Column(name = "BANK_BIK")
-    private String bankBik;
 
     @Column(name = "SIGNER")
     private String signer;
@@ -67,25 +49,12 @@ public class NbcOrganizations implements Serializable {
         this.n = n;
     }
 
-    public NbcOrganizations(Integer n, Integer opCreate) {
-        this.n = n;
-        this.opCreate = opCreate;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getName() {
@@ -110,46 +79,6 @@ public class NbcOrganizations implements Serializable {
 
     public void setBasAddresesN(Integer basAddresesN) {
         this.basAddresesN = basAddresesN;
-    }
-
-    public String getInn() {
-        return inn;
-    }
-
-    public void setInn(String inn) {
-        this.inn = inn;
-    }
-
-    public String getKpp() {
-        return kpp;
-    }
-
-    public void setKpp(String kpp) {
-        this.kpp = kpp;
-    }
-
-    public String getBankName() {
-        return bankName;
-    }
-
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
-
-    public String getBankPlace() {
-        return bankPlace;
-    }
-
-    public void setBankPlace(String bankPlace) {
-        this.bankPlace = bankPlace;
-    }
-
-    public String getBankBik() {
-        return bankBik;
-    }
-
-    public void setBankBik(String bankBik) {
-        this.bankBik = bankBik;
     }
 
     public String getSigner() {
@@ -198,6 +127,22 @@ public class NbcOrganizations implements Serializable {
 
     public void setOrd(Integer ord) {
         this.ord = ord;
+    }
+
+    @Override
+    public String toString() {
+        return "NbcOrganizations{" +
+                "n=" + n +
+                ", name='" + name + '\'' +
+                ", jurAddress='" + jurAddress + '\'' +
+                ", basAddresesN=" + basAddresesN +
+                ", signer='" + signer + '\'' +
+                ", baseDocument='" + baseDocument + '\'' +
+                ", isPayRecipient=" + isPayRecipient +
+                ", nbcOrganizationsN=" + nbcOrganizationsN +
+                ", sign='" + sign + '\'' +
+                ", ord=" + ord +
+                '}';
     }
 }
 
