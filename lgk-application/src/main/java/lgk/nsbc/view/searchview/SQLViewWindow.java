@@ -8,6 +8,8 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Window;
 import org.springframework.context.annotation.Scope;
 
+import javax.annotation.PostConstruct;
+
 @VaadinSessionScope
 @SpringView
 public class SQLViewWindow extends Window implements View {
@@ -15,6 +17,10 @@ public class SQLViewWindow extends Window implements View {
 
     public SQLViewWindow() {
         super("Последний SQL запрос");
+    }
+
+    @PostConstruct
+    private void init() {
         setHeight("600px");
         setWidth("700px");
         sqlRequest.setSizeFull();

@@ -19,12 +19,13 @@ import java.util.function.Consumer;
 @VaadinSessionScope
 @SpringView
 public class SelectColumnsWindow extends Window implements View{
-    @Autowired
     private SearchPresenter searchPresenter;
     private TwinTablesSelect<SelectColumn> viewColumnSelect;
 
-    public SelectColumnsWindow() {
+    @Autowired
+    public SelectColumnsWindow(SearchPresenter searchPresenter) {
         super("Настроить выводимую информацию");
+        this.searchPresenter = searchPresenter;
     }
 
     @PostConstruct

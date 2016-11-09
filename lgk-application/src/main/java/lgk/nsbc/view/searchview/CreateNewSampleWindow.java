@@ -11,16 +11,22 @@ import lgk.nsbc.presenter.SearchPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
+import javax.annotation.PostConstruct;
 import java.util.function.BiConsumer;
 
 @VaadinSessionScope
 @SpringView
 public class CreateNewSampleWindow extends Window implements View {
-    @Autowired
     private SearchPresenter searchPresenter;
 
-    public CreateNewSampleWindow() {
+    @Autowired
+    public CreateNewSampleWindow(SearchPresenter searchPresenter) {
         super("Создать новую выборку");
+        this.searchPresenter = searchPresenter;
+    }
+
+    @PostConstruct
+    private void init() {
         setModal(true);
         setWidth("50%");
         setHeight("50%");
@@ -50,7 +56,6 @@ public class CreateNewSampleWindow extends Window implements View {
         content.setMargin(new MarginInfo(true, true, true, true));
         content.setSpacing(true);
         content.setSizeFull();
-
         setContent(content);
     }
 

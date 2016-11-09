@@ -24,8 +24,7 @@ import java.util.function.Consumer;
  */
 @VaadinSessionScope
 @SpringView
-public class CriteriaViewImpl extends Window implements View{
-    @Autowired
+public class CriteriaViewImpl extends Window implements View {
     private SearchPresenter searchPresenter;
 
     private TwinTablesSelect<Criteria> twinTablesSelect;
@@ -35,8 +34,10 @@ public class CriteriaViewImpl extends Window implements View{
     private Button acceptButton = new Button("Принять");
     private Button cancelButton = new Button("Отмена");
 
-    public CriteriaViewImpl() {
+    @Autowired
+    public CriteriaViewImpl(SearchPresenter searchPresenter) {
         super("Настройка критериев");
+        this.searchPresenter = searchPresenter;
     }
 
     @PostConstruct

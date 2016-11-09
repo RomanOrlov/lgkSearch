@@ -24,15 +24,16 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@VaadinSessionScope
 @Service
-public class SearchPresenterImpl implements SearchPresenter {
+@VaadinSessionScope
+public class SearchPresenterImpl implements SearchPresenter, Serializable {
     @Autowired
     private SysSessionsRepository sysSessionsRepository;
     @Autowired
@@ -43,8 +44,10 @@ public class SearchPresenterImpl implements SearchPresenter {
     private SearchManager searchManager;
     @Autowired
     private SamplesManager samplesManager;
-    @Autowired
+
     private SearchView searchView;
+    @Autowired
+    public void setSearchView(SearchView searchView) {this.searchView = searchView;}
 
     private SysSessions session;
 
@@ -54,7 +57,7 @@ public class SearchPresenterImpl implements SearchPresenter {
     private Sample newSample;
 
     // Выборки пользователя, инициализируем в конструкторе, и собираем.
-    private BeanItemContainer<Sample> userSamples;
+    private transient BeanItemContainer<Sample> userSamples;
 
     // Нужен для экспорта в Excel
     private IndexedContainer lastResult;

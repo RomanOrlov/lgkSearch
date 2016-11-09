@@ -56,10 +56,11 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     private SQLViewWindow lastSQLRequest;
     @Autowired
     private CriteriaViewImpl criteriaViewWindow;
-    @Autowired
     private SearchPresenter searchPresenter;
 
-    public SearchViewImpl() {
+    @Autowired
+    public SearchViewImpl(SearchPresenter searchPresenter) {
+        this.searchPresenter = searchPresenter;
     }
 
     @PostConstruct
