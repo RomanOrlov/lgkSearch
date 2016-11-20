@@ -1,5 +1,10 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dictionary.NbcDiag2015;
+import lgk.nsbc.backend.entity.dictionary.NbcDiagLoc;
+import lgk.nsbc.backend.entity.dictionary.NbcOrganizations;
+import lgk.nsbc.backend.entity.dictionary.NbcPatientsDiagnosis;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -10,23 +15,23 @@ import java.util.List;
 public class NbcPatients implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "BAS_PEOPLE_N")
     private BasPeople basPeople;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "DIAGNOSIS")
     private NbcPatientsDiagnosis nbcPatientsDiagnosis;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "NBC_DIAG_2015_N")
     private NbcDiag2015 nbcDiag2015;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "NBC_DIAG_LOC_N")
     private NbcDiagLoc nbcDiagLoc;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_ORGANIZATIONS_N")
     private NbcOrganizations nbcOrganizations;
 
@@ -49,12 +54,6 @@ public class NbcPatients implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date caseHistoryDate;
 
-    @Column(name = "REPRESENT")
-    private String represent;
-
-    @Column(name = "REPRESENT_TELEPHONE")
-    private String representTelephone;
-
     @Column(name = "FULL_DIAGNOSIS")
     private String fullDiagnosis;
 
@@ -72,9 +71,6 @@ public class NbcPatients implements Serializable {
 
     @Column(name = "DISORDER_HISTORY")
     private String disorderHistory;
-
-    public NbcPatients() {
-    }
 
     public Integer getN() {
         return n;
@@ -98,22 +94,6 @@ public class NbcPatients implements Serializable {
 
     public void setCaseHistoryDate(Date caseHistoryDate) {
         this.caseHistoryDate = caseHistoryDate;
-    }
-
-    public String getRepresent() {
-        return represent;
-    }
-
-    public void setRepresent(String represent) {
-        this.represent = represent;
-    }
-
-    public String getRepresentTelephone() {
-        return representTelephone;
-    }
-
-    public void setRepresentTelephone(String representTelephone) {
-        this.representTelephone = representTelephone;
     }
 
     public String getFullDiagnosis() {

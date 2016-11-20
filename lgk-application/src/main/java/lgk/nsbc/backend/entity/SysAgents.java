@@ -1,5 +1,7 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dictionary.NbcOrganizations;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -32,19 +34,6 @@ public class SysAgents implements Serializable {
 
     @Column(name = "PID")
     private String pid;
-
-    public SysAgents() {
-    }
-
-    public SysAgents(Integer n) {
-        this.n = n;
-    }
-
-    public SysAgents(Integer n, Long opCreate, String name, String pid) {
-        this.n = n;
-        this.name = name;
-        this.pid = pid;
-    }
 
     public Integer getN() {
         return n;

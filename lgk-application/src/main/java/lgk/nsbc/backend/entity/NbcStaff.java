@@ -1,5 +1,7 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dictionary.NbcOrganizations;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -8,14 +10,12 @@ import java.io.Serializable;
 public class NbcStaff implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_ORGANIZATIONS_N")
-    @PrimaryKeyJoinColumn
     private NbcOrganizations nbcOrganizations;
 
     @OneToOne
     @JoinColumn(name = "BAS_PEOPLE_N")
-    @PrimaryKeyJoinColumn
     private BasPeople basPeople;
 
     @Id

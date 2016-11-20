@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dictionary;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -20,13 +20,6 @@ public class NbcStudStudyType implements Serializable {
 
     @Column(name = "TEXT")
     private String text;
-
-    public NbcStudStudyType() {
-    }
-
-    public NbcStudStudyType(Integer n) {
-        this.n = n;
-    }
 
     public Integer getN() {
         return n;

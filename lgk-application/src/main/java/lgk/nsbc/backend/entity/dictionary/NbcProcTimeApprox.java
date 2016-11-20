@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dictionary;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,16 +7,15 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "NBC_DIAG_LOC")
-public class NbcDiagLoc implements Serializable {
+@Table(name = "NBC_PROC_TIME_APPROX")
+public class NbcProcTimeApprox implements Serializable {
     private static final long serialVersionUID = 1L;
-
     @Id
     @Column(name = "N")
     private Integer n;
 
-    @Column(name = "UP_N")
-    private Integer upN;
+    @Column(name = "OP_CREATE")
+    private Integer opCreate;
 
     @Column(name = "NAME")
     private String name;
@@ -24,20 +23,11 @@ public class NbcDiagLoc implements Serializable {
     @Column(name = "TEXT")
     private String text;
 
-    @Column(name = "SHORTS")
-    private String shorts;
-
-    @Column(name = "SHORTS_RU")
-    private String shortsRu;
+    @Column(name = "HIDE_STATUS")
+    private Integer hideStatus;
 
     @Column(name = "ORD")
     private Integer ord;
-
-    @Column(name = "DESCRIPTION")
-    private String description;
-
-    public NbcDiagLoc() {
-    }
 
     public Integer getN() {
         return n;
@@ -47,12 +37,12 @@ public class NbcDiagLoc implements Serializable {
         this.n = n;
     }
 
-    public Integer getUpN() {
-        return upN;
+    public Integer getOpCreate() {
+        return opCreate;
     }
 
-    public void setUpN(Integer upN) {
-        this.upN = upN;
+    public void setOpCreate(Integer opCreate) {
+        this.opCreate = opCreate;
     }
 
     public String getName() {
@@ -71,20 +61,12 @@ public class NbcDiagLoc implements Serializable {
         this.text = text;
     }
 
-    public String getShorts() {
-        return shorts;
+    public Integer getHideStatus() {
+        return hideStatus;
     }
 
-    public void setShorts(String shorts) {
-        this.shorts = shorts;
-    }
-
-    public String getShortsRu() {
-        return shortsRu;
-    }
-
-    public void setShortsRu(String shortsRu) {
-        this.shortsRu = shortsRu;
+    public void setHideStatus(Integer hideStatus) {
+        this.hideStatus = hideStatus;
     }
 
     public Integer getOrd() {
@@ -94,12 +76,5 @@ public class NbcDiagLoc implements Serializable {
     public void setOrd(Integer ord) {
         this.ord = ord;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }
+

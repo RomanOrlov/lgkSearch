@@ -27,9 +27,6 @@ public class SysSessions implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date opened;
 
-    public SysSessions() {
-    }
-
     public Integer getN() {
         return n;
     }

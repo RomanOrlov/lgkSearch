@@ -1,28 +1,44 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dictionary.*;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
-import javax.persistence.*;
 
 @Entity
 @Table(name = "NBC_PROC")
 public class NbcProc implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne
-    @JoinColumn(name = "NBC_STUD_N")
-    private NbcStud nbcProc;
+    @OneToOne
+    @JoinColumn(name = "NBC_PATIENTS_N")
+    private NbcPatients nbcPatients;
+
+    @OneToOne
+    @JoinColumn(name = "NBC_ORGANIZATIONS_N")
+    private NbcOrganizations nbcOrganizations;
+
+    @OneToOne
+    @JoinColumn(name = "PROC_TYPE")
+    private NbcProcProcType nbcProcProcType;
+
+    @OneToOne
+    @JoinColumn(name = "TIME_APPROX")
+    private NbcProcTimeApprox nbcProcTimeApprox;
+
+    @OneToOne
+    @JoinColumn(name = "RT_DEVICE")
+    private NbcProcRtDevice nbcProcRtDevice;
+
+    @OneToOne
+    @JoinColumn(name = "RT_TECH")
+    private NbcProcRtTech nbcProcRtTech;
 
     @Id
     @Column(name = "N")
     private Integer n;
-
-    @Column(name = "NBC_PATIENTS_N")
-    private Integer nbcPatientsN;
-
-    @Column(name = "PROC_TYPE")
-    private Integer procType;
 
     @Column(name = "PROCBEGINTIME")
     @Temporal(TemporalType.TIMESTAMP)
@@ -31,9 +47,6 @@ public class NbcProc implements Serializable {
     @Column(name = "PROCENDTIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date procendtime;
-
-    @Column(name = "TIME_APPROX")
-    private BigInteger timeApprox;
 
     @Column(name = "COMMENT")
     private String comment;
@@ -44,29 +57,8 @@ public class NbcProc implements Serializable {
     @Column(name = "STUD_COMMENT")
     private String studComment;
 
-    @Column(name = "RT_DEVICE")
-    private BigInteger rtDevice;
-
-    @Column(name = "RT_TECH")
-    private BigInteger rtTech;
-
     @Column(name = "PARENT_PROC")
-    private BigInteger parentProc;
-
-    @Column(name = "NBC_ORGANIZATIONS_N")
-    private BigInteger nbcOrganizationsN;
-
-    public NbcProc() {
-    }
-
-    public NbcProc(Integer n) {
-        this.n = n;
-    }
-
-    public NbcProc(Integer n, Integer opCreate, Integer nbcPatientsN) {
-        this.n = n;
-        this.nbcPatientsN = nbcPatientsN;
-    }
+    private Integer parentProc;
 
     public Integer getN() {
         return n;
@@ -74,22 +66,6 @@ public class NbcProc implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public long getNbcPatientsN() {
-        return nbcPatientsN;
-    }
-
-    public void setNbcPatientsN(Integer nbcPatientsN) {
-        this.nbcPatientsN = nbcPatientsN;
-    }
-
-    public Integer getProcType() {
-        return procType;
-    }
-
-    public void setProcType(Integer procType) {
-        this.procType = procType;
     }
 
     public Date getProcbegintime() {
@@ -106,14 +82,6 @@ public class NbcProc implements Serializable {
 
     public void setProcendtime(Date procendtime) {
         this.procendtime = procendtime;
-    }
-
-    public BigInteger getTimeApprox() {
-        return timeApprox;
-    }
-
-    public void setTimeApprox(BigInteger timeApprox) {
-        this.timeApprox = timeApprox;
     }
 
     public String getComment() {
@@ -140,44 +108,60 @@ public class NbcProc implements Serializable {
         this.studComment = studComment;
     }
 
-    public BigInteger getRtDevice() {
-        return rtDevice;
-    }
-
-    public void setRtDevice(BigInteger rtDevice) {
-        this.rtDevice = rtDevice;
-    }
-
-    public BigInteger getRtTech() {
-        return rtTech;
-    }
-
-    public void setRtTech(BigInteger rtTech) {
-        this.rtTech = rtTech;
-    }
-
-    public BigInteger getParentProc() {
+    public Integer getParentProc() {
         return parentProc;
     }
 
-    public void setParentProc(BigInteger parentProc) {
+    public void setParentProc(Integer parentProc) {
         this.parentProc = parentProc;
     }
 
-    public BigInteger getNbcOrganizationsN() {
-        return nbcOrganizationsN;
+    public NbcPatients getNbcPatients() {
+        return nbcPatients;
     }
 
-    public void setNbcOrganizationsN(BigInteger nbcOrganizationsN) {
-        this.nbcOrganizationsN = nbcOrganizationsN;
+    public void setNbcPatients(NbcPatients nbcPatients) {
+        this.nbcPatients = nbcPatients;
     }
 
-    public NbcStud getNbcProc() {
-        return nbcProc;
+    public NbcOrganizations getNbcOrganizations() {
+        return nbcOrganizations;
     }
 
-    public void setNbcProc(NbcStud nbcProc) {
-        this.nbcProc = nbcProc;
+    public void setNbcOrganizations(NbcOrganizations nbcOrganizations) {
+        this.nbcOrganizations = nbcOrganizations;
+    }
+
+    public NbcProcProcType getNbcProcProcType() {
+        return nbcProcProcType;
+    }
+
+    public void setNbcProcProcType(NbcProcProcType nbcProcProcType) {
+        this.nbcProcProcType = nbcProcProcType;
+    }
+
+    public NbcProcTimeApprox getNbcProcTimeApprox() {
+        return nbcProcTimeApprox;
+    }
+
+    public void setNbcProcTimeApprox(NbcProcTimeApprox nbcProcTimeApprox) {
+        this.nbcProcTimeApprox = nbcProcTimeApprox;
+    }
+
+    public NbcProcRtDevice getNbcProcRtDevice() {
+        return nbcProcRtDevice;
+    }
+
+    public void setNbcProcRtDevice(NbcProcRtDevice nbcProcRtDevice) {
+        this.nbcProcRtDevice = nbcProcRtDevice;
+    }
+
+    public NbcProcRtTech getNbcProcRtTech() {
+        return nbcProcRtTech;
+    }
+
+    public void setNbcProcRtTech(NbcProcRtTech nbcProcRtTech) {
+        this.nbcProcRtTech = nbcProcRtTech;
     }
 }
 

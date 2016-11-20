@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dictionary;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,9 +6,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
+/**
+ * Таблица для локализации диагноза
+ */
 @Entity
-@Table(name = "NBC_DIAG_2015")
-public class NbcDiag2015 implements Serializable {
+@Table(name = "NBC_DIAG_LOC")
+public class NbcDiagLoc implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -33,14 +36,8 @@ public class NbcDiag2015 implements Serializable {
     @Column(name = "ORD")
     private Integer ord;
 
-    @Column(name = "USEFUL")
-    private Integer useful;
-
     @Column(name = "DESCRIPTION")
     private String description;
-
-    public NbcDiag2015() {
-    }
 
     public Integer getN() {
         return n;
@@ -98,14 +95,6 @@ public class NbcDiag2015 implements Serializable {
         this.ord = ord;
     }
 
-    public Integer getUseful() {
-        return useful;
-    }
-
-    public void setUseful(Integer useful) {
-        this.useful = useful;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -114,4 +103,3 @@ public class NbcDiag2015 implements Serializable {
         this.description = description;
     }
 }
-

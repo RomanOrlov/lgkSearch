@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dictionary;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,9 +41,6 @@ public class NbcOrganizations implements Serializable {
 
     @Column(name = "ORD")
     private Integer ord;
-
-    public NbcOrganizations() {
-    }
 
     public NbcOrganizations(Integer n) {
         this.n = n;

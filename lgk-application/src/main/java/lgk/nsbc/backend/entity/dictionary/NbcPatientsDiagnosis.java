@@ -1,10 +1,12 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dictionary;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Таблица сокращенных диагнозов
+ */
 @Entity
-@Embeddable
 @Table(name = "NBC_PATIENTS_DIAGNOSIS")
 public class NbcPatientsDiagnosis implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -24,17 +26,6 @@ public class NbcPatientsDiagnosis implements Serializable {
 
     @Column(name = "USEFUL")
     private Character useful;
-
-    public NbcPatientsDiagnosis() {
-    }
-
-    public NbcPatientsDiagnosis(Integer n) {
-        this.n = n;
-    }
-
-    public NbcPatientsDiagnosis(Integer n, Integer opCreate) {
-        this.n = n;
-    }
 
     public Integer getN() {
         return n;
@@ -74,16 +65,5 @@ public class NbcPatientsDiagnosis implements Serializable {
 
     public void setUseful(Character useful) {
         this.useful = useful;
-    }
-
-    @Override
-    public String toString() {
-        return "NbcPatientsDiagnosis{" +
-                "n=" + n +
-                ", upN=" + upN +
-                ", name='" + name + '\'' +
-                ", text='" + text + '\'' +
-                ", useful=" + useful +
-                '}';
     }
 }

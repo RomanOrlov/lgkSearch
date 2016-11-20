@@ -1,5 +1,7 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dictionary.NbcStudStudyType;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -14,20 +16,13 @@ public class NbcStud implements Serializable {
     @JoinColumn(name = "NBC_PATIENTS_N")
     private NbcPatients nbcPatients;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "STUDY_TYPE")
-    @PrimaryKeyJoinColumn
     private NbcStudStudyType nbcStudStudyType;
-
-    @OneToMany(mappedBy = "nbcProc",fetch = FetchType.LAZY)
-    private List<NbcProc> nbcProcs;
 
     @Id
     @Column(name = "N")
     private Integer n;
-
-    @Column(name = "NBC_PROCEDURES_N")
-    private Integer nbcProceduresN;
 
     @Column(name = "STUDYDATETIME")
     @Temporal(TemporalType.TIMESTAMP)
@@ -51,27 +46,12 @@ public class NbcStud implements Serializable {
     @Column(name = "DICOM_BIRTH_DATE")
     private String dicomBirthDate;
 
-    public NbcStud() {
-    }
-
-    public NbcStud(Integer n) {
-        this.n = n;
-    }
-
     public Integer getN() {
         return n;
     }
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getNbcProceduresN() {
-        return nbcProceduresN;
-    }
-
-    public void setNbcProceduresN(Integer nbcProceduresN) {
-        this.nbcProceduresN = nbcProceduresN;
     }
 
     public Date getStudydatetime() {
@@ -144,14 +124,6 @@ public class NbcStud implements Serializable {
 
     public void setNbcStudStudyType(NbcStudStudyType nbcStudStudyType) {
         this.nbcStudStudyType = nbcStudStudyType;
-    }
-
-    public List<NbcProc> getNbcProcs() {
-        return nbcProcs;
-    }
-
-    public void setNbcProcs(List<NbcProc> nbcProcs) {
-        this.nbcProcs = nbcProcs;
     }
 }
 
