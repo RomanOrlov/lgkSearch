@@ -114,4 +114,3 @@ public class NbcDiag2015 implements Serializable {
         this.description = description;
     }
 }
-

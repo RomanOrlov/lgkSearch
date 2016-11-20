@@ -1,25 +1,19 @@
 package lgk.nsbc.backend.entity.dictionary;
 
-import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
-/**
- * Техника радиотерапии (IMRT - модуляция интенсивности, статические конформные поля и т.д.)
- */
 @Entity
-@Table(name = "NBC_PROC_RT_TECH")
-public class NbcProcRtTech implements Serializable {
-
+@Table(name = "NBC_DIC_CRANIAL_NERVES")
+public class NbcDicCranialNerves implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @Id
     @Column(name = "N")
-    private Integer n;
-
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
+    private Long n;
 
     @Column(name = "NAME")
     private String name;
@@ -27,20 +21,15 @@ public class NbcProcRtTech implements Serializable {
     @Column(name = "TEXT")
     private String text;
 
-    public Integer getN() {
+    @Column(name = "SIGN")
+    private String sign;
+
+    public Long getN() {
         return n;
     }
 
-    public void setN(Integer n) {
+    public void setN(Long n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getName() {
@@ -57,5 +46,13 @@ public class NbcProcRtTech implements Serializable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 }

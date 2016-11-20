@@ -6,17 +6,18 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "NBC_PROC")
 public class NbcProc implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_PATIENTS_N")
     private NbcPatients nbcPatients;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_ORGANIZATIONS_N")
     private NbcOrganizations nbcOrganizations;
 
@@ -24,17 +25,23 @@ public class NbcProc implements Serializable {
     @JoinColumn(name = "PROC_TYPE")
     private NbcProcProcType nbcProcProcType;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TIME_APPROX")
     private NbcProcTimeApprox nbcProcTimeApprox;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RT_DEVICE")
     private NbcProcRtDevice nbcProcRtDevice;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RT_TECH")
     private NbcProcRtTech nbcProcRtTech;
+
+    @OneToMany(mappedBy = "nbcProc", fetch = FetchType.LAZY)
+    private List<NbcMatrices> nbcMatrices;
+
+    @OneToMany(mappedBy = "nbcProc", fetch = FetchType.LAZY)
+    private List<NbcTrgtTreat> nbcTrgtTreats;
 
     @Id
     @Column(name = "N")
@@ -163,5 +170,20 @@ public class NbcProc implements Serializable {
     public void setNbcProcRtTech(NbcProcRtTech nbcProcRtTech) {
         this.nbcProcRtTech = nbcProcRtTech;
     }
-}
 
+    public List<NbcMatrices> getNbcMatrices() {
+        return nbcMatrices;
+    }
+
+    public void setNbcMatrices(List<NbcMatrices> nbcMatrices) {
+        this.nbcMatrices = nbcMatrices;
+    }
+
+    public List<NbcTrgtTreat> getNbcTrgtTreats() {
+        return nbcTrgtTreats;
+    }
+
+    public void setNbcTrgtTreats(List<NbcTrgtTreat> nbcTrgtTreats) {
+        this.nbcTrgtTreats = nbcTrgtTreats;
+    }
+}

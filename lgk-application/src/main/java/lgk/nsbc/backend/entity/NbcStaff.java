@@ -31,13 +31,6 @@ public class NbcStaff implements Serializable {
     @Column(name = "NOTES")
     private String notes;
 
-    public NbcStaff() {
-    }
-
-    public NbcStaff(Integer n) {
-        this.n = n;
-    }
-
     public Integer getN() {
         return n;
     }

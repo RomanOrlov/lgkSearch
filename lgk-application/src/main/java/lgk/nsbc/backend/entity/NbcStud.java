@@ -14,11 +14,15 @@ public class NbcStud implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_PATIENTS_N")
-    private NbcPatients nbcPatients;
+    private NbcPatients nbcPatient;
 
     @OneToOne
     @JoinColumn(name = "STUDY_TYPE")
     private NbcStudStudyType nbcStudStudyType;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "NBC_PROCEDURES_N")
+    private List<NbcProc> nbcProcedures;
 
     @Id
     @Column(name = "N")
@@ -110,12 +114,12 @@ public class NbcStud implements Serializable {
         this.dicomBirthDate = dicomBirthDate;
     }
 
-    public NbcPatients getNbcPatients() {
-        return nbcPatients;
+    public NbcPatients getNbcPatient() {
+        return nbcPatient;
     }
 
-    public void setNbcPatients(NbcPatients nbcPatients) {
-        this.nbcPatients = nbcPatients;
+    public void setNbcPatient(NbcPatients nbcPatient) {
+        this.nbcPatient = nbcPatient;
     }
 
     public NbcStudStudyType getNbcStudStudyType() {
@@ -125,5 +129,12 @@ public class NbcStud implements Serializable {
     public void setNbcStudStudyType(NbcStudStudyType nbcStudStudyType) {
         this.nbcStudStudyType = nbcStudStudyType;
     }
-}
 
+    public List<NbcProc> getNbcProcedures() {
+        return nbcProcedures;
+    }
+
+    public void setNbcProcedures(List<NbcProc> nbcProcedures) {
+        this.nbcProcedures = nbcProcedures;
+    }
+}

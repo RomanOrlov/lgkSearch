@@ -1,21 +1,22 @@
 package lgk.nsbc.backend.entity.dictionary;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
 
+/**
+ * Описание характера приступов
+ */
 @Entity
-@Table(name = "NBC_PROC_TIME_APPROX")
-public class NbcProcTimeApprox implements Serializable {
+@Table(name = "NBC_EPILEPSY_1_FIT_PROPERTY")
+public class NbcEpilepsyFitProperty implements Serializable {
     private static final long serialVersionUID = 1L;
+
     @Id
     @Column(name = "N")
     private Integer n;
-
-    @Column(name = "OP_CREATE")
-    private Integer opCreate;
 
     @Column(name = "NAME")
     private String name;
@@ -23,11 +24,8 @@ public class NbcProcTimeApprox implements Serializable {
     @Column(name = "TEXT")
     private String text;
 
-    @Column(name = "HIDE_STATUS")
-    private Integer hideStatus;
-
-    @Column(name = "ORD")
-    private Integer ord;
+    @Column(name = "AMOUNT")
+    private Integer amount;
 
     public Integer getN() {
         return n;
@@ -35,14 +33,6 @@ public class NbcProcTimeApprox implements Serializable {
 
     public void setN(Integer n) {
         this.n = n;
-    }
-
-    public Integer getOpCreate() {
-        return opCreate;
-    }
-
-    public void setOpCreate(Integer opCreate) {
-        this.opCreate = opCreate;
     }
 
     public String getName() {
@@ -61,19 +51,11 @@ public class NbcProcTimeApprox implements Serializable {
         this.text = text;
     }
 
-    public Integer getHideStatus() {
-        return hideStatus;
+    public Integer getAmount() {
+        return amount;
     }
 
-    public void setHideStatus(Integer hideStatus) {
-        this.hideStatus = hideStatus;
-    }
-
-    public Integer getOrd() {
-        return ord;
-    }
-
-    public void setOrd(Integer ord) {
-        this.ord = ord;
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

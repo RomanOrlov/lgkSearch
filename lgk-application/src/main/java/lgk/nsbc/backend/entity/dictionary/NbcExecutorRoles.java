@@ -57,4 +57,3 @@ public class NbcExecutorRoles implements Serializable {
         this.text = text;
     }
 }
-
