@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity.dictionary;
+package lgk.nsbc.backend.entity.epilepsy;
 
 import javax.persistence.*;
 import java.io.Serializable;

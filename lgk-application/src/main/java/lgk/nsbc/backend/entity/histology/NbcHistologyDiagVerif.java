@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity.dictionary;
+package lgk.nsbc.backend.entity.histology;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -6,12 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Достоверность данных
- */
 @Entity
-@Table(name = "NBC_DVH_DATA_VERSION")
-public class NbcDvhDataVersion implements Serializable {
+@Table(name = "NBC_HISTOLOGY_1_DIAG_VERIF")
+public class NbcHistologyDiagVerif implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

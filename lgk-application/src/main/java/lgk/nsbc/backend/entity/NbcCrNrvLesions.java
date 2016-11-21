@@ -5,6 +5,9 @@ import lgk.nsbc.backend.entity.dictionary.*;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Поражение черепно мозковых нервов
+ */
 @Entity
 @Table(name = "NBC_CR_NRV_LESIONS_1")
 public class NbcCrNrvLesions implements Serializable {

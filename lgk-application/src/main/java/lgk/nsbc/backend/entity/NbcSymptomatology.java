@@ -64,4 +64,12 @@ public class NbcSymptomatology implements Serializable {
     public void setNbcDicDynamic(NbcDicDynamic nbcDicDynamic) {
         this.nbcDicDynamic = nbcDicDynamic;
     }
+
+    public List<NbcStud> getNbcStudies() {
+        return nbcStudies;
+    }
+
+    public void setNbcStudies(List<NbcStud> nbcStudies) {
+        this.nbcStudies = nbcStudies;
+    }
 }

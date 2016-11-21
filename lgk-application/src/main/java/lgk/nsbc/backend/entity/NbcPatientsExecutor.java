@@ -12,11 +12,11 @@ public class NbcPatientsExecutor implements Serializable {
     @Column(name = "N")
     private Integer n;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_PATIENTS_N")
     private NbcPatients nbcPatients;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NBC_EXECUTOR_N")
     private NbcExecutor nbcExecutor;
 

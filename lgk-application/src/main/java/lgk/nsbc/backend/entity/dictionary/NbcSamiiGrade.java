@@ -1,17 +1,14 @@
 package lgk.nsbc.backend.entity.dictionary;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
 
-/**
- * Версия ПО (LGP), рассчитывающего DVH
- */
 @Entity
-@Table(name = "NBC_DVH_LGP_VERSION")
-public class NbcDvhLgpVersion implements Serializable {
+@Table(name = "NBC_SAMII_1_GRADE")
+public class NbcSamiiGrade implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -23,6 +20,9 @@ public class NbcDvhLgpVersion implements Serializable {
 
     @Column(name = "TEXT")
     private String text;
+
+    @Column(name = "AMOUNT")
+    private Integer amount;
 
     public Integer getN() {
         return n;
@@ -46,5 +46,13 @@ public class NbcDvhLgpVersion implements Serializable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity.dictionary;
+package lgk.nsbc.backend.entity.eye;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -6,14 +6,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-/**
- * Алгоритм вычисления дозы
- */
 @Entity
-@Table(name = "NBC_DVH_DOSE_ALGORITHM")
-public class NbcDvhDoseAlgorithm implements Serializable {
+@Table(name = "NBC_VISION_1_CORRECTION")
+public class NbcVisionCorrection implements Serializable {
     private static final long serialVersionUID = 1L;
-
     @Id
     @Column(name = "N")
     private Integer n;

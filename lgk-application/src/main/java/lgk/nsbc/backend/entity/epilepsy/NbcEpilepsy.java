@@ -1,9 +1,10 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.epilepsy;
 
-import lgk.nsbc.backend.entity.dictionary.NbcEpilepsyEngel;
-import lgk.nsbc.backend.entity.dictionary.NbcEpilepsyFitPeriod;
-import lgk.nsbc.backend.entity.dictionary.NbcEpilepsyFitProperty;
-import lgk.nsbc.backend.entity.dictionary.NbcEpilepsyFitRate;
+import lgk.nsbc.backend.entity.NbcStud;
+import lgk.nsbc.backend.entity.epilepsy.NbcEpilepsyEngel;
+import lgk.nsbc.backend.entity.epilepsy.NbcEpilepsyFitPeriod;
+import lgk.nsbc.backend.entity.epilepsy.NbcEpilepsyFitProperty;
+import lgk.nsbc.backend.entity.epilepsy.NbcEpilepsyFitRate;
 
 import javax.persistence.*;
 import java.io.Serializable;

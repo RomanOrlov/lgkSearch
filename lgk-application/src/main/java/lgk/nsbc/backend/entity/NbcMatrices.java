@@ -1,7 +1,8 @@
 package lgk.nsbc.backend.entity;
 
+import lgk.nsbc.backend.entity.dvh.NbcDvh;
+
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.List;
 import javax.persistence.*;
 

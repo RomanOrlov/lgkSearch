@@ -1,8 +1,4 @@
-package lgk.nsbc.backend.entity;
-
-import lgk.nsbc.backend.entity.dictionary.NbcDvhDataVersion;
-import lgk.nsbc.backend.entity.dictionary.NbcDvhDoseAlgorithm;
-import lgk.nsbc.backend.entity.dictionary.NbcDvhLgpVersion;
+package lgk.nsbc.backend.entity.dvh;
 
 import javax.persistence.*;
 import java.io.Serializable;

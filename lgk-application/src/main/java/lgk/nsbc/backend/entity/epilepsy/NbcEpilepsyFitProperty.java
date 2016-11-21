@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity.dictionary;
+package lgk.nsbc.backend.entity.epilepsy;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -7,11 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * Период, за который указывается частота приступов
+ * Описание характера приступов
  */
 @Entity
-@Table(name = "NBC_EPILEPSY_1_FIT_PERIOD")
-public class NbcEpilepsyFitPeriod implements Serializable {
+@Table(name = "NBC_EPILEPSY_1_FIT_PROPERTY")
+public class NbcEpilepsyFitProperty implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -23,6 +23,9 @@ public class NbcEpilepsyFitPeriod implements Serializable {
 
     @Column(name = "TEXT")
     private String text;
+
+    @Column(name = "AMOUNT")
+    private Integer amount;
 
     public Integer getN() {
         return n;
@@ -46,5 +49,13 @@ public class NbcEpilepsyFitPeriod implements Serializable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

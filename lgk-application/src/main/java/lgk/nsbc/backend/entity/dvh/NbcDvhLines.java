@@ -1,4 +1,4 @@
-package lgk.nsbc.backend.entity;
+package lgk.nsbc.backend.entity.dvh;
 
 import javax.persistence.*;
 import java.io.Serializable;

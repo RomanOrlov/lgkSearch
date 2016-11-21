@@ -1,19 +1,22 @@
-package lgk.nsbc.backend.entity.dictionary;
+package lgk.nsbc.backend.entity.viiinerve;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
 
+/**
+ * Состояние слуха по шкале Гарднера-Робертсона
+ */
 @Entity
-@Table(name = "NBC_EPILEPSY_1_ENGEL")
-public class NbcEpilepsyEngel implements Serializable {
+@Table(name = "NBC_VIIIN_1_GARD_ROBERT")
+public class NbcViiinGardRobert implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "N")
-    private Long n;
+    private Integer n;
 
     @Column(name = "NAME")
     private String name;
@@ -24,11 +27,11 @@ public class NbcEpilepsyEngel implements Serializable {
     @Column(name = "AMOUNT")
     private Integer amount;
 
-    public Long getN() {
+    public Integer getN() {
         return n;
     }
 
-    public void setN(Long n) {
+    public void setN(Integer n) {
         this.n = n;
     }
 
