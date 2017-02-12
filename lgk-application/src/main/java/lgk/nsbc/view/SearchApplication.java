@@ -4,20 +4,21 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.LoginForm;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.UI;
-import lgk.nsbc.backend.dao.SysAgentsRepository;
-import lgk.nsbc.backend.dao.SysSessionsRepository;
-import lgk.nsbc.backend.entity.SysAgents;
-import lgk.nsbc.backend.entity.SysSessions;
-import lgk.nsbc.presenter.SearchPresenterImpl;
-import lgk.nsbc.view.searchview.SearchView;
+import lgk.nsbc.DBConnectionProperty;
 import lgk.nsbc.view.searchview.SearchViewImpl;
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 
-import java.util.List;
+import java.sql.SQLException;
 
 @Title("DB interface")
 @Theme("valo")

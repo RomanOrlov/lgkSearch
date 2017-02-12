@@ -1,33 +1,32 @@
 package lgk.nsbc.view.searchview;
 
-import com.vaadin.navigator.View;
-import com.vaadin.spring.annotation.SpringComponent;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.backend.Target;
-import lgk.nsbc.backend.samples.Sample;
-import lgk.nsbc.backend.search.dbsearch.SelectColumn;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import lgk.nsbc.presenter.SearchPresenter;
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
+import lgk.nsbc.backend.entity.sample.Sample;
+import lgk.nsbc.backend.info.AllSearchTargets;
+import lgk.nsbc.backend.info.DisplayedInfo;
+import lgk.nsbc.backend.info.SampleAdapter;
+import lgk.nsbc.backend.info.searchable.SearchTarget;
+import lgk.nsbc.presenter.SearchPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.*;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static lgk.nsbc.view.Util.getColumnFilter;
-
 @VaadinSessionScope
 @SpringComponent
-public class SearchViewImpl extends CustomComponent implements SearchView,View {
-    private NativeSelect selectTarget = new NativeSelect("Искать:", Arrays.asList(Target.values()));
+public class SearchViewImpl extends CustomComponent implements SearchView, View {
+    @Autowired
+    private AllSearchTargets allSearchTargets;
+
+    private NativeSelect selectTarget;
     private NativeSelect selectSample = new NativeSelect("Текущая выборка:");
 
     // Настройка критериев и выводимой информации
@@ -47,7 +46,8 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     private Button exportToExcel = new Button("Экспорт в Excel");
     private Button viewSQLRequest = new Button("SQL");
 
-    private Grid searchResult = new Grid();
+    @Autowired
+    private SearchResult searchResult;
     @Autowired
     private SelectColumnsWindow selectColumnsWindow;
     @Autowired
@@ -56,26 +56,24 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     private SQLViewWindow lastSQLRequest;
     @Autowired
     private CriteriaViewImpl criteriaViewWindow;
-    private SearchPresenter searchPresenter;
-
     @Autowired
-    public SearchViewImpl(SearchPresenter searchPresenter) {
-        this.searchPresenter = searchPresenter;
-    }
+    private SearchPresenter searchPresenter;
 
     @PostConstruct
     private void init() {
-        setUpCriteria.addClickListener(clickEvent -> getUI().addWindow(criteriaViewWindow));
-        selectColumns.addClickListener(clickEvent -> getUI().addWindow(selectColumnsWindow));
+        selectTarget = new NativeSelect("Искать:", allSearchTargets.getSearchTargetsAsList());
+        searchPresenter.setSearchView(this);
+        setUpCriteria.addClickListener(clickEvent -> showWindow(criteriaViewWindow));
+        selectColumns.addClickListener(clickEvent -> showWindow(selectColumnsWindow));
 
         // Подразумевается, что имзенить цель поиска можем только при создании новой выборки
-        selectTarget.addValueChangeListener(event -> searchPresenter.changeCurrentSearchTarget((Target) event.getProperty().getValue()));
+        selectTarget.addValueChangeListener(event -> searchPresenter.changeCurrentSearchTarget((SearchTarget) event.getProperty().getValue()));
         selectTarget.setNullSelectionAllowed(false);
 
         selectSample.setContainerDataSource(searchPresenter.getSamples());
         selectSample.setNullSelectionAllowed(false);
         // Текущее значение зависит от логики в презентере (либо новая выборка, либо сохраненная в сессии)
-        selectSample.addValueChangeListener(valueChangeEvent -> searchPresenter.handleSampleChanged((Sample) valueChangeEvent.getProperty().getValue()));
+        selectSample.addValueChangeListener(valueChangeEvent -> searchPresenter.handleSampleChanged((SampleAdapter) valueChangeEvent.getProperty().getValue()));
         // Старт поиска
         startSearch.addClickListener(event -> searchPresenter.handleFindButtonClick());
         startSearch.setStyleName("primary");
@@ -94,18 +92,7 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
 
         exportToExcel.addClickListener(clickEvent -> searchPresenter.handleExportToExcel());
 
-        viewSQLRequest.addClickListener(event -> {
-            // Check because it's not modal
-            if (!getUI().getWindows().contains(lastSQLRequest))
-                getUI().addWindow(lastSQLRequest);
-        });
-
-        searchResult.setVisible(false);
-        searchResult.addFooterRowAt(0).setStyleName("primary");
-        searchResult.addHeaderRowAt(0).setStyleName("primary");
-        searchResult.setSizeFull();
-        searchResult.setColumnReorderingAllowed(true);
-        searchResult.setSelectionMode(Grid.SelectionMode.MULTI);
+        viewSQLRequest.addClickListener(event -> showWindow(lastSQLRequest));
         initLayout();
         refreshDisplayInfo();
         refreshCriteria();
@@ -144,24 +131,7 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
             Notification.show("Пустой запрос, ничего не вернул.");
             return;
         }
-        searchResult.setVisible(true);
-        searchResult.setEnabled(true);
-        searchResult.removeAllColumns();
-        searchResult.setContainerDataSource(container);
-        Grid.HeaderRow headerRow = searchResult.getHeaderRow(0);
-        Object firstColumnId = null;
-        for (Grid.Column column : searchResult.getColumns()) {
-            column.setHidable(true);
-            Object columnId = column.getPropertyId();
-            Grid.HeaderCell headerCell = headerRow.getCell(columnId);
-            headerCell.setComponent(getColumnFilter(searchResult, columnId));
-            headerCell.setStyleName("filter-header");
-            if (firstColumnId == null) {
-                firstColumnId = columnId;
-            }
-        }
-        Grid.FooterRow footerRow = searchResult.getFooterRow(0);
-        footerRow.getCell(firstColumnId).setText("Количество результатов: " + container.size());
+        searchResult.refreshGrid(container);
     }
 
     @Override
@@ -170,18 +140,18 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     }
 
     @Override
-    public List<SelectColumn> getOrderedSelections() {
+    public List<DisplayedInfo> getOrderedSelections() {
         return selectColumnsWindow.getOrderedSelections();
     }
 
     @Override
     public void refreshCriteria() {
-        criteriaViewWindow.refreshCriteriaData(searchPresenter.getAllCriteria());
+        criteriaViewWindow.refreshCriteriaData(searchPresenter.getAvailableCriteria());
     }
 
     @Override
     public void showNewSampleDialog() {
-        getUI().addWindow(createNewSampleWindow);
+        showWindow(createNewSampleWindow);
     }
 
     @Override
@@ -190,7 +160,7 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     }
 
     @Override
-    public void changeCurrentSample(Sample sample) {
+    public void changeCurrentSample(SampleAdapter sample) {
         selectSample.setValue(sample);
     }
 
@@ -215,17 +185,23 @@ public class SearchViewImpl extends CustomComponent implements SearchView,View {
     }
 
     @Override
-    public void changeSearchTarget(Target target) {
-        selectTarget.setValue(target);
+    public void changeSearchTarget(SearchTarget searchTarget) {
+        selectTarget.setValue(searchTarget);
         searchResult.setEnabled(false);
     }
 
     @Override
     public void refreshLastSQLRequest(String sql) {
         lastSQLRequest.refreshSQLRequest(sql);
-}
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+    }
+
+    private void showWindow(Window window) {
+        if (getUI().getWindows().contains(window) || window.getParent() != null)
+            window.close();
+        getUI().addWindow(window);
     }
 }

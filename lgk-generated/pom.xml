@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>lgk-generated</artifactId>
+    <artifactId>generated</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -65,7 +65,10 @@
                         <database>
                             <name>org.jooq.util.firebird.FirebirdDatabase</name>
                             <includes>.*</includes>
-                            <excludes/>
+                            <!-- Exclude HIS tables and some views (x2 times lighter) -->
+                            <excludes>
+                                    .*.HIS | .*_LST
+                            </excludes>
                             <inputSchema/>
                         </database>
                         <target>

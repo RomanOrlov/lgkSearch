@@ -4,6 +4,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.VaadinSessionScope;
+import com.vaadin.ui.AbstractSingleComponentContainer;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Window;
 import org.springframework.context.annotation.Scope;

@@ -4,23 +4,21 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.backend.search.dbsearch.SelectColumn;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import lgk.nsbc.backend.info.DisplayedInfo;
 import lgk.nsbc.presenter.SearchPresenter;
 import lgk.nsbc.view.TwinTablesSelect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 @VaadinSessionScope
 @SpringView
-public class SelectColumnsWindow extends Window implements View{
+public class SelectColumnsWindow extends Window implements View {
     private SearchPresenter searchPresenter;
-    private TwinTablesSelect<SelectColumn> viewColumnSelect;
+    private TwinTablesSelect<DisplayedInfo> viewColumnSelect;
 
     @Autowired
     public SelectColumnsWindow(SearchPresenter searchPresenter) {
@@ -30,10 +28,10 @@ public class SelectColumnsWindow extends Window implements View{
 
     @PostConstruct
     private void init() {
-        viewColumnSelect = new TwinTablesSelect<>(
-                new BeanItemContainer<>(SelectColumn.class),
-                new BeanItemContainer<>(SelectColumn.class),
-                searchPresenter::acceptSelectColumnsChange);
+        viewColumnSelect = new TwinTablesSelect<>(DisplayedInfo.class,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                searchPresenter::acceptDisplayedInfoChange);
         viewColumnSelect.setWidth("100%");
         viewColumnSelect.setHeight("500px");
         setModal(true);
@@ -57,11 +55,11 @@ public class SelectColumnsWindow extends Window implements View{
         setContent(components);
     }
 
-    public List<SelectColumn> getOrderedSelections() {
+    public List<DisplayedInfo> getOrderedSelections() {
         return viewColumnSelect.getOrderedSelections();
     }
 
-    public void refreshDisplayInfo(List<SelectColumn> selectColumns) {
+    public void refreshDisplayInfo(List<DisplayedInfo> selectColumns) {
         viewColumnSelect.refreshData(selectColumns);
     }
 

@@ -4,19 +4,18 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.backend.search.dbsearch.Criteria;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import lgk.nsbc.backend.info.criteria.Criteria;
 import lgk.nsbc.presenter.SearchPresenter;
 import lgk.nsbc.view.TwinTablesSelect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Класс, реализующий логику настроек критериев
@@ -26,7 +25,6 @@ import java.util.function.Consumer;
 @SpringView
 public class CriteriaViewImpl extends Window implements View {
     private SearchPresenter searchPresenter;
-
     private TwinTablesSelect<Criteria> twinTablesSelect;
     // Маленькая форма, для возможности изменения параметров критериев поиска
     private FormLayout formLayout = new FormLayout();
@@ -42,8 +40,10 @@ public class CriteriaViewImpl extends Window implements View {
 
     @PostConstruct
     private void init() {
-        twinTablesSelect = new TwinTablesSelect<>(new BeanItemContainer<>(Criteria.class, searchPresenter.getAllCriteria()),
-                new BeanItemContainer<>(Criteria.class),
+        new BeanItemContainer<>(Criteria.class);
+        twinTablesSelect = new TwinTablesSelect<>(Criteria.class,
+                searchPresenter.getAvailableCriteria(),
+                new ArrayList<>(),
                 searchPresenter::acceptCriteriaChange);
         twinTablesSelect.addSelectionsValueChangeListener(valueChangeEvent -> {
             Set selected = (Set) valueChangeEvent.getProperty().getValue();

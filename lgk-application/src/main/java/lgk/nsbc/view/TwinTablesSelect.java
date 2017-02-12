@@ -1,6 +1,5 @@
 package lgk.nsbc.view;
 
-import lgk.nsbc.backend.search.SelectableInfo;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
@@ -10,6 +9,7 @@ import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.*;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
 import com.vaadin.ui.*;
+import lgk.nsbc.backend.info.SelectableInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,15 +43,15 @@ public class TwinTablesSelect<T extends SelectableInfo> extends CustomComponent 
      * @param selections       контейнер
      * @param saveToDbSelected Consumer делегирующий логику сохранения в базу данных
      */
-    public TwinTablesSelect(BeanItemContainer<T> options, BeanItemContainer<T> selections, Consumer<List<T>> saveToDbSelected) {
-        this.options = options;
-        this.selections = selections;
+    public TwinTablesSelect(Class<T> t, List<T> options, List<T> selections, Consumer<List<T>> saveToDbSelected) {
+        this.options = new BeanItemContainer<>(t,options);
+        this.selections = new BeanItemContainer<>(t,selections);
         this.saveToDbSelected = saveToDbSelected;
         setSizeFull();
         layout.setSizeFull();
         twoTables.setSizeFull();
-        configureTable(optionsTable, "Доступно", options);
-        configureTable(selectionsTable, "Выбрано", selections);
+        configureTable(optionsTable, "Доступно", this.options);
+        configureTable(selectionsTable, "Выбрано", this.selections);
         setCompositionRoot(twoTables);
     }
 
