@@ -6,13 +6,28 @@ import java.util.Date;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@ToString(of = {"n", "surname","name","patronymic"})
+@AllArgsConstructor
+@Builder
+@ToString(of = {"n", "surname", "name", "patronymic"})
 public class BasPeople {
 
     public enum Props {
-        n, op_create, name, surname, patronymic, sex, birthday, citizenship, job, obit
+        n,
+        op_create,
+        name,
+        surname,
+        patronymic,
+        sex,
+        birthday,
+        citizenship,
+        job,
+        obit;
+
+//        @Override
+//        public String toString() {
+//            return super.toString();
+//        }
     }
 
     private Long n;

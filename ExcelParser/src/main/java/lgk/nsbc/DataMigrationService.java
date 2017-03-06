@@ -3,13 +3,13 @@ package lgk.nsbc;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.backend.entity.BasPeople;
-import lgk.nsbc.backend.entity.NbcPatients;
-import lgk.nsbc.dao.BasPeopleRepository;
-import lgk.nsbc.dao.NbcPatientsRepository;
-import lgk.nsbc.dao.NbcProcRepository;
-import lgk.nsbc.dao.NbcTargetRepository;
 import lgk.nsbc.model.StudyRecords;
+import lgk.nsbc.template.dao.BasPeopleDao;
+import lgk.nsbc.template.dao.NbcPatientsDao;
+import lgk.nsbc.template.dao.NbcProcDao;
+import lgk.nsbc.template.dao.NbcTargetDao;
+import lgk.nsbc.template.model.BasPeople;
+import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.view.ParsingView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -34,14 +35,15 @@ public class DataMigrationService {
     @Autowired
     private ParserService parserService;
     @Autowired
-    private BasPeopleRepository basPeopleRepository;
+    private BasPeopleDao basPeopleDao;
     @Autowired
-    private NbcPatientsRepository nbcPatientsRepository;
+    private NbcPatientsDao nbcPatientsDao;
     @Autowired
-    private NbcProcRepository nbcProcRepository;
+    private NbcTargetDao nbcTargetDao;
     @Autowired
-    private NbcTargetRepository nbcTargetRepository;
+    private NbcProcDao nbcProcDao;
     private ParsingView parsingView;
+
 
     private Map<String, TreeSet<StudyRecords>> records;
     private Map<String, NbcPatients> patients = new TreeMap<>();
@@ -77,7 +79,7 @@ public class DataMigrationService {
             Item item = indexedContainer.addItem(patient.getN());
             item.getItemProperty("Имя").setValue(name);
             item.getItemProperty("ID").setValue(patient.getN());
-            item.getItemProperty("№ Истории болезни").setValue(patient.getCaseHistoryNum());
+            item.getItemProperty("№ Истории болезни").setValue(patient.getCase_history_num());
         }
         return indexedContainer;
     }
@@ -128,7 +130,7 @@ public class DataMigrationService {
                 .map(name -> name.trim().split(" ")[0])
                 .collect(toList());
         // Get all data from db in one time
-        List<BasPeople> basPeoples = basPeopleRepository.findBySurnameIn(surnames);
+        List<BasPeople> basPeoples = basPeopleDao.getPeoplesBySurname(names);
         Map<String[], BasPeople> basPeopleMap = basPeoples.stream()
                 .collect(toMap(people -> new String[]{people.getSurname(), people.getName(), people.getPatronymic()}, identity()));
         for (String fullName : names) {
@@ -142,6 +144,7 @@ public class DataMigrationService {
                     peoples.put(fullName, new PatientSearchInfo(emptyList(), SearchResult.NO_SUCH_PATIENT));
                 } else {
                     List<NbcPatients> nbcPatients = getPatients(man);
+                    // Рассмотреть случай когда 0
                     SearchResult searchResult = nbcPatients.size() == 1 ? SearchResult.PARSING_SUCCESS : SearchResult.IMPOSSIBLE_TO_IDENTIFY;
                     peoples.put(fullName, new PatientSearchInfo(nbcPatients, searchResult));
                 }
@@ -166,18 +169,24 @@ public class DataMigrationService {
 
     private List<NbcPatients> getPatients(List<BasPeople> basPeoples) {
         if (basPeoples.size() == 1) {
-            NbcPatients patient = nbcPatientsRepository.findByBasPeople(basPeoples.get(0));
-            return Collections.singletonList(patient); // Normally
+            Optional<NbcPatients> patient = nbcPatientsDao.getPatientByBasPeople(basPeoples.get(0));
+            if (patient.isPresent()) {
+                return Collections.singletonList(patient.get());
+            } else {
+                return emptyList();
+            }
         }
         // Должен принадлежать радиологии и быть единственным на кого навешены все процедуры и мишени
         List<NbcPatients> patients = basPeoples.stream()
-                .map(nbcPatientsRepository::findByBasPeople)
+                .map(basPeople -> nbcPatientsDao.getPatientByBasPeople(basPeople))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(toList());
 
         List<NbcPatients> filtered = patients.stream()
-                .filter(nbcPatients -> nbcPatients.getNbcOrganizations().getN() == 11)
-                .filter(patient -> nbcProcRepository.countByNbcPatients(patient) == 0)
-                .filter(patient -> nbcTargetRepository.countByNbcPatients(patient) == 0)
+                .filter(nbcPatients -> nbcPatients.getNbc_organizations_n() == 11)
+                .filter(patient -> nbcProcDao.countProceduresForPatient(patient) != 0)
+                .filter(patient -> nbcTargetDao.countTargetsForPatient(patient) != 0)
                 .collect(toList());
 
         return filtered.size() == 1 ? filtered : patients;
