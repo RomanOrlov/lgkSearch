@@ -143,7 +143,7 @@ public class SearchPresenterImpl implements SearchPresenter, Serializable {
 
     @Override
     public List<Criteria> getAvailableCriteria() {
-        return currentSample.getAvailableCriteria();
+        return currentSample.getCriteriaList();
     }
 
     /**
@@ -185,7 +185,7 @@ public class SearchPresenterImpl implements SearchPresenter, Serializable {
     // Информация о текущей цели поиска есть в этом классе
     @Override
     public List<DisplayedInfo> getDisplayInfo() {
-        return currentSample.getAvailableDisplayedInfo();
+        return currentSample.getDisplayedInfoList();
     }
 
     private IndexedContainer parseResult(Result<Record> result) {

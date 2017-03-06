@@ -3,8 +3,11 @@ package lgk.nsbc.backend.entity.dictionary;
 import lgk.nsbc.backend.entity.NbcStaff;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
 
