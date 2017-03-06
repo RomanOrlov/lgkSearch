@@ -28,6 +28,7 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
             Notification.show("Selected item: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);
             container.setSelectedBean(tClass.cast(event.getProperty().getValue()));
         });
+        setContainerDataSource(container);
         setNullSelectionAllowed(false);
         setItemCaptionPropertyId(ItemCaptionMode.PROPERTY);
         setItemCaptionPropertyId("representationName");

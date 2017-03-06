@@ -28,8 +28,8 @@ public class SuggestionContainer<T> extends BeanItemContainer<T> {
     }
 
     private void filterItems(String filterString) {
-        if (filterString.length() < 3) return;
         removeAllItems();
+        if (filterString.length() < 3) return;
         List<T> countries = suggestionFilter.apply(filterString);
         addAll(countries);
     }

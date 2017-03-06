@@ -31,6 +31,16 @@ public class NbcPatientsDao {
         return Optional.of(patients.get(0));
     }
 
+    public List<NbcPatients> getPatientsWithSurnameLike(String surname) {
+        String likeString = String.format("'%s%%'",surname.toUpperCase());
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        String sql = "SELECT * FROM NBC_PATIENTS " +
+                "LEFT JOIN BAS_PEOPLE ON NBC_PATIENTS.BAS_PEOPLE_N = BAS_PEOPLE.N " +
+                "WHERE UPPER(surname) LIKE " + likeString;
+        List<NbcPatients> patients = namedParameterJdbcTemplate.query(sql, parameters, new RowNbcPatientsMapper());
+        return patients;
+    }
+
     public static class RowNbcPatientsMapper implements RowMapper<NbcPatients> {
         @Override
         public NbcPatients mapRow(ResultSet rs, int rowNum) throws SQLException {

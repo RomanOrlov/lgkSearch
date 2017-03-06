@@ -13,6 +13,8 @@ import lgk.nsbc.template.dao.NbcProcDao;
 import lgk.nsbc.template.dao.NbcTargetDao;
 import lgk.nsbc.template.model.BasPeople;
 import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.view.SuggestionCombobox;
+import lgk.nsbc.view.SuggestionContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -49,9 +51,9 @@ public class MainSpectView extends UI {
         upload.addFinishedListener((Upload.FinishedListener) event -> {
             dataMigrationService.findPatients(tempFile);
         });
-        //Suggection suggestionBox = new SuggestionBox(null, null);
+        SuggestionCombobox<NbcPatients> combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithSurnameLike,NbcPatients.class);
         verticalLayout.addComponent(upload);
-        //verticalLayout.addComponent(suggestionBox);
+        verticalLayout.addComponent(combobox);
         setContent(verticalLayout);
         Set<String> names = new TreeSet<>();
         names.add("Курников");

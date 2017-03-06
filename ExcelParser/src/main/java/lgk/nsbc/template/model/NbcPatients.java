@@ -1,5 +1,6 @@
 package lgk.nsbc.template.model;
 
+import lgk.nsbc.view.RepresentationName;
 import lombok.*;
 
 @Getter
@@ -7,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcPatients {
+public class NbcPatients implements RepresentationName{
 
     public enum Props {
         n,
@@ -52,5 +53,10 @@ public class NbcPatients {
     @Override
     public String toString() {
         return basPeople.toString() + " " + n + " " + case_history_num;
+    }
+
+    @Override
+    public String getRepresentationName() {
+        return toString();
     }
 }
