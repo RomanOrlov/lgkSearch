@@ -1,19 +1,21 @@
 package lgk.nsbc.template.dao;
 
 import lgk.nsbc.template.model.NbcPatients;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
 
 @Service
 public class NbcProcDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private DSLContext context;
 
-    public Long countProceduresForPatient(NbcPatients nbcPatients) {
-        MapSqlParameterSource parameters = new MapSqlParameterSource("id", nbcPatients.getN());
-        String sql = "SELECT COUNT (*) FROM NBC_PROC WHERE NBC_PATIENTS_N = :id";
-        return namedParameterJdbcTemplate.queryForObject(sql, parameters, Long.class);
+    public int countProceduresForPatient(NbcPatients nbcPatients) {
+        return context.fetchCount(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.eq(nbcPatients.getN()));
     }
 }

@@ -7,12 +7,11 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
-import lgk.nsbc.template.dao.BasPeopleDao;
-import lgk.nsbc.template.dao.NbcPatientsDao;
-import lgk.nsbc.template.dao.NbcProcDao;
-import lgk.nsbc.template.dao.NbcTargetDao;
+import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.BasPeople;
 import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.template.model.NbcProc;
+import lgk.nsbc.template.model.NbcStud;
 import lgk.nsbc.view.SuggestionCombobox;
 import lgk.nsbc.view.SuggestionContainer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Title("Excel upload")
@@ -42,6 +38,8 @@ public class MainSpectView extends UI {
     private NbcTargetDao nbcTargetDao;
     @Autowired
     private NbcProcDao nbcProcDao;
+    @Autowired
+    private NbcStudDao nbcStudDao;
 
     @Override
     protected void init(VaadinRequest request) {
@@ -55,28 +53,14 @@ public class MainSpectView extends UI {
         verticalLayout.addComponent(upload);
         verticalLayout.addComponent(combobox);
         setContent(verticalLayout);
-        Set<String> names = new TreeSet<>();
-        names.add("Курников");
-        names.add("Гаврилина");
-        names.add("Тхазеплов");
-        names.add("Орлова");
-        names.add("Будченко");
-        names.add("Янышев");
-        names.add("Тихонов");
-        names.add("Бирюков");
-        names.add("Огонькова");
-        List<BasPeople> peoplesBySurname = basPeopleDao.getPeoplesBySurname(names);
-        peoplesBySurname.forEach(System.out::println);
-        List<NbcPatients> collect = peoplesBySurname.stream()
-                .map(basPeople -> nbcPatientsDao.getPatientByBasPeople(basPeople))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-        collect.forEach(nbcPatients -> {
-            Long aLong1 = nbcProcDao.countProceduresForPatient(nbcPatients);
-            Long aLong = nbcTargetDao.countTargetsForPatient(nbcPatients);
-            System.out.println(nbcPatients.toString() + " " + aLong1 + " " + aLong);
-        });
+        NbcStud build = NbcStud.builder()
+                .nbc_patients_n(1001L)
+                .study_type(11L)
+                .studydatetime(new Date())
+                .build();
+        nbcStudDao.createNbcStud(build);
+        System.out.println(build.getN());
+        System.out.println("WOW");
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {

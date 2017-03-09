@@ -1,42 +1,30 @@
 package lgk.nsbc.template.dao;
 
+import lgk.nsbc.generated.tables.records.BasPeopleRecord;
 import lgk.nsbc.template.model.BasPeople;
+import org.jooq.DSLContext;
+import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static lgk.nsbc.template.model.BasPeople.Props.*;
+import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 
 @Service
 public class BasPeopleDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private DSLContext context;
 
     public List<BasPeople> getPeoplesBySurname(Set<String> surname) {
-        MapSqlParameterSource parameters = new MapSqlParameterSource("surnames", surname);
-        String sql = "SELECT * FROM BAS_PEOPLE WHERE surname IN (:surnames)";
-        return namedParameterJdbcTemplate.query(sql, parameters, new RowBasPeopleMapper());
-    }
-
-    public static class RowBasPeopleMapper implements RowMapper<BasPeople> {
-        @Override
-        public BasPeople mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return BasPeople.builder()
-                    .n(rs.getLong(n.toString()))
-                    .name(rs.getString(name.toString()))
-                    .surname(rs.getString(surname.toString()))
-                    .patronymic(rs.getString(patronymic.toString()))
-                    .sex(rs.getString(sex.toString()))
-                    .birthday(rs.getDate(birthday.toString()))
-                    .build();
-        }
+        Result<BasPeopleRecord> fetch = context.fetch(BAS_PEOPLE, BAS_PEOPLE.SURNAME.in(surname));
+        return fetch.stream()
+                .map(BasPeople::buildFromRecord)
+                .collect(Collectors.toList());
     }
 }

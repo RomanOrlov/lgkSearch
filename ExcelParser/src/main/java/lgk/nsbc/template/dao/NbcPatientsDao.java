@@ -1,58 +1,50 @@
 package lgk.nsbc.template.dao;
 
+import lgk.nsbc.generated.tables.records.NbcPatientsRecord;
 import lgk.nsbc.template.model.BasPeople;
 import lgk.nsbc.template.model.NbcPatients;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import static lgk.nsbc.template.model.NbcPatients.Props.*;
+import static java.util.stream.Collectors.toList;
+import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
+import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
+import static lgk.nsbc.template.model.NbcPatients.buildFromRecord;
 
 @Service
 public class NbcPatientsDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private DSLContext context;
 
     public Optional<NbcPatients> getPatientByBasPeople(BasPeople basPeople) {
-        MapSqlParameterSource parameters = new MapSqlParameterSource("id", basPeople.getN());
-        String sql = "SELECT * FROM NBC_PATIENTS " +
-                "LEFT JOIN BAS_PEOPLE ON NBC_PATIENTS.BAS_PEOPLE_N = BAS_PEOPLE.N " +
-                "WHERE NBC_PATIENTS.BAS_PEOPLE_N = :id";
-        List<NbcPatients> patients = namedParameterJdbcTemplate.query(sql, parameters, new RowNbcPatientsMapper());
-        if (patients.isEmpty()) return Optional.empty();
-        if (patients.size()!=1) throw new RuntimeException("WHAT");
-        return Optional.of(patients.get(0));
+        Result<NbcPatientsRecord> records = context.fetch(NBC_PATIENTS, NBC_PATIENTS.BAS_PEOPLE_N.eq(basPeople.getN()));
+        if (records.isEmpty()) return Optional.empty();
+        if (records.size() != 1) throw new RuntimeException("One patient must have only one people");
+        return Optional.of(buildFromRecord(records.get(0)));
     }
 
     public List<NbcPatients> getPatientsWithSurnameLike(String surname) {
-        String likeString = String.format("'%s%%'",surname.toUpperCase());
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        String sql = "SELECT * FROM NBC_PATIENTS " +
-                "LEFT JOIN BAS_PEOPLE ON NBC_PATIENTS.BAS_PEOPLE_N = BAS_PEOPLE.N " +
-                "WHERE UPPER(surname) LIKE " + likeString;
-        List<NbcPatients> patients = namedParameterJdbcTemplate.query(sql, parameters, new RowNbcPatientsMapper());
-        return patients;
-    }
-
-    public static class RowNbcPatientsMapper implements RowMapper<NbcPatients> {
-        @Override
-        public NbcPatients mapRow(ResultSet rs, int rowNum) throws SQLException {
-            BasPeople basPeople = new BasPeopleDao.RowBasPeopleMapper().mapRow(rs, rowNum);
-            basPeople.setN(rs.getLong("bas_people_n"));
-            return NbcPatients.builder()
-                    .basPeople(basPeople)
-                    .n(rs.getLong(n.toString()))
-                    .diagnosis(rs.getInt(diagnosis.toString()))
-                    .case_history_num(rs.getInt(case_history_num.toString()))
-                    .nbc_organizations_n(rs.getInt(nbc_organizations_n.toString()))
-                    .build();
-        }
+        Result<Record> records = context.select(NBC_PATIENTS.fields())
+                .from(NBC_PATIENTS)
+                .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
+                .where(BAS_PEOPLE.SURNAME.likeIgnoreCase(surname))
+                .fetch();
+        List<NbcPatients> nbcPatientsList = records.stream()
+                .map(record -> {
+                    BasPeople basPeople = BasPeople.buildFromRecord(record);
+                    NbcPatients patients = NbcPatients.buildFromRecord(record);
+                    patients.setBasPeople(basPeople);
+                    return patients;
+                }).collect(toList());
+        return nbcPatientsList;
     }
 }

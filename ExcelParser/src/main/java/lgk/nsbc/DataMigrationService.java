@@ -4,12 +4,10 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.model.StudyRecords;
-import lgk.nsbc.template.dao.BasPeopleDao;
-import lgk.nsbc.template.dao.NbcPatientsDao;
-import lgk.nsbc.template.dao.NbcProcDao;
-import lgk.nsbc.template.dao.NbcTargetDao;
-import lgk.nsbc.template.model.BasPeople;
-import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.model.StudyTarget;
+import lgk.nsbc.model.Target;
+import lgk.nsbc.template.dao.*;
+import lgk.nsbc.template.model.*;
 import lgk.nsbc.view.ParsingView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +26,7 @@ import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @VaadinSessionScope
@@ -42,10 +41,14 @@ public class DataMigrationService {
     private NbcTargetDao nbcTargetDao;
     @Autowired
     private NbcProcDao nbcProcDao;
-    private ParsingView parsingView;
+    @Autowired
+    private NbcStudDao nbcStudDao;
+    @Autowired
+    private NbcFollowUpDao nbcFollowUpDao;
 
 
     private Map<String, TreeSet<StudyRecords>> records;
+    // Распознанные пациенты
     private Map<String, NbcPatients> patients = new TreeMap<>();
     private Map<String, PatientSearchInfo> searchedPatients;
 
@@ -54,7 +57,6 @@ public class DataMigrationService {
         try {
             records = mapByFullName(tempFile);
             searchedPatients = parseNames(records.keySet());
-            String parsingInfo = getParsingInfo(searchedPatients);
             Map<String, IndexedContainer> duplicatePatients = searchedPatients.entrySet().stream()
                     .filter(entry -> entry.getValue().getSearchResult() == SearchResult.IMPOSSIBLE_TO_IDENTIFY)
                     .collect(toMap(Map.Entry::getKey, e -> getIndexedContainerForDuplicates(e.getKey(), e.getValue())));
@@ -63,7 +65,15 @@ public class DataMigrationService {
                     .filter(entry -> entry.getValue().getSearchResult() == SearchResult.PARSING_SUCCESS)
                     .forEach(entry -> patients.put(entry.getKey(), entry.getValue().getNbcPatients().get(0)));
 
-            parsingView = new ParsingView(this, parsingInfo, duplicatePatients);
+            // Для дупликатов проверить нет ли этих пациентов в NbcStud с типом процедуры ОФЕКТ
+            // Это нечто вроде автоматического разрешения конлифктов.
+
+            // Поскольку мы отображаем только новые записи, должны для начала проверить, что
+            // Записей об ОФЕКТ нет.
+
+            String parsingInfo = getParsingInfo(searchedPatients);
+            System.out.println(parsingInfo);
+            new ParsingView(this, parsingInfo, duplicatePatients);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,13 +83,18 @@ public class DataMigrationService {
         List<NbcPatients> nbcPatients = patientSearchInfo.getNbcPatients();
         IndexedContainer indexedContainer = new IndexedContainer();
         indexedContainer.addContainerProperty("Имя", String.class, null);
-        indexedContainer.addContainerProperty("ID", Integer.class, null);
+        indexedContainer.addContainerProperty("ID", Long.class, null);
         indexedContainer.addContainerProperty("№ Истории болезни", Integer.class, null);
+        indexedContainer.addContainerProperty("Процедуры/Мишени", String.class, null);
         for (NbcPatients patient : nbcPatients) {
             Item item = indexedContainer.addItem(patient.getN());
             item.getItemProperty("Имя").setValue(name);
             item.getItemProperty("ID").setValue(patient.getN());
             item.getItemProperty("№ Истории болезни").setValue(patient.getCase_history_num());
+            int targetsNum = nbcTargetDao.countTargetsForPatient(patient);
+            int procNum = nbcProcDao.countProceduresForPatient(patient);
+            String stats = String.format("%d/%d", targetsNum, procNum);
+            item.getItemProperty("Процедуры/Мишени").setValue(stats);
         }
         return indexedContainer;
     }
@@ -88,7 +103,7 @@ public class DataMigrationService {
         for (Map.Entry<String, Object> entry : selectedPatients.entrySet()) {
             String name = entry.getKey();
             PatientSearchInfo patientSearchInfo = searchedPatients.get(name);
-            Integer id = (Integer) entry.getValue();
+            Long id = (Long) entry.getValue();
             NbcPatients patient = patientSearchInfo.getNbcPatients().stream()
                     .filter(nbcPatients -> Objects.equals(nbcPatients.getN(), id))
                     .findFirst().orElseThrow(RuntimeException::new);
@@ -101,7 +116,54 @@ public class DataMigrationService {
      * Сохраняет процедуры у пациентов.
      */
     public void saveDataToDB() {
+        for (Map.Entry<String, NbcPatients> patientEntry : patients.entrySet()) {
+            NbcPatients patient = patientEntry.getValue();
+            TreeSet<StudyRecords> studyRecordsTreeSet = records.get(patientEntry.getKey());
+            for (StudyRecords records : studyRecordsTreeSet) {
+                NbcStud nbcStud = studyFromRecord(records, patient);
+                // Запись о исследовании
+                if (!nbcStudDao.isSpectStudyExist(nbcStud)) {
+                    nbcStudDao.createNbcStud(nbcStud);
+                }
+                // Это все разные мишени, - разные записи в NbcFollowUp
+                List<StudyTarget> targets = records.getTargets();
+                for (StudyTarget target : targets) {
+                    // Запись в NBC_FLUP_SPECT Я просто должен быть уверен что их столько же скольо и записей о мишенях
+                    NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
+                            .nbc_stud_n(nbcStud.getN())
+                            .build();
+                    NbcFlupSpect.builder()
+                            .nbc_followup_n(nbcFollowUp.getN())
+                            .spect_num(records.getSpectNumder())
+                            .diagnosis(target.getDiagnosis())
+                            .build();
+                    List<NbcFlupSpectData> dataList = target.getTargets()
+                            .stream()
+                            .map(this::fromTarget)
+                            .collect(toList());
 
+
+                }
+            }
+        }
+    }
+
+    private NbcFlupSpectData fromTarget(Target target) {
+         return NbcFlupSpectData.builder()
+                 .volume(target.getVolume())
+                 .early_phase(target.getCountsAfter30min())
+                 .late_phase(target.getCountsAfter60min())
+                 .build();
+    }
+
+
+
+    private NbcStud studyFromRecord(StudyRecords studyRecords, NbcPatients patient) {
+        return NbcStud.builder()
+                .nbc_patients_n(patient.getN())
+                .study_type(11L)
+                .studydatetime(studyRecords.getDate())
+                .build();
     }
 
     private String getParsingInfo(Map<String, PatientSearchInfo> peoples) {
@@ -126,11 +188,11 @@ public class DataMigrationService {
 
     private Map<String, PatientSearchInfo> parseNames(Set<String> names) {
         Map<String, PatientSearchInfo> peoples = new TreeMap<>();
-        List<String> surnames = names.stream()
+        Set<String> surnames = names.stream()
                 .map(name -> name.trim().split(" ")[0])
-                .collect(toList());
+                .collect(toSet());
         // Get all data from db in one time
-        List<BasPeople> basPeoples = basPeopleDao.getPeoplesBySurname(names);
+        List<BasPeople> basPeoples = basPeopleDao.getPeoplesBySurname(surnames);
         Map<String[], BasPeople> basPeopleMap = basPeoples.stream()
                 .collect(toMap(people -> new String[]{people.getSurname(), people.getName(), people.getPatronymic()}, identity()));
         for (String fullName : names) {

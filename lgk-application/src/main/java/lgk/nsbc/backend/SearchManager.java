@@ -1,6 +1,7 @@
 package lgk.nsbc.backend;
 
 import lgk.nsbc.backend.info.searchable.SearchTarget;
+import lgk.nsbc.generated.tables.NbcOrganizations;
 import lombok.Getter;
 import org.jooq.*;
 import org.springframework.beans.factory.annotation.Autowired;
