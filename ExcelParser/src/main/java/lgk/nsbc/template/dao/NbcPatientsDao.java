@@ -21,8 +21,6 @@ import static lgk.nsbc.template.model.NbcPatients.buildFromRecord;
 @Service
 public class NbcPatientsDao {
     @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    @Autowired
     private DSLContext context;
 
     public Optional<NbcPatients> getPatientByBasPeople(BasPeople basPeople) {
@@ -33,7 +31,7 @@ public class NbcPatientsDao {
     }
 
     public List<NbcPatients> getPatientsWithSurnameLike(String surname) {
-        Result<Record> records = context.select(NBC_PATIENTS.fields())
+        Result<Record> records = context.select()
                 .from(NBC_PATIENTS)
                 .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
                 .where(BAS_PEOPLE.SURNAME.likeIgnoreCase(surname))

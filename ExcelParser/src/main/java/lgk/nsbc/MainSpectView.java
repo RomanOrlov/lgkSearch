@@ -4,14 +4,13 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
 import lgk.nsbc.template.dao.*;
-import lgk.nsbc.template.model.BasPeople;
-import lgk.nsbc.template.model.NbcPatients;
-import lgk.nsbc.template.model.NbcProc;
-import lgk.nsbc.template.model.NbcStud;
+import lgk.nsbc.template.model.*;
+import lgk.nsbc.view.AddSpectFlup;
 import lgk.nsbc.view.SuggestionCombobox;
 import lgk.nsbc.view.SuggestionContainer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,17 +49,14 @@ public class MainSpectView extends UI {
             dataMigrationService.findPatients(tempFile);
         });
         SuggestionCombobox<NbcPatients> combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithSurnameLike,NbcPatients.class);
-        verticalLayout.addComponent(upload);
-        verticalLayout.addComponent(combobox);
+        combobox.setWidth("100%");
+        verticalLayout.addComponents(upload, combobox);
+        Button c = new Button("Добавить новую щапись");
+        Button button = new Button("Добавить новую щапись");
         setContent(verticalLayout);
-        NbcStud build = NbcStud.builder()
-                .nbc_patients_n(1001L)
-                .study_type(11L)
-                .studydatetime(new Date())
-                .build();
-        nbcStudDao.createNbcStud(build);
-        System.out.println(build.getN());
-        System.out.println("WOW");
+        NbcPatients patients = nbcPatientsDao.getPatientsWithSurnameLike("Голубых").get(0);
+        List<NbcTarget> patientsTargets = nbcTargetDao.getPatientsTargets(patients);
+        addWindow(new AddSpectFlup(patientsTargets, patients));
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {

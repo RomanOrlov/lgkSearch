@@ -22,11 +22,8 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 @Service
 @VaadinSessionScope
@@ -45,6 +42,8 @@ public class DataMigrationService {
     private NbcStudDao nbcStudDao;
     @Autowired
     private NbcFollowUpDao nbcFollowUpDao;
+    @Autowired
+    private NbcFlupSpectDataDao nbcFlupSpectDataDao;
 
 
     private Map<String, TreeSet<StudyRecords>> records;
@@ -99,6 +98,10 @@ public class DataMigrationService {
         return indexedContainer;
     }
 
+    /**
+     * Добавляем выбранных пациентов, - те, которые распознаны
+     * @param selectedPatients выбранные пациенты в Grid
+     */
     public void addResolvedConflicts(Map<String, Object> selectedPatients) {
         for (Map.Entry<String, Object> entry : selectedPatients.entrySet()) {
             String name = entry.getKey();
@@ -127,35 +130,40 @@ public class DataMigrationService {
                 }
                 // Это все разные мишени, - разные записи в NbcFollowUp
                 List<StudyTarget> targets = records.getTargets();
-                for (StudyTarget target : targets) {
-                    // Запись в NBC_FLUP_SPECT Я просто должен быть уверен что их столько же скольо и записей о мишенях
-                    NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
-                            .nbc_stud_n(nbcStud.getN())
-                            .build();
-                    NbcFlupSpect.builder()
-                            .nbc_followup_n(nbcFollowUp.getN())
-                            .spect_num(records.getSpectNumder())
-                            .diagnosis(target.getDiagnosis())
-                            .build();
-                    List<NbcFlupSpectData> dataList = target.getTargets()
-                            .stream()
-                            .map(this::fromTarget)
-                            .collect(toList());
-
-
+                List<NbcFollowUp> followUps = nbcFollowUpDao.findByStudy(nbcStud);
+                // Заносим в базу, только если данных нет
+                if (followUps.isEmpty()) {
+                    for (StudyTarget target : targets) {
+                        // Запись в NBC_FLUP_SPECT Я просто должен быть уверен что их столько же скольо и записей о мишенях
+                        NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
+                                .nbc_stud_n(nbcStud.getN())
+                                .build();
+                        NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
+                                .nbc_followup_n(nbcFollowUp.getN())
+                                .spect_num(records.getSpectNumder())
+                                .diagnosis(target.getDiagnosis())
+                                .build();
+                        List<NbcFlupSpectData> dataList = target.getTargets()
+                                .stream()
+                                .map(this::fromTarget)
+                                .collect(toList());
+                        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, nbcFlupSpect, dataList);
+                    }
                 }
             }
         }
     }
 
     private NbcFlupSpectData fromTarget(Target target) {
-         return NbcFlupSpectData.builder()
-                 .volume(target.getVolume())
-                 .early_phase(target.getCountsAfter30min())
-                 .late_phase(target.getCountsAfter60min())
-                 .build();
+        return NbcFlupSpectData.builder()
+                .contour_size((long) target.getContourSize())
+                .contour_type(target.getContourType().toString())
+                .structure_type(target.getStructureType().toString())
+                .volume(target.getVolume())
+                .early_phase(target.getCountsAfter30min())
+                .late_phase(target.getCountsAfter60min())
+                .build();
     }
-
 
 
     private NbcStud studyFromRecord(StudyRecords studyRecords, NbcPatients patient) {

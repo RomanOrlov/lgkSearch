@@ -10,6 +10,7 @@ import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(of = {"targetname"})
 public class NbcTarget {
     private Long n;
     private Long nbc_patients_n;

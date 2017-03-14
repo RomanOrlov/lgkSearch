@@ -21,8 +21,6 @@ import static org.jooq.impl.DSL.val;
 public class NbcStudDao {
     private Logger logger = Logger.getLogger(NbcStudDao.class.getName());
     @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    @Autowired
     private DSLContext context;
 
     public boolean isSpectStudyExist(NbcStud nbcStud) {

@@ -72,8 +72,9 @@ public class CriteriaViewImpl extends Window implements View {
         HorizontalLayout buttons = new HorizontalLayout(acceptButton, cancelButton);
         buttons.setComponentAlignment(acceptButton, Alignment.MIDDLE_CENTER);
         buttons.setComponentAlignment(cancelButton, Alignment.MIDDLE_CENTER);
-        acceptButton.setStyleName("primary");
+        buttons.setSizeUndefined();
         buttons.setSpacing(true);
+        acceptButton.setStyleName("primary");
         layout.addComponents(twinTablesSelect, formLayout, buttons);
         layout.setExpandRatio(twinTablesSelect, 0);
         layout.setExpandRatio(formLayout, 0);
@@ -87,7 +88,6 @@ public class CriteriaViewImpl extends Window implements View {
         center();
         setModal(true);
         setResizable(true);
-        buttons.setSizeUndefined();
     }
 
     public void refreshCriteriaData(List<Criteria> criteriaList) {

@@ -11,8 +11,6 @@ import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
 @Service
 public class NbcProcDao {
     @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    @Autowired
     private DSLContext context;
 
     public int countProceduresForPatient(NbcPatients nbcPatients) {

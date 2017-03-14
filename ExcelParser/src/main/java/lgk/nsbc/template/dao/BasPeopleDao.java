@@ -17,8 +17,6 @@ import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 @Service
 public class BasPeopleDao {
     @Autowired
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    @Autowired
     private DSLContext context;
 
     public List<BasPeople> getPeoplesBySurname(Set<String> surname) {
