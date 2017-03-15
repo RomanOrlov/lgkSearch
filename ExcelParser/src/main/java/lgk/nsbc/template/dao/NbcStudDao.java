@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 import static org.jooq.impl.DSL.val;
@@ -50,5 +52,14 @@ public class NbcStudDao {
                 .fetch();
         Long generatedId = result.get(0).getN();
         nbcStud.setN(generatedId);
+    }
+
+    public List<NbcStud> findPatientsSpectStudy(NbcPatients nbcPatients) {
+        Result<NbcStudRecord> result = context.fetch(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(nbcPatients.getN())
+                .and(NBC_STUD.STUDY_TYPE.eq(11L)));
+
+        return result.stream()
+                .map(NbcStud::buildFromRecord)
+                .collect(Collectors.toList());
     }
 }

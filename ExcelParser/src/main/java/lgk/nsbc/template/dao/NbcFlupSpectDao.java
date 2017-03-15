@@ -3,6 +3,7 @@ package lgk.nsbc.template.dao;
 import lgk.nsbc.generated.Sequences;
 import lgk.nsbc.generated.tables.records.NbcFlupSpectRecord;
 import lgk.nsbc.template.model.NbcFlupSpect;
+import lgk.nsbc.template.model.NbcFollowUp;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,4 +34,10 @@ public class NbcFlupSpectDao {
                 .fetch();
         nbcFlupSpect.setN(fetch.get(0).getN());
     }
+
+    public NbcFlupSpect findByFollowUp(NbcFollowUp nbcFollowUp) {
+        NbcFlupSpectRecord nbcFlupSpectRecord = context.fetchOne(NBC_FLUP_SPECT, NBC_FLUP_SPECT.NBC_FOLLOWUP_N.eq(nbcFollowUp.getN()));
+        return NbcFlupSpect.buildFromRecord(nbcFlupSpectRecord);
+    }
+
 }

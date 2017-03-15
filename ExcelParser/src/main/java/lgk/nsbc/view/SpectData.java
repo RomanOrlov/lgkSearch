@@ -1,30 +1,61 @@
 package lgk.nsbc.view;
 
+import com.vaadin.data.Container;
+import com.vaadin.data.Item;
 import com.vaadin.ui.Grid;
-import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.template.dao.*;
+import lgk.nsbc.template.model.*;
+import lgk.nsbc.template.model.spect.ContourType;
+import lgk.nsbc.template.model.spect.MainInfo;
+import lgk.nsbc.template.model.spect.TargetType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static lgk.nsbc.template.model.spect.MainInfo.MIN30;
+import static lgk.nsbc.template.model.spect.MainInfo.MIN60;
+import static lgk.nsbc.template.model.spect.MainInfo.VOLUME;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
-public class SpectData extends Grid{
+public class SpectData extends Grid {
+    // Item id is NbcFlupSpect.N
+    private Container.Indexed container;
+    @Autowired
+    private NbcStudDao nbcStudDao;
+    @Autowired
+    private NbcFollowUpDao nbcFollowUpDao;
+    @Autowired
+    private NbcFlupSpectDao getNbcFlupSpectDao;
+    @Autowired
+    private NbcFlupSpectDataDao nbcFlupSpectDataDao;
+    @Autowired
+    private NbcTargetDao nbcTargetDao;
+    @Autowired
+    private NbcFlupSpectDao nbcFlupSpectDao;
+
+    // Key - имя фильтра, Value - паттерн propertyId по которому искать нужные столбцы
+    // Фильтры работают для всех столбцов, чьи проперти не начинаются с #
+    private Map<String, String> filters;
+
     public SpectData() {
         super("SpectData");
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
-
-        Grid.Column date = addColumn("date", Date.class);
-        date.setHidable(false);
+        setSelectionMode(SelectionMode.MULTI);
+        Grid.Column date = addColumn("#date", Date.class);
+        date.setHidable(true);
         date.setEditable(false);
         date.setHeaderCaption("Дата исследования");
 
-        Grid.Column target = addColumn("nbctar", String.class);
-        target.setHidable(false);
+        Grid.Column target = addColumn("#nbctarget", String.class);
+        target.setHidable(true);
         target.setEditable(false);
         target.setHeaderCaption("Мишень");
 
@@ -47,19 +78,13 @@ public class SpectData extends Grid{
         }
 
         for (TargetType targetType : TargetType.values()) {
-            List<Object> propertyId = columns.stream()
-                    .filter(column -> ((String) column.getPropertyId()).contains(targetType.toString()))
-                    .map(Grid.Column::getPropertyId)
-                    .collect(Collectors.toList());
+            List<Object> propertyId = getColumnsProperty(columns, targetType.toString());
             Grid.HeaderCell join = targetTypeHeader.join(propertyId.toArray());
             join.setText(targetType.getName());
         }
 
         for (ContourType contourType : ContourType.values()) {
-            List<Object> propertyId = columns.stream()
-                    .filter(column -> ((String) column.getPropertyId()).contains(contourType.toString()))
-                    .map(Grid.Column::getPropertyId)
-                    .collect(Collectors.toList());
+            List<Object> propertyId = getColumnsProperty(columns, contourType.toString());
             if (propertyId.size() % 3 != 0) throw new RuntimeException("Несовпадение размера ячеек");
             for (int i = 0; i < propertyId.size(); i += 3) {
                 Grid.HeaderCell join = structureTypeHeader.join(propertyId.get(i), propertyId.get(i + 1), propertyId.get(i + 2));
@@ -68,70 +93,139 @@ public class SpectData extends Grid{
         }
 
         setSizeFull();
+        container = getContainerDataSource();
+        container.addContainerProperty("id", Long.class, null);
+        prepareFilters();
     }
 
-    public void deleteSelectedRecords() {
+    private List<Object> getColumnsProperty(List<Column> columns, String filter) {
+        return columns.stream()
+                .map(column -> ((String) column.getPropertyId()))
+                .filter(s -> !s.startsWith("#"))
+                .filter(s -> s.contains(filter))
+                .collect(Collectors.toList());
+    }
 
+    /**
+     * Вытаскиваем id выбранных строк и удаляем
+     */
+    public void deleteSelectedRecords() {
+        List<Long> id = getSelectedRows().stream()
+                .map(container::getItem)
+                .map(item -> item.getItemProperty("id").getValue())
+                .map(o -> (Long) o)
+                .collect(Collectors.toList());
+        nbcFlupSpectDataDao.deleteByNbcFlupSpectId(id);
     }
 
     public void readData(NbcPatients selectedPatient) {
-
+        container.removeAllItems();
+        List<NbcStud> patientsSpectStudy = nbcStudDao.findPatientsSpectStudy(selectedPatient);
+        // ОФЕКТ исследования они, по сути, независимы
+        for (NbcStud nbcStud : patientsSpectStudy) {
+            List<NbcFollowUp> nbcFollowUps = nbcFollowUpDao.findByStudy(nbcStud);
+            for (NbcFollowUp nbcFollowUp : nbcFollowUps) {
+                NbcFlupSpect nbcFlupSpect = nbcFlupSpectDao.findByFollowUp(nbcFollowUp);
+                NbcTarget nbcTarget = nbcTargetDao.findTargetById(nbcFollowUp.getNbc_target_n());
+                // А это уже непосредственно записи в таблице
+                List<NbcFlupSpectData> rowData = nbcFlupSpectDataDao.findBySpectFlup(nbcFlupSpect);
+                RowData data = RowData.builder().datas(rowData)
+                        .nbcTarget(nbcTarget)
+                        .nbcStud(nbcStud)
+                        .nbcFlupSpect(nbcFlupSpect)
+                        .nbcFollowUp(nbcFollowUp)
+                        .build();
+                // id - NbcFlupSpect.N
+                Item item = container.addItem(nbcFlupSpect.getN());
+                data.fillItem(item);
+            }
+        }
     }
 
-    public List<String> getFilters() {
-        List<String> filter = new ArrayList<>();
+    private void prepareFilters() {
+        filters = new HashMap<>();
         for (TargetType targetType : TargetType.values()) {
-            filter.add(targetType.getName());
+            filters.put(targetType.getName(), targetType.toString());
         }
         for (ContourType contourType : ContourType.values()) {
-            filter.add(contourType.getName());
-        }
-        return filter;
-    }
-
-    public void updateVisibility(Set value) {
-        
-    }
-
-    public enum MainInfo {
-        VOLUME("Объем"), MIN30("30 минут"), MIN60("60 минут");
-
-        private final String name;
-
-        MainInfo(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
+            filters.put(contourType.getName(), contourType.toString());
         }
     }
 
-    public enum TargetType {
-        HIZ("Хороидальное сплетение"), TARGET("Опухоль"), HYP("Гипофиз");
-
-        private final String name;
-
-        TargetType(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
+    public Set<String> getFilters() {
+        return filters.keySet();
     }
 
-    public enum ContourType {
-        SPHERE("Сфера"), ISOLYNE10("Изолиния 10"), ISOLYNE25("Изолиния 25");
+    /**
+     * Выбор невидимость группы столбцов
+     * Например, - Опухоль. Тогда все столбы которые отображают данные опухоли будут невидны.
+     *
+     * @param invisible Именна группы невидимых столбцов
+     */
+    public void updateVisibility(Set<String> invisible) {
+        List<Column> filterableColumns = getColumns().stream()
+                .filter(column -> !((String) column.getPropertyId()).startsWith("#"))
+                .collect(Collectors.toList());
 
-        private final String name;
+        List<Column> invisibleColumns = filterableColumns.stream()
+                .filter(column -> containsAnyInSet((String) column.getPropertyId(), invisible))
+                .peek(column -> column.setHidden(true))
+                .collect(Collectors.toList());
 
-        ContourType(String name) {
-            this.name = name;
-        }
+        // Visible columns
+        filterableColumns.stream()
+                .filter(column -> !invisibleColumns.contains(column))
+                .forEach(column -> column.setHidden(false));
+    }
 
-        public String getName() {
-            return name;
+    private boolean containsAnyInSet(String s, Set<String> set) {
+        return set.stream().anyMatch(s::contains);
+    }
+
+    public Long getSelectedRowId() {
+        return null;
+    }
+
+    /**
+     * Преобразование данных из базы в таблицу
+     */
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    private static class RowData {
+        private final List<NbcFlupSpectData> datas;
+        private final NbcStud nbcStud;
+        private final NbcFollowUp nbcFollowUp;
+        private final NbcFlupSpect nbcFlupSpect;
+        private final NbcTarget nbcTarget;
+
+        public void fillItem(Item item) {
+            // Заполняем вручную проперти.
+            item.getItemProperty("#date").setValue(nbcStud.getStudydatetime());
+            item.getItemProperty("#nbctarget").setValue(nbcTarget.getTargetname());
+            item.getItemProperty("id").setValue(nbcFlupSpect.getN());
+            // Разделяю данные на структуры
+            for (TargetType targetType : TargetType.values()) {
+                List<NbcFlupSpectData> targetData = datas.stream()
+                        .filter(nbcFlupSpectData -> nbcFlupSpectData.getStructure_type().equals(targetType.getName()))
+                        .collect(Collectors.toList());
+                if (targetData.isEmpty()) continue;
+                // Разделяю по контурам
+                for (ContourType contourType : ContourType.values()) {
+                    // Вставляю непосредственно весь хлам
+                    List<NbcFlupSpectData> contourData = targetData.stream()
+                            .filter(nbcFlupSpectData -> nbcFlupSpectData.getContour_type().equals(contourType.getName()))
+                            .collect(Collectors.toList());
+                    if (contourData.isEmpty()) continue;
+                    if (contourData.size() > 1) throw new RuntimeException("Больше чем один набор данных");
+                    NbcFlupSpectData data = contourData.get(0);
+                    String firstIdPart = targetType.toString() + contourType.toString();
+                    item.getItemProperty(firstIdPart + VOLUME.toString()).setValue(data.getVolume());
+                    item.getItemProperty(firstIdPart + MIN30.toString()).setValue(data.getEarly_phase());
+                    item.getItemProperty(firstIdPart + MIN60.toString()).setValue(data.getLate_phase());
+                }
+            }
         }
     }
 }

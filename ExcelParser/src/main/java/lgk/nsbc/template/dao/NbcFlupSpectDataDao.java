@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static lgk.nsbc.generated.tables.NbcFlupSpect.NBC_FLUP_SPECT;
 import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 import static org.jooq.impl.DSL.val;
 
@@ -62,5 +64,24 @@ public class NbcFlupSpectDataDao {
         for (int i = 0; i < records.size(); i++) {
             spectDatas.get(i).setN(records.get(i).getN());
         }
+    }
+
+    public List<NbcFlupSpectData> findBySpectFlup(NbcFlupSpect nbcFlupSpect) {
+        Result<NbcFlupSpectDataRecord> result = context.fetch(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FLUP_SPECT_N.eq(nbcFlupSpect.getN()));
+        return result.stream()
+                .map(NbcFlupSpectData::buildFromRecord)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteByNbcFlupSpectId(List<Long> nbcFlupSpectN) {
+        context.transaction(configuration -> {
+            int numberOfDataDeletedRecords = context.deleteFrom(NBC_FLUP_SPECT_DATA)
+                    .where(NBC_FLUP_SPECT_DATA.NBC_FLUP_SPECT_N.in(nbcFlupSpectN))
+                    .execute();
+
+            int numberOfDeletedRecords = context.deleteFrom(NBC_FLUP_SPECT)
+                    .where(NBC_FLUP_SPECT.N.in(nbcFlupSpectN))
+                    .execute();
+        });
     }
 }

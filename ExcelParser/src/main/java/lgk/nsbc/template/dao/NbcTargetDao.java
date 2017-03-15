@@ -29,4 +29,9 @@ public class NbcTargetDao {
                 .map(NbcTarget::buildFromRecord)
                 .collect(toList());
     }
+
+    public NbcTarget findTargetById(Long n) {
+        NbcTargetRecord nbcTargetRecord = context.fetchOne(NBC_TARGET, NBC_TARGET.N.eq(n));
+        return NbcTarget.buildFromRecord(nbcTargetRecord);
+    }
 }

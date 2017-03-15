@@ -112,6 +112,10 @@ public class AddSpectFlup extends Window {
         return buttons;
     }
 
+    public AddSpectFlup(NbcPatients nbcPatients, Long selectedRowId) {
+
+    }
+
     /**
      * Данные для мишени
      */

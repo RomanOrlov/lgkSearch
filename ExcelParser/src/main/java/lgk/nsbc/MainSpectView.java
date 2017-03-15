@@ -68,20 +68,28 @@ public class MainSpectView extends UI {
             AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient());
             UI.getCurrent().addWindow(addSpectFlup);
         });
-        readRecords.addClickListener(clickEvent -> {
-            spectData.readData(combobox.getSelectedPatient());
-        });
+        readRecords.addClickListener(clickEvent -> spectData.readData(combobox.getSelectedPatient()));
         editExistingRecord.addClickListener(clickEvent -> {
-            // Берем строчку из грида и вставляем данные в окно
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient());
+            // Редактирование основано на удалении данных и их вставке.
+            if (spectData.getSelectedRows().isEmpty()) {
+                Notification.show("Ничего не выбрано для редактирования");
+                return;
+            }
+            if (spectData.getSelectedRows().size() != 1) {
+                Notification.show("Для редактирования выбрано более 1 записи");
+                return;
+            }
+            Long selectedRowId = spectData.getSelectedRowId();
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), selectedRowId);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         deleteRecord.addClickListener(clickEvent -> {
+            if (spectData.getSelectedRows().isEmpty()) {
+                Notification.show("Ничего не выбрано для удаления");
+                return;
+            }
             spectData.deleteSelectedRecords();
         });
-        HorizontalLayout crudButtons = new HorizontalLayout(newRecord, readRecords, editExistingRecord, deleteRecord);
-        crudButtons.setSpacing(true);
-        crudButtons.setWidth("100%");
 
         TwinColSelect twinColSelect = new TwinColSelect("Фильтры столбцов", spectData.getFilters());
         twinColSelect.setLeftColumnCaption("Отображаемые столбцы");
@@ -90,9 +98,13 @@ public class MainSpectView extends UI {
             Set value = (Set) valueChangeEvent.getProperty().getValue();
             spectData.updateVisibility(value);
         });
-        twinColSelect.setHeight("200px");
+        twinColSelect.setHeight("150px");
 
-        verticalLayout.addComponents(upload, combobox, label, crudButtons, twinColSelect, spectData);
+        HorizontalLayout instruments = new HorizontalLayout(twinColSelect, newRecord, readRecords, editExistingRecord, deleteRecord);
+        instruments.setSpacing(true);
+        instruments.setWidth("100%");
+
+        verticalLayout.addComponents(upload, combobox, label, instruments, spectData);
         verticalLayout.setExpandRatio(spectData, 1.0f);
         setContent(verticalLayout);
     }

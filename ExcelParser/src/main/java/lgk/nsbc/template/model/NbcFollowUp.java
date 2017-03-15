@@ -1,6 +1,5 @@
 package lgk.nsbc.template.model;
 
-import lgk.nsbc.generated.tables.NbcFollowup;
 import lombok.*;
 import org.jooq.Record;
 
