@@ -4,12 +4,18 @@ import com.vaadin.data.util.converter.StringToDoubleConverter;
 import com.vaadin.data.validator.DoubleRangeValidator;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import lgk.nsbc.template.dao.NbcTargetDao;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.template.model.NbcTarget;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@org.springframework.stereotype.Component
+@Scope("prototype")
 public class AddSpectFlup extends Window {
     private final List<NbcTarget> targets;
     private VerticalLayout content = new VerticalLayout();
@@ -22,8 +28,11 @@ public class AddSpectFlup extends Window {
 
     private List<TargetData> targetDataList = new ArrayList<>();
 
-    public AddSpectFlup(List<NbcTarget> targets, NbcPatients nbcPatients) {
-        this.targets = targets;
+    @Autowired
+    private NbcTargetDao nbcTargetDao;
+
+    public AddSpectFlup(NbcPatients nbcPatients) {
+        this.targets = nbcTargetDao.getPatientsTargets(nbcPatients);
         Label label = new Label(nbcPatients.toString());
         label.setSizeUndefined();
         setCaption("Добавление данных ОФЕКТ");

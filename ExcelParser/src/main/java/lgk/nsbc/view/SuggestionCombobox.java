@@ -19,19 +19,23 @@ import java.util.function.Function;
 public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
     private final Function<String, List<T>> suggestionFilter;
     private final Class<T> tClass;
+    private T lastSelectedBean;
 
     public SuggestionCombobox(Function<String, List<T>> suggestionFilter, Class<T> tClass) {
         this.suggestionFilter = suggestionFilter;
         this.tClass = tClass;
         SuggestionContainer<T> container = new SuggestionContainer<>(suggestionFilter, tClass);
         addValueChangeListener(event -> {
-            Notification.show("Selected item: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);
-            container.setSelectedBean(tClass.cast(event.getProperty().getValue()));
+            Notification.show("Выбран пациент: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);
+            T t = tClass.cast(event.getProperty().getValue());
+            lastSelectedBean = t;
+            container.setSelectedBean(t);
         });
         setContainerDataSource(container);
         setNullSelectionAllowed(false);
         setItemCaptionPropertyId(ItemCaptionMode.PROPERTY);
         setItemCaptionPropertyId("representationName");
+        setWidth("100%");
     }
 
     @Override
@@ -39,4 +43,7 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
         return new SuggestionContainer.SuggestionFilter(filterString);
     }
 
+    public T getSelectedPatient() {
+        return lastSelectedBean;
+    }
 }

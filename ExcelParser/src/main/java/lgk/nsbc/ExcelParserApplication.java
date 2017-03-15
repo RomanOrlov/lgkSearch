@@ -12,9 +12,4 @@ public class ExcelParserApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ExcelParserApplication.class, args);
 	}
-
-	@Bean
-	public EmbeddedServletContainerFactory tomcatContainerFactory() {
-		return new TomcatEmbeddedServletContainerFactory();
-	}
 }
