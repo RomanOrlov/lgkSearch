@@ -7,7 +7,6 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +16,7 @@ import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
 import static lgk.nsbc.template.model.NbcPatients.buildFromRecord;
+import static org.jooq.impl.DSL.val;
 
 @Service
 public class NbcPatientsDao {
@@ -34,7 +34,7 @@ public class NbcPatientsDao {
         Result<Record> records = context.select()
                 .from(NBC_PATIENTS)
                 .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
-                .where(BAS_PEOPLE.SURNAME.likeIgnoreCase(surname))
+                .where(BAS_PEOPLE.SURNAME.likeIgnoreCase(val("%" + surname + "%")))
                 .fetch();
         List<NbcPatients> nbcPatientsList = records.stream()
                 .map(record -> {

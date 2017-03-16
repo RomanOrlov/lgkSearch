@@ -11,16 +11,13 @@ import lgk.nsbc.template.model.spect.TargetType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static lgk.nsbc.template.model.spect.MainInfo.MIN30;
-import static lgk.nsbc.template.model.spect.MainInfo.MIN60;
-import static lgk.nsbc.template.model.spect.MainInfo.VOLUME;
+import static lgk.nsbc.template.model.spect.MainInfo.*;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -45,7 +42,7 @@ public class SpectData extends Grid {
     private Map<String, String> filters;
 
     public SpectData() {
-        super("SpectData");
+        super("Данные ОФЕКТ");
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
         setSelectionMode(SelectionMode.MULTI);
@@ -92,9 +89,12 @@ public class SpectData extends Grid {
             }
         }
 
+        Column idColumn = addColumn("id", Long.class);
+        idColumn.setHidden(true);
+        idColumn.setHidable(false);
+
         setSizeFull();
         container = getContainerDataSource();
-        container.addContainerProperty("id", Long.class, null);
         prepareFilters();
     }
 
@@ -160,9 +160,21 @@ public class SpectData extends Grid {
      * Выбор невидимость группы столбцов
      * Например, - Опухоль. Тогда все столбы которые отображают данные опухоли будут невидны.
      *
-     * @param invisible Именна группы невидимых столбцов
+     * @param names Именна группы невидимых столбцов
      */
-    public void updateVisibility(Set<String> invisible) {
+    public void updateVisibility(Set<String> names) {
+        // Получаем часть propertyId
+        Set<String> invisible = names.stream().map(s -> {
+            for (ContourType contourType : ContourType.values()) {
+                if (contourType.getName().equals(s))
+                    return contourType.toString();
+            }
+            for (TargetType targetType : TargetType.values()) {
+                if (targetType.getName().equals(s))
+                    return targetType.toString();
+            }
+            return s;
+        }).collect(Collectors.toSet());
         List<Column> filterableColumns = getColumns().stream()
                 .filter(column -> !((String) column.getPropertyId()).startsWith("#"))
                 .collect(Collectors.toList());
@@ -183,7 +195,8 @@ public class SpectData extends Grid {
     }
 
     public Long getSelectedRowId() {
-        return null;
+        Object selectedRow = getSelectedRows().toArray()[0];
+        return (Long) container.getItem(selectedRow).getItemProperty("id").getValue();
     }
 
     /**
@@ -191,9 +204,8 @@ public class SpectData extends Grid {
      */
     @Getter
     @AllArgsConstructor
-    @NoArgsConstructor
     @Builder
-    private static class RowData {
+    public static class RowData {
         private final List<NbcFlupSpectData> datas;
         private final NbcStud nbcStud;
         private final NbcFollowUp nbcFollowUp;

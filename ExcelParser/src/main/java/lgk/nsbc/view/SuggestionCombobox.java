@@ -24,6 +24,7 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
     public SuggestionCombobox(Function<String, List<T>> suggestionFilter, Class<T> tClass) {
         this.suggestionFilter = suggestionFilter;
         this.tClass = tClass;
+        setCaption("Поиск пациента");
         SuggestionContainer<T> container = new SuggestionContainer<>(suggestionFilter, tClass);
         addValueChangeListener(event -> {
             Notification.show("Выбран пациент: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);

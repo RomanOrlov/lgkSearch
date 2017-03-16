@@ -59,11 +59,12 @@ public class NbcFlupSpectDataDao {
                     val(data.getEarly_phase()),
                     val(data.getLate_phase()));
         }
-        Result<NbcFlupSpectDataRecord> records = columns.returning(NBC_FLUP_SPECT_DATA.N)
+        int execute = columns.execute();
+        /*Result<NbcFlupSpectDataRecord> records = columns.returning(NBC_FLUP_SPECT_DATA.N)
                 .fetch();
         for (int i = 0; i < records.size(); i++) {
             spectDatas.get(i).setN(records.get(i).getN());
-        }
+        }*/
     }
 
     public List<NbcFlupSpectData> findBySpectFlup(NbcFlupSpect nbcFlupSpect) {

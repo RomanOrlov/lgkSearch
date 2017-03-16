@@ -65,11 +65,25 @@ public class MainSpectView extends UI {
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
         newRecord.addClickListener(clickEvent -> {
+            if (combobox.getSelectedPatient() == null) {
+                Notification.show("Не выбран паицент");
+                return;
+            }
             AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient());
             UI.getCurrent().addWindow(addSpectFlup);
         });
-        readRecords.addClickListener(clickEvent -> spectData.readData(combobox.getSelectedPatient()));
+        readRecords.addClickListener(clickEvent -> {
+            if (combobox.getSelectedPatient() == null) {
+                Notification.show("Не выбран паицент");
+                return;
+            }
+            spectData.readData(combobox.getSelectedPatient());
+        });
         editExistingRecord.addClickListener(clickEvent -> {
+            if (combobox.getSelectedPatient() == null) {
+                Notification.show("Не выбран паицент");
+                return;
+            }
             // Редактирование основано на удалении данных и их вставке.
             if (spectData.getSelectedRows().isEmpty()) {
                 Notification.show("Ничего не выбрано для редактирования");
@@ -91,18 +105,24 @@ public class MainSpectView extends UI {
             spectData.deleteSelectedRecords();
         });
 
-        TwinColSelect twinColSelect = new TwinColSelect("Фильтры столбцов", spectData.getFilters());
+        TwinColSelect twinColSelect = new TwinColSelect("Фильтры данных ОФЕКТ", spectData.getFilters());
         twinColSelect.setLeftColumnCaption("Отображаемые столбцы");
         twinColSelect.setRightColumnCaption("Скрытые столбцы");
         twinColSelect.addValueChangeListener(valueChangeEvent -> {
             Set value = (Set) valueChangeEvent.getProperty().getValue();
             spectData.updateVisibility(value);
         });
-        twinColSelect.setHeight("150px");
+        twinColSelect.setWidth("100%");
+        twinColSelect.setHeight("100px");
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setSizeFull();
+        buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord);
 
-        HorizontalLayout instruments = new HorizontalLayout(twinColSelect, newRecord, readRecords, editExistingRecord, deleteRecord);
+        HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
         instruments.setSpacing(true);
         instruments.setWidth("100%");
+        instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 
         verticalLayout.addComponents(upload, combobox, label, instruments, spectData);
         verticalLayout.setExpandRatio(spectData, 1.0f);
