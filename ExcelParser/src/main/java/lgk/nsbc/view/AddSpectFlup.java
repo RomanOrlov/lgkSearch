@@ -10,6 +10,9 @@ import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;
 import lgk.nsbc.template.model.spect.ContourType;
 import lgk.nsbc.template.model.spect.TargetType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -18,6 +21,13 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static lgk.nsbc.template.model.spect.ContourType.*;
+import static lgk.nsbc.template.model.spect.TargetType.HIZ;
+import static lgk.nsbc.template.model.spect.TargetType.HYP;
+import static lgk.nsbc.template.model.spect.TargetType.TARGET;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -49,20 +59,26 @@ public class AddSpectFlup extends Window {
     @Autowired
     private NbcTargetDao nbcTargetDao;
     @Autowired
+    private NbcFlupSpectDao nbcFlupSpectDao;
+    @Autowired
     private DSLContext context;
     private NbcPatients nbcPatients;
     private Long selectedRowId;
+    private DataToDelete dataToDelete;
+    private Button clickSimulation;
 
     public AddSpectFlup() {
     }
 
-    public AddSpectFlup(NbcPatients nbcPatients) {
+    public AddSpectFlup(NbcPatients nbcPatients, Button simulateClick) {
+        this.clickSimulation = simulateClick;
         this.nbcPatients = nbcPatients;
     }
 
-    public AddSpectFlup(NbcPatients nbcPatients, Long selectedRowId) {
+    public AddSpectFlup(NbcPatients nbcPatients, Long selectedRowId, Button simulateClick) {
         this.nbcPatients = nbcPatients;
         this.selectedRowId = selectedRowId;
+        this.clickSimulation = simulateClick;
     }
 
     @PostConstruct
@@ -104,15 +120,7 @@ public class AddSpectFlup extends Window {
         firstLine.setSpacing(true);
         firstLine.setComponentAlignment(addTargets, Alignment.MIDDLE_CENTER);
         firstLine.setComponentAlignment(removeSelectedTargets, Alignment.MIDDLE_CENTER);
-        addTargets.addClickListener(event -> {
-            TargetData targetData = new TargetData(targets);
-            targetDataList.add(targetData);
-            if (targetsLayout.getComponentCount() == 1) {
-                targetsLayout.addComponent(targetData, 0);
-                targetsLayout.setComponentAlignment(targetData, Alignment.TOP_CENTER);
-            } else
-                targetsLayout.addComponent(targetData, targetsLayout.getComponentCount() - 1 - 1);
-        });
+        addTargets.addClickListener(event -> addTargetData());
         removeSelectedTargets.addClickListener(event -> {
             targetDataList.stream()
                     .filter(TargetData::isRowSelected)
@@ -146,14 +154,61 @@ public class AddSpectFlup extends Window {
         setContent(content);
     }
 
+    private void addTargetData() {
+        TargetData targetData = new TargetData(targets);
+        targetDataList.add(targetData);
+        if (targetsLayout.getComponentCount() == 1) {
+            targetsLayout.addComponent(targetData, 0);
+            targetsLayout.setComponentAlignment(targetData, Alignment.TOP_CENTER);
+        } else
+            targetsLayout.addComponent(targetData, targetsLayout.getComponentCount() - 1 - 1);
+    }
+
     /**
      * Выгрузка информации из базы и выставление даных интерфейса
      */
     private void fillWithData() {
-        // Найти все записи по выбранной строчке
-        // (находим исследование, в рамках которого сделано
-        // Толкаем эти данные в таблицу, удаляя старые
-        // ПОка легче удалять и вставлять.
+        NbcFlupSpect nbcFlupSpect = nbcFlupSpectDao.findById(selectedRowId);
+        NbcFollowUp nbcFollowUp = nbcFollowUpDao.findById(nbcFlupSpect.getNbc_followup_n());
+        NbcStud nbcStud = nbcStudDao.findById(nbcFollowUp.getNbc_stud_n());
+        List<NbcFollowUp> byStudy = nbcFollowUpDao.findByStudy(nbcStud);
+        List<NbcFlupSpect> nbcFlupSpects = new ArrayList<>();
+        dataToDelete = new DataToDelete(byStudy,nbcStud,nbcFlupSpects);
+        // Добавляем необходимое количество строк в мишенях
+        for (int i = 0; i < byStudy.size() - 1; i++) {
+            addTargetData();
+        }
+        for (int i = 0; i < byStudy.size(); i++) {
+            NbcFollowUp followUp = byStudy.get(i);
+            TargetData targetDataFields = targetDataList.get(i);
+            // Выставляем выбранную мишень
+            NbcTarget target = targets.stream()
+                    .filter(nbcTarget -> Objects.equals(nbcTarget.getN(), followUp.getNbc_target_n()))
+                    .findFirst().orElseThrow(RuntimeException::new);
+            targetDataList.get(i).selectedTarget.setValue(target);
+
+            NbcFlupSpect flupSpect = nbcFlupSpectDao.findByFollowUp(followUp);
+            nbcFlupSpects.add(flupSpect);
+            List<NbcFlupSpectData> bySpectFlup = nbcFlupSpectDataDao.findBySpectFlup(flupSpect);
+            // Заполняем один раз
+            if (i == 0) {
+                // Заполняем гипофиз
+                NbcFlupSpectData hypSphereData = SPHERE.getDataOfContour(HYP.getSublistOfTarget(bySpectFlup));
+                hypField.setSpectData(hypSphereData);
+                // Заполняем хороидальное сплетение
+                List<NbcFlupSpectData> hizSublist = HIZ.getSublistOfTarget(bySpectFlup);
+                NbcFlupSpectData hizSphereData = SPHERE.getDataOfContour(hizSublist);
+                NbcFlupSpectData hizIsolyne10Data = ISOLYNE10.getDataOfContour(hizSublist);
+                NbcFlupSpectData hizIsolyne25Data = ISOLYNE25.getDataOfContour(hizSublist);
+                hizField.setListOfData(hizSphereData, hizIsolyne10Data, hizIsolyne25Data);
+            }
+            // Заполняем строчку с данными опухоли
+            List<NbcFlupSpectData> targetDataList = TARGET.getSublistOfTarget(bySpectFlup);
+            NbcFlupSpectData targetSphereData = SPHERE.getDataOfContour(targetDataList);
+            NbcFlupSpectData targetIsolyne10Data = ISOLYNE10.getDataOfContour(targetDataList);
+            NbcFlupSpectData targetIsolyne25Data = ISOLYNE25.getDataOfContour(targetDataList);
+            targetDataFields.setListOfData(targetSphereData, targetIsolyne10Data, targetIsolyne25Data);
+        }
     }
 
     /**
@@ -172,10 +227,10 @@ public class AddSpectFlup extends Window {
         }
         // Общие данные,  - гипофиз, хор. сплетение.
         // Гипофиз
-        NbcFlupSpectData hyp = hypField.getData();
+        NbcFlupSpectData hyp = hypField.getSpectData();
         hyp.setContour_size(1L);
-        hyp.setStructure_type(TargetType.HYP.getName());
-        hyp.setContour_type(ContourType.SPHERE.getName());
+        hyp.setStructure_type(HYP.getName());
+        hyp.setContour_type(SPHERE.getName());
 
         // Хороидальное сплетение
         List<NbcFlupSpectData> hiz = hizField.getListOfData();
@@ -232,7 +287,12 @@ public class AddSpectFlup extends Window {
         cancel.setSizeFull();
         commit.addClickListener(event -> {
             if (isInputDataValid()) {
+                // Удаляем старые записи
+                if (selectedRowId != null) {
+                    deleteOldData();
+                }
                 saveToDb();
+                clickSimulation.click();
                 close();
             }
         });
@@ -242,6 +302,18 @@ public class AddSpectFlup extends Window {
         buttons.setHeight("40px");
         buttons.setSpacing(true);
         return buttons;
+    }
+
+    private void deleteOldData() {
+        context.transaction(configuration -> {
+            nbcStudDao.deleteStudy(dataToDelete.getNbcStud());
+            nbcFollowUpDao.deleteFollowUp(dataToDelete.getNbcFollowUps());
+            List<Long> ids = dataToDelete.getNbcFlupSpects()
+                    .stream()
+                    .map(NbcFlupSpect::getN)
+                    .collect(Collectors.toList());
+            nbcFlupSpectDataDao.deleteByNbcFlupSpectId(ids);
+        });
     }
 
 
@@ -311,21 +383,29 @@ public class AddSpectFlup extends Window {
         public List<NbcFlupSpectData> getListOfData() {
             List<NbcFlupSpectData> spectDataList = new ArrayList<>();
             // Сфера
-            NbcFlupSpectData sphereData = sphere.getData();
+            NbcFlupSpectData sphereData = sphere.getSpectData();
             sphereData.setContour_size(1L);
-            sphereData.setContour_type(ContourType.SPHERE.getName());
+            sphereData.setContour_type(SPHERE.getName());
             // Изолиния 10
-            NbcFlupSpectData isolyne10Data = isolyne10.getData();
+            NbcFlupSpectData isolyne10Data = isolyne10.getSpectData();
             isolyne10Data.setContour_size(10L);
             isolyne10Data.setContour_type(ContourType.ISOLYNE10.getName());
             // Изолиния 25
-            NbcFlupSpectData isolyne25Data = isolyne25.getData();
+            NbcFlupSpectData isolyne25Data = isolyne25.getSpectData();
             isolyne25Data.setContour_size(25L);
             isolyne25Data.setContour_type(ContourType.ISOLYNE25.getName());
             spectDataList.add(sphereData);
             spectDataList.add(isolyne10Data);
             spectDataList.add(isolyne25Data);
             return spectDataList;
+        }
+
+        public void setListOfData(NbcFlupSpectData sphere,
+                                  NbcFlupSpectData isolyne10,
+                                  NbcFlupSpectData isolyne25) {
+            this.sphere.setSpectData(sphere);
+            this.isolyne10.setSpectData(isolyne10);
+            this.isolyne25.setSpectData(isolyne25);
         }
     }
 
@@ -346,12 +426,18 @@ public class AddSpectFlup extends Window {
             setSpacing(true);
         }
 
-        public NbcFlupSpectData getData() {
+        public NbcFlupSpectData getSpectData() {
             return NbcFlupSpectData.builder()
                     .volume(castFromObject(volume.getConvertedValue()))
                     .early_phase(castFromObject(earlyPhase.getConvertedValue()))
                     .late_phase(castFromObject(latePhase.getConvertedValue()))
                     .build();
+        }
+
+        public void setSpectData(NbcFlupSpectData hypData) {
+            volume.setConvertedValue(hypData.getVolume());
+            earlyPhase.setConvertedValue(hypData.getEarly_phase());
+            latePhase.setConvertedValue(hypData.getLate_phase());
         }
     }
 
@@ -364,5 +450,14 @@ public class AddSpectFlup extends Window {
             addValidator(new DoubleRangeValidator("Некорректное число", 0.d, Double.MAX_VALUE));
             setConverter(new StringToDoubleConverter());
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    private static class DataToDelete {
+        private final List<NbcFollowUp> nbcFollowUps;
+        private final NbcStud nbcStud;
+        private final List<NbcFlupSpect> nbcFlupSpects;
     }
 }

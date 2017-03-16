@@ -11,6 +11,7 @@ import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 @AllArgsConstructor
 @Builder
 @ToString(of = {"targetname"})
+@EqualsAndHashCode(of = {"n"})
 public class NbcTarget {
     private Long n;
     private Long nbc_patients_n;

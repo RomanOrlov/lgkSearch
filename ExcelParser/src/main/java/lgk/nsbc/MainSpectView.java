@@ -17,7 +17,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.Set;
+
+import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE10;
+import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
 
 @Title("Excel upload")
 @Theme("valo")
@@ -69,7 +73,7 @@ public class MainSpectView extends UI {
                 Notification.show("Не выбран паицент");
                 return;
             }
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient());
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), readRecords);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         readRecords.addClickListener(clickEvent -> {
@@ -94,7 +98,7 @@ public class MainSpectView extends UI {
                 return;
             }
             Long selectedRowId = spectData.getSelectedRowId();
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), selectedRowId);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), selectedRowId, readRecords);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         deleteRecord.addClickListener(clickEvent -> {
@@ -127,6 +131,12 @@ public class MainSpectView extends UI {
         verticalLayout.addComponents(upload, combobox, label, instruments, spectData);
         verticalLayout.setExpandRatio(spectData, 1.0f);
         setContent(verticalLayout);
+
+        // По дефолту что то будет скрыто
+        Set<String> invisibleColumns = new HashSet<>();
+        invisibleColumns.add(ISOLYNE10.getName());
+        invisibleColumns.add(ISOLYNE25.getName());
+        twinColSelect.setValue(invisibleColumns);
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {

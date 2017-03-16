@@ -62,4 +62,15 @@ public class NbcStudDao {
                 .map(NbcStud::buildFromRecord)
                 .collect(Collectors.toList());
     }
+
+    public NbcStud findById(Long id) {
+        NbcStudRecord nbcStudRecord = context.fetchOne(NBC_STUD, NBC_STUD.N.eq(id));
+        return NbcStud.buildFromRecord(nbcStudRecord);
+    }
+
+    public void deleteStudy(NbcStud nbcStud) {
+        int removedRecords = context.deleteFrom(NBC_STUD)
+                .where(NBC_STUD.N.eq(nbcStud.getN()))
+                .execute();
+    }
 }

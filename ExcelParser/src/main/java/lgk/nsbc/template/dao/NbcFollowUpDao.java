@@ -42,9 +42,27 @@ public class NbcFollowUpDao {
     }
 
     public List<NbcFollowUp> findByStudy(NbcStud nbcStud) {
-        Result<NbcFollowupRecord> result = context.fetch(NBC_FOLLOWUP, NBC_FOLLOWUP.NBC_STUD_N.eq(nbcStud.getN()));
+        return findByStudy(nbcStud.getN());
+    }
+
+    public List<NbcFollowUp> findByStudy(Long nbcStudId) {
+        Result<NbcFollowupRecord> result = context.fetch(NBC_FOLLOWUP, NBC_FOLLOWUP.NBC_STUD_N.eq(nbcStudId));
         return result.stream()
                 .map(NbcFollowUp::buildFromRecord)
                 .collect(toList());
+    }
+
+    public NbcFollowUp findById(Long id) {
+        NbcFollowupRecord nbcFollowupRecord = context.fetchOne(NBC_FOLLOWUP, NBC_FOLLOWUP.N.eq(id));
+        return NbcFollowUp.buildFromRecord(nbcFollowupRecord);
+    }
+
+    public void deleteFollowUp(List<NbcFollowUp> nbcFollowUps) {
+        List<Long> nbcFollowUpIds = nbcFollowUps.stream()
+                .map(NbcFollowUp::getN)
+                .collect(toList());
+        int removedRecords = context.deleteFrom(NBC_FOLLOWUP)
+                .where(NBC_FOLLOWUP.N.in(nbcFollowUpIds))
+                .execute();
     }
 }

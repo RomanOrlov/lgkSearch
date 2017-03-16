@@ -3,6 +3,7 @@ package lgk.nsbc.view;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.ui.Grid;
+import lgk.nsbc.model.StructureType;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;
 import lgk.nsbc.template.model.spect.ContourType;
@@ -17,6 +18,8 @@ import org.springframework.context.annotation.Scope;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE10;
+import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
 import static lgk.nsbc.template.model.spect.MainInfo.*;
 
 @org.springframework.stereotype.Component
@@ -89,7 +92,7 @@ public class SpectData extends Grid {
             }
         }
 
-        Column idColumn = addColumn("id", Long.class);
+        Column idColumn = addColumn("#id", Long.class);
         idColumn.setHidden(true);
         idColumn.setHidable(false);
 
@@ -107,11 +110,12 @@ public class SpectData extends Grid {
     }
 
     /**
-     * Вытаскиваем id выбранных строк и удаляем
+     * Вытаскиваем id выбранных строк и удаляем из базы и контейнера
      */
     public void deleteSelectedRecords() {
         List<Long> id = getSelectedRows().stream()
                 .map(container::getItem)
+                .peek(container::removeItem)
                 .map(item -> item.getItemProperty("id").getValue())
                 .map(o -> (Long) o)
                 .collect(Collectors.toList());
