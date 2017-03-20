@@ -1,4 +1,4 @@
-package lgk.nsbc.view;
+package lgk.nsbc.util;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;

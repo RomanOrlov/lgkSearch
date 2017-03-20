@@ -2,6 +2,7 @@ package lgk.nsbc;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
@@ -9,7 +10,7 @@ import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.view.AddSpectFlup;
 import lgk.nsbc.view.SpectData;
-import lgk.nsbc.view.SuggestionCombobox;
+import lgk.nsbc.util.SuggestionCombobox;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,11 +58,11 @@ public class MainSpectView extends UI {
             dataMigrationService.findPatients(tempFile);
         });
 
-        Label label = new Label("");
-        SuggestionCombobox<NbcPatients> combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithSurnameLike, NbcPatients.class);
+        Label patientName = new Label();
+        SuggestionCombobox<NbcPatients> combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithDifferetNames, NbcPatients.class);
         combobox.addValueChangeListener(valueChangeEvent -> {
             NbcPatients selectedPatient = combobox.getSelectedPatient();
-            label.setValue(selectedPatient.toString());
+            patientName.setValue(selectedPatient.toString());
         });
 
         Button newRecord = new Button("Добавить");
@@ -109,7 +110,9 @@ public class MainSpectView extends UI {
             spectData.deleteSelectedRecords();
         });
 
-        TwinColSelect twinColSelect = new TwinColSelect("Фильтры данных ОФЕКТ", spectData.getFilters());
+        TwinColSelect twinColSelect = new TwinColSelect();
+        IndexedContainer indexedContainer = new IndexedContainer(spectData.getFilters());
+        twinColSelect.setContainerDataSource(indexedContainer);
         twinColSelect.setLeftColumnCaption("Отображаемые столбцы");
         twinColSelect.setRightColumnCaption("Скрытые столбцы");
         twinColSelect.addValueChangeListener(valueChangeEvent -> {
@@ -128,7 +131,7 @@ public class MainSpectView extends UI {
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 
-        verticalLayout.addComponents(upload, combobox, label, instruments, spectData);
+        verticalLayout.addComponents(upload, combobox, patientName, instruments, spectData);
         verticalLayout.setExpandRatio(spectData, 1.0f);
         setContent(verticalLayout);
 

@@ -418,9 +418,7 @@ public class AddSpectFlup extends Window {
         final TextField latePhase = new DoubleTextField("60 мин");
 
         public DataUnit(String caption) {
-            super();
-            setWidth("100%");
-            setHeight("100%");
+            setSizeFull();
             setCaption(caption);
             addComponents(volume, earlyPhase, latePhase);
             setSpacing(true);

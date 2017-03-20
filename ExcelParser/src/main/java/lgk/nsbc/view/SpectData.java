@@ -45,7 +45,6 @@ public class SpectData extends Grid {
     private Map<String, String> filters;
 
     public SpectData() {
-        super("Данные ОФЕКТ");
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
         setSelectionMode(SelectionMode.MULTI);
@@ -77,12 +76,14 @@ public class SpectData extends Grid {
             }
         }
 
+        // Заголовок Опухоль, Гипофиз, Хороидальное сплетение
         for (TargetType targetType : TargetType.values()) {
             List<Object> propertyId = getColumnsProperty(columns, targetType.toString());
             Grid.HeaderCell join = targetTypeHeader.join(propertyId.toArray());
             join.setText(targetType.getName());
         }
 
+        // Заголовок Сфера, Изолиния 10, Изолиния 25
         for (ContourType contourType : ContourType.values()) {
             List<Object> propertyId = getColumnsProperty(columns, contourType.toString());
             if (propertyId.size() % 3 != 0) throw new RuntimeException("Несовпадение размера ячеек");

@@ -10,7 +10,6 @@ import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(of = {"targetname"})
 @EqualsAndHashCode(of = {"n"})
 public class NbcTarget {
     private Long n;
@@ -24,5 +23,10 @@ public class NbcTarget {
                 .targetname(record.get(NBC_TARGET.TARGETNAME))
                 .targettype(record.get(NBC_TARGET.TARGETTYPE))
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return targetname;
     }
 }
