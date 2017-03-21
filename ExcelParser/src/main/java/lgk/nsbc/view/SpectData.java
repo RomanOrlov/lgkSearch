@@ -48,15 +48,9 @@ public class SpectData extends Grid {
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
         setSelectionMode(SelectionMode.MULTI);
-        Grid.Column date = addColumn("#date", Date.class);
-        date.setHidable(true);
-        date.setEditable(false);
-        date.setHeaderCaption("Дата исследования");
-
-        Grid.Column target = addColumn("#nbctarget", String.class);
-        target.setHidable(true);
-        target.setEditable(false);
-        target.setHeaderCaption("Мишень");
+        addHidebleColumn("#date", Date.class, "Дата исследования");
+        addHidebleColumn("#nbctarget", String.class, "Мишень");
+        addHiddenColumn("#id", Long.class);
 
         List<Column> columns = new ArrayList<>();
         nextTarget:
@@ -65,7 +59,6 @@ public class SpectData extends Grid {
                 for (MainInfo mainInfo : MainInfo.values()) {
                     String propertyId = targetType.toString() + contourType.toString() + mainInfo.toString();
                     Grid.Column column = addColumn(propertyId, Double.class);
-                    column.setHeaderCaption(mainInfo.getName());
                     column.setHidable(false);
                     column.setResizable(false);
                     column.setEditable(false);
@@ -93,13 +86,32 @@ public class SpectData extends Grid {
             }
         }
 
-        Column idColumn = addColumn("#id", Long.class);
-        idColumn.setHidden(true);
-        idColumn.setHidable(false);
-
         setSizeFull();
         container = getContainerDataSource();
         prepareFilters();
+    }
+
+    public Column addHidebleColumn(String propertyId, Class<?> aClass, String headerCaption) {
+        Column column = addColumn(propertyId, aClass);
+        column.setHeaderCaption(headerCaption);
+        column.setHidable(true);
+        column.setEditable(false);
+        return column;
+    }
+
+    public Column addNotHidebleColumn(String propertyId, Class<?> aClass, String headerCaption) {
+        Column column = addColumn(propertyId, aClass);
+        column.setHeaderCaption(headerCaption);
+        column.setHidable(false);
+        column.setEditable(false);
+        return column;
+    }
+
+    public Column addHiddenColumn(String propertyId, Class<?> aClass) {
+        Column column = addColumn(propertyId, aClass);
+        column.setHidden(true);
+        column.setHidable(false);
+        return column;
     }
 
     private List<Object> getColumnsProperty(List<Column> columns, String filter) {

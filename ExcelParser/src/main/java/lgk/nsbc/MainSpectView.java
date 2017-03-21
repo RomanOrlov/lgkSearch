@@ -69,6 +69,7 @@ public class MainSpectView extends UI {
         Button readRecords = new Button("Просмотр");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
+        Button exportToExcel = new Button("Excel");
         newRecord.addClickListener(clickEvent -> {
             if (combobox.getSelectedPatient() == null) {
                 Notification.show("Не выбран паицент");
@@ -124,7 +125,7 @@ public class MainSpectView extends UI {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord);
+        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord, exportToExcel);
 
         HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
         instruments.setSpacing(true);

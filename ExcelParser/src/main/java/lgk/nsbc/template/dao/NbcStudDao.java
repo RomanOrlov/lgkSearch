@@ -73,4 +73,9 @@ public class NbcStudDao {
                 .where(NBC_STUD.N.eq(nbcStud.getN()))
                 .execute();
     }
+
+    public boolean isPatientHasSpectStudy(NbcPatients nbcPatients) {
+        return context.fetchExists(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(nbcPatients.getN())
+                .and(NBC_STUD.STUDY_TYPE.eq(11L)));
+    }
 }
