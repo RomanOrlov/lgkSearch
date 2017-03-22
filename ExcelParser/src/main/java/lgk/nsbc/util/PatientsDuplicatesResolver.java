@@ -1,4 +1,4 @@
-package lgk.nsbc;
+package lgk.nsbc.util;
 
 import lgk.nsbc.template.dao.NbcPatientsDao;
 import lgk.nsbc.template.dao.NbcProcDao;

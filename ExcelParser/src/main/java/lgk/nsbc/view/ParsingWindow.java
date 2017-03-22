@@ -3,18 +3,18 @@ package lgk.nsbc.view;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.*;
-import lgk.nsbc.DataMigrationService;
+import lgk.nsbc.util.DataMigrationService;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ParsingView extends Window {
+public class ParsingWindow extends Window {
     private VerticalLayout mainLayout = new VerticalLayout();
     private Map<String, Object> selectedPatients = new TreeMap<>();
     private Map<String, Grid> conflicts = new HashMap<>();
 
-    public ParsingView(DataMigrationService dataMigrationService, String message, Map<String, IndexedContainer> data) {
+    public ParsingWindow(DataMigrationService dataMigrationService, String message, Map<String, IndexedContainer> data) {
         super("Результаты миграции данных из excel");
         setWidth("600px");
         setHeight("600px");

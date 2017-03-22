@@ -1,4 +1,4 @@
-package lgk.nsbc.view;
+package lgk.nsbc.util;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,7 +25,7 @@ import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE10;
 import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
 import static lgk.nsbc.template.model.spect.MainInfo.*;
 
-@org.springframework.stereotype.Component
+@Component
 @Scope("prototype")
 public class SpectData extends Grid {
     // Item id is NbcFlupSpect.N
@@ -43,10 +44,6 @@ public class SpectData extends Grid {
     private NbcFlupSpectDao nbcFlupSpectDao;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
-
-    // Key - имя фильтра, Value - паттерн propertyId по которому искать нужные столбцы
-    // Фильтры работают для всех столбцов, чьи проперти не начинаются с #
-    private Map<String, String> filters;
 
     public SpectData() {
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
@@ -93,7 +90,6 @@ public class SpectData extends Grid {
 
         setSizeFull();
         container = getContainerDataSource();
-        prepareFilters();
     }
 
     public Column addHidebleColumn(String propertyId, Class<?> aClass, String headerCaption) {
@@ -158,45 +154,19 @@ public class SpectData extends Grid {
         }
     }
 
-    private void prepareFilters() {
-        filters = new HashMap<>();
-        for (TargetType targetType : TargetType.values()) {
-            filters.put(targetType.getName(), targetType.toString());
-        }
-        for (ContourType contourType : ContourType.values()) {
-            filters.put(contourType.getName(), contourType.toString());
-        }
-    }
-
-    public Set<String> getFilters() {
-        return filters.keySet();
-    }
-
     /**
      * Выбор невидимость группы столбцов
      * Например, - Опухоль. Тогда все столбы которые отображают данные опухоли будут невидны.
      *
-     * @param names Именна группы невидимых столбцов
+     * @param propertyId Именна группы невидимых столбцов
      */
-    public void updateVisibility(Set<String> names) {
-        // Получаем часть propertyId
-        Set<String> invisible = names.stream().map(s -> {
-            for (ContourType contourType : ContourType.values()) {
-                if (contourType.getName().equals(s))
-                    return contourType.toString();
-            }
-            for (TargetType targetType : TargetType.values()) {
-                if (targetType.getName().equals(s))
-                    return targetType.toString();
-            }
-            return s;
-        }).collect(Collectors.toSet());
+    public void updateVisibility(Set<String> propertyId) {
         List<Column> filterableColumns = getColumns().stream()
                 .filter(column -> !((String) column.getPropertyId()).startsWith("#"))
                 .collect(Collectors.toList());
 
         List<Column> invisibleColumns = filterableColumns.stream()
-                .filter(column -> containsAnyInSet((String) column.getPropertyId(), invisible))
+                .filter(column -> containsAnyInSet((String) column.getPropertyId(), propertyId))
                 .peek(column -> column.setHidden(true))
                 .collect(Collectors.toList());
 

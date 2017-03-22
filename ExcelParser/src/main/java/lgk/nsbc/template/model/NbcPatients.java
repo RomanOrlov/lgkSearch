@@ -1,6 +1,5 @@
 package lgk.nsbc.template.model;
 
-import lgk.nsbc.view.RepresentationName;
 import lombok.*;
 import org.jooq.Record;
 
@@ -11,14 +10,17 @@ import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcPatients implements RepresentationName {
+public class NbcPatients {
     private BasPeople basPeople;
     private Long n;
     private Integer case_history_num;
     private Long diagnosis;
     private Long nbc_organizations_n;
 
-    @Override
+    /**
+     * Нужен для SuggestionCombobox
+     * @return
+     */
     public String getRepresentationName() {
         return basPeople.getSurname() + " " + basPeople.getName() + " " + basPeople.getPatronymic();
     }

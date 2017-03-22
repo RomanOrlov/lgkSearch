@@ -12,12 +12,10 @@ import java.util.function.Function;
 
 public class SuggestionContainer<T> extends BeanItemContainer<T> {
     private final Function<String, List<T>> suggestionFilter;
-    private final Class<T> tClass;
 
     public SuggestionContainer(Function<String, List<T>> suggestionFilter, Class<T> tClass) throws IllegalArgumentException {
         super(tClass);
         this.suggestionFilter = suggestionFilter;
-        this.tClass = tClass;
     }
 
     @Override

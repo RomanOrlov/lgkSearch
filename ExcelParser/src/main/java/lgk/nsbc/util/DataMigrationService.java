@@ -1,4 +1,4 @@
-package lgk.nsbc;
+package lgk.nsbc.util;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -8,7 +8,8 @@ import lgk.nsbc.model.StudyTarget;
 import lgk.nsbc.model.Target;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;
-import lgk.nsbc.view.ParsingView;
+import lgk.nsbc.util.excel.ParserService;
+import lgk.nsbc.view.ParsingWindow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -72,7 +73,7 @@ public class DataMigrationService {
 
             String parsingInfo = getParsingInfo(searchedPatients);
             System.out.println(parsingInfo);
-            new ParsingView(this, parsingInfo, duplicatePatients);
+            new ParsingWindow(this, parsingInfo, duplicatePatients);
         } catch (Exception e) {
             e.printStackTrace();
         }

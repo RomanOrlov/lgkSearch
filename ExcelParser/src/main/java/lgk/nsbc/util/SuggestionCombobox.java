@@ -3,7 +3,6 @@ package lgk.nsbc.util;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Notification;
-import lgk.nsbc.view.RepresentationName;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,15 +13,13 @@ import java.util.function.Function;
  * Я реально не хочу писать сосбтвенный компонент.
  * @param <T>
  */
-public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
-    private final Function<String, List<T>> suggestionFilter;
+public class SuggestionCombobox<T> extends ComboBox {
     private final Class<T> tClass;
     private T lastSelectedBean;
 
     public SuggestionCombobox(Class<T> tClass,
                               Function<String, List<T>> suggestionFilter,
                               Function<T, Optional<T>> duplicatesResolver) {
-        this.suggestionFilter = suggestionFilter;
         this.tClass = tClass;
         SuggestionContainer<T> container = new SuggestionContainer<>(suggestionFilter, tClass);
         addValueChangeListener(event -> {
@@ -36,7 +33,6 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
         setCaption("Поиск пациента");
         setContainerDataSource(container);
         setNullSelectionAllowed(false);
-        setItemCaptionPropertyId(ItemCaptionMode.PROPERTY);
         setItemCaptionPropertyId("representationName");
         setWidth("100%");
     }

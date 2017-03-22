@@ -1,6 +1,5 @@
-package lgk.nsbc;
+package lgk.nsbc.util.excel;
 
-import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.model.ExcelDataPosition;
 import lgk.nsbc.model.StudyRecords;
 import lgk.nsbc.model.StudyTarget;
@@ -21,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-@VaadinSessionScope
 public class ParserService {
     @Autowired
     private ExcelDataPosition dataPosition;
