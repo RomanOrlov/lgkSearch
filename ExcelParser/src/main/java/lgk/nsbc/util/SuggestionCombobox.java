@@ -6,6 +6,7 @@ import com.vaadin.ui.Notification;
 import lgk.nsbc.view.RepresentationName;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -18,7 +19,9 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
     private final Class<T> tClass;
     private T lastSelectedBean;
 
-    public SuggestionCombobox(Function<String, List<T>> suggestionFilter, Class<T> tClass) {
+    public SuggestionCombobox(Class<T> tClass,
+                              Function<String, List<T>> suggestionFilter,
+                              Function<T, Optional<T>> duplicatesResolver) {
         this.suggestionFilter = suggestionFilter;
         this.tClass = tClass;
         SuggestionContainer<T> container = new SuggestionContainer<>(suggestionFilter, tClass);
@@ -26,7 +29,8 @@ public class SuggestionCombobox<T extends RepresentationName> extends ComboBox {
             Notification.show("Выбран пациент: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);
             T t = tClass.cast(event.getProperty().getValue());
             lastSelectedBean = t;
-            container.setSelectedBean(t);
+            T rightTarget = duplicatesResolver.apply(t).get();
+            container.setSelectedBean(rightTarget);
         });
 
         setCaption("Поиск пациента");

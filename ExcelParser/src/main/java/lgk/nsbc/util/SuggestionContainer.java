@@ -21,8 +21,7 @@ public class SuggestionContainer<T> extends BeanItemContainer<T> {
     }
 
     @Override
-    protected void addFilter(Filter filter)
-            throws UnsupportedFilterException {
+    protected void addFilter(Filter filter) throws UnsupportedFilterException {
         SuggestionFilter suggestionFilter = (SuggestionFilter) filter;
         filterItems(suggestionFilter.getFilterString());
     }

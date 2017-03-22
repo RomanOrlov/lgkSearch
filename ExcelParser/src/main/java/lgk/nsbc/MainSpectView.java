@@ -45,6 +45,8 @@ public class MainSpectView extends UI {
     private BeanFactory beanFactory;
     @Autowired
     private SpectData spectData;
+    @Autowired
+    private PatientsDuplicatesResolver patientsDuplicatesResolver;
 
     private SuggestionCombobox<NbcPatients> combobox;
 
@@ -61,7 +63,9 @@ public class MainSpectView extends UI {
         });
 
         Label patientName = new Label();
-        combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithDifferetNames, NbcPatients.class);
+        combobox = new SuggestionCombobox<>(NbcPatients.class,
+                nbcPatientsDao::getPatientsWithDifferetNames,
+                patientsDuplicatesResolver::getPatient);
         combobox.addValueChangeListener(valueChangeEvent -> {
             NbcPatients selectedPatient = combobox.getSelectedPatient();
             patientName.setValue(selectedPatient.toString());
@@ -118,6 +122,7 @@ public class MainSpectView extends UI {
         });
         twinColSelect.setWidth("100%");
         twinColSelect.setHeight("100px");
+
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);

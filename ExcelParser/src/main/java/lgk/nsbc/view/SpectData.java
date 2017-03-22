@@ -15,6 +15,8 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,8 @@ public class SpectData extends Grid {
     @Autowired
     private NbcFlupSpectDao nbcFlupSpectDao;
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+
     // Key - имя фильтра, Value - паттерн propertyId по которому искать нужные столбцы
     // Фильтры работают для всех столбцов, чьи проперти не начинаются с #
     private Map<String, String> filters;
@@ -48,7 +52,7 @@ public class SpectData extends Grid {
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
         setSelectionMode(SelectionMode.MULTI);
-        addHidebleColumn("#date", Date.class, "Дата исследования");
+        addHidebleColumn("#date", String.class, "Дата исследования");
         addHidebleColumn("#nbctarget", String.class, "Мишень");
         addHiddenColumn("#id", Long.class);
 
@@ -100,14 +104,6 @@ public class SpectData extends Grid {
         return column;
     }
 
-    public Column addNotHidebleColumn(String propertyId, Class<?> aClass, String headerCaption) {
-        Column column = addColumn(propertyId, aClass);
-        column.setHeaderCaption(headerCaption);
-        column.setHidable(false);
-        column.setEditable(false);
-        return column;
-    }
-
     public Column addHiddenColumn(String propertyId, Class<?> aClass) {
         Column column = addColumn(propertyId, aClass);
         column.setHidden(true);
@@ -130,13 +126,15 @@ public class SpectData extends Grid {
         List<Long> id = getSelectedRows().stream()
                 .map(container::getItem)
                 .peek(container::removeItem)
-                .map(item -> item.getItemProperty("id").getValue())
+                .map(item -> item.getItemProperty("#id").getValue())
                 .map(o -> (Long) o)
                 .collect(Collectors.toList());
         nbcFlupSpectDataDao.deleteByNbcFlupSpectId(id);
+        deselectAll();
     }
 
     public void readData(NbcPatients selectedPatient) {
+        deselectAll();
         container.removeAllItems();
         List<NbcStud> patientsSpectStudy = nbcStudDao.findPatientsSpectStudy(selectedPatient);
         // ОФЕКТ исследования они, по сути, независимы
@@ -214,7 +212,7 @@ public class SpectData extends Grid {
 
     public Long getSelectedRowId() {
         Object selectedRow = getSelectedRows().toArray()[0];
-        return (Long) container.getItem(selectedRow).getItemProperty("id").getValue();
+        return (Long) container.getItem(selectedRow).getItemProperty("#id").getValue();
     }
 
     /**
@@ -232,9 +230,9 @@ public class SpectData extends Grid {
 
         public void fillItem(Item item) {
             // Заполняем вручную проперти.
-            item.getItemProperty("#date").setValue(nbcStud.getStudydatetime());
+            item.getItemProperty("#date").setValue(DATE_FORMAT.format(nbcStud.getStudydatetime()));
             item.getItemProperty("#nbctarget").setValue(nbcTarget.getTargetname());
-            item.getItemProperty("id").setValue(nbcFlupSpect.getN());
+            item.getItemProperty("#id").setValue(nbcFlupSpect.getN());
             // Разделяю данные на структуры
             for (TargetType targetType : TargetType.values()) {
                 List<NbcFlupSpectData> targetData = datas.stream()

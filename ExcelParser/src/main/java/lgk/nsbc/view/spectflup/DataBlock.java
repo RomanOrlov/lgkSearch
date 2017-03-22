@@ -14,9 +14,9 @@ import static lgk.nsbc.template.model.spect.ContourType.*;
  * DataUnit для сферы и всех изолиний
  */
 class DataBlock extends HorizontalLayout {
-    private final DataUnit sphere = new DataUnit(SPHERE);
-    private final DataUnit isolyne10 = new DataUnit(ISOLYNE10);
-    private final DataUnit isolyne25 = new DataUnit(ISOLYNE25);
+    private final DataUnit sphere = new DataUnit(SPHERE.getName());
+    private final DataUnit isolyne10 = new DataUnit(ISOLYNE10.getName());
+    private final DataUnit isolyne25 = new DataUnit(ISOLYNE25.getName());
     private final TargetType targetType;
 
     public DataBlock(TargetType targetType) {

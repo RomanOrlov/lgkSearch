@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static lgk.nsbc.template.model.spect.ContourType.*;
+import static lgk.nsbc.template.model.spect.ContourType.SPHERE;
 import static lgk.nsbc.template.model.spect.TargetType.*;
 
 @org.springframework.stereotype.Component
@@ -69,7 +68,7 @@ public class AddSpectFlup extends Window {
         this.nbcPatients = nbcPatients;
     }
 
-    public AddSpectFlup(NbcPatients nbcPatients, SpectData spectData ,Long selectedRowId) {
+    public AddSpectFlup(NbcPatients nbcPatients, SpectData spectData, Long selectedRowId) {
         this.nbcPatients = nbcPatients;
         this.selectedRowId = selectedRowId;
         this.spectData = spectData;
@@ -105,6 +104,7 @@ public class AddSpectFlup extends Window {
         targetsLayout.setHeightUndefined();
         targetsLayout.setSpacing(true);
         targetsLayout.addComponent(blank);
+        targetsLayout.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
         addTargetData();
 
         Button addTargets = new Button("Добавить мишень");
@@ -128,6 +128,7 @@ public class AddSpectFlup extends Window {
 
         content.setSizeFull();
         content.setSpacing(true);
+        content.setMargin(new MarginInfo(false,true,true,true));
         content.addComponents(label, firstLine, hypField, hizField, panel, buttons);
         content.setExpandRatio(panel, 0.5f);
         content.setExpandRatio(hizField, 0.1f);
@@ -149,7 +150,6 @@ public class AddSpectFlup extends Window {
         targetDataList.add(targetData);
         if (targetsLayout.getComponentCount() == 1) {
             targetsLayout.addComponent(targetData, 0);
-            targetsLayout.setComponentAlignment(targetData, Alignment.TOP_CENTER);
         } else
             targetsLayout.addComponent(targetData, targetsLayout.getComponentCount() - 1 - 1);
     }
@@ -191,6 +191,9 @@ public class AddSpectFlup extends Window {
                 hizField.setListOfData(bySpectFlup);
             }
         }
+        dateField.setValue(nbcStud.getStudydatetime());
+        dozeField.setConvertedValue(0.d);
+
     }
 
     /**
