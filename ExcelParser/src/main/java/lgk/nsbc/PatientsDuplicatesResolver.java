@@ -41,8 +41,6 @@ public class PatientsDuplicatesResolver {
     public Optional<NbcPatients> getPatient(NbcPatients nbcPatients) {
         BasPeople basPeople = nbcPatients.getBasPeople();
         return getPatient(basPeople.getSurname(), basPeople.getName(), basPeople.getPatronymic());
-
-
     }
 
     public Optional<NbcPatients> getPatient(String surname, String name, String patronymic) {

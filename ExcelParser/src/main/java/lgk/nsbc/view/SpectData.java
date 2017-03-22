@@ -59,6 +59,7 @@ public class SpectData extends Grid {
                 for (MainInfo mainInfo : MainInfo.values()) {
                     String propertyId = targetType.toString() + contourType.toString() + mainInfo.toString();
                     Grid.Column column = addColumn(propertyId, Double.class);
+                    column.setHeaderCaption(mainInfo.getName());
                     column.setHidable(false);
                     column.setResizable(false);
                     column.setEditable(false);

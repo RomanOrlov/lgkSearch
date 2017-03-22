@@ -8,9 +8,9 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.NbcPatients;
-import lgk.nsbc.view.AddSpectFlup;
-import lgk.nsbc.view.SpectData;
 import lgk.nsbc.util.SuggestionCombobox;
+import lgk.nsbc.view.SpectData;
+import lgk.nsbc.view.spectflup.AddSpectFlup;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,6 +46,8 @@ public class MainSpectView extends UI {
     @Autowired
     private SpectData spectData;
 
+    private SuggestionCombobox<NbcPatients> combobox;
+
     @Override
     protected void init(VaadinRequest request) {
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -59,7 +61,7 @@ public class MainSpectView extends UI {
         });
 
         Label patientName = new Label();
-        SuggestionCombobox<NbcPatients> combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithDifferetNames, NbcPatients.class);
+        combobox = new SuggestionCombobox<>(nbcPatientsDao::getPatientsWithDifferetNames, NbcPatients.class);
         combobox.addValueChangeListener(valueChangeEvent -> {
             NbcPatients selectedPatient = combobox.getSelectedPatient();
             patientName.setValue(selectedPatient.toString());
@@ -75,16 +77,10 @@ public class MainSpectView extends UI {
                 Notification.show("Не выбран паицент");
                 return;
             }
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), readRecords);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), spectData);
             UI.getCurrent().addWindow(addSpectFlup);
         });
-        readRecords.addClickListener(clickEvent -> {
-            if (combobox.getSelectedPatient() == null) {
-                Notification.show("Не выбран паицент");
-                return;
-            }
-            spectData.readData(combobox.getSelectedPatient());
-        });
+        readRecords.addClickListener(clickEvent -> readData());
         editExistingRecord.addClickListener(clickEvent -> {
             if (combobox.getSelectedPatient() == null) {
                 Notification.show("Не выбран паицент");
@@ -100,7 +96,7 @@ public class MainSpectView extends UI {
                 return;
             }
             Long selectedRowId = spectData.getSelectedRowId();
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), selectedRowId, readRecords);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), spectData, selectedRowId);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         deleteRecord.addClickListener(clickEvent -> {
@@ -136,11 +132,20 @@ public class MainSpectView extends UI {
         verticalLayout.setExpandRatio(spectData, 1.0f);
         setContent(verticalLayout);
 
-        // По дефолту что то будет скрыто
+        // По дефолту что то будет скрыто (Например изолинии, которые не нужны)
         Set<String> invisibleColumns = new HashSet<>();
         invisibleColumns.add(ISOLYNE10.getName());
         invisibleColumns.add(ISOLYNE25.getName());
         twinColSelect.setValue(invisibleColumns);
+        combobox.focus();
+    }
+
+    private void readData() {
+        if (combobox.isEmpty()) {
+            Notification.show("Не выбран паицент");
+            return;
+        }
+        spectData.readData(combobox.getSelectedPatient());
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {
