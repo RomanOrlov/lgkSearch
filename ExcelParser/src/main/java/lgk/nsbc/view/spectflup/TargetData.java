@@ -23,7 +23,7 @@ class TargetData extends DataBlock {
         selectedTarget = new ComboBox("Выберите мишень", targets);
         selectedTarget.setRequired(true);
         selectedTarget.setNullSelectionAllowed(false);
-        selectedTarget.setWidth("170px");
+        selectedTarget.setWidth("100%");
         selectedTarget.setHeight("40px");
         components.addComponents(isSelected, selectedTarget);
         addComponent(components, 0);
@@ -32,9 +32,8 @@ class TargetData extends DataBlock {
         components.setSpacing(true);
         isSelected.setHeight("40px");
         isSelected.setWidth("20px");
-        MarginInfo margin = new MarginInfo(true, false, true, false);
-        setMargin(margin);
-        setExpandRatio(components, 0.9f);
+        setMargin(true);
+        setExpandRatio(components, 0.8f);
     }
 
     public boolean isRowSelected() {

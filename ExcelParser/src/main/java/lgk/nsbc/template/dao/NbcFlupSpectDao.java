@@ -10,6 +10,8 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static lgk.nsbc.generated.tables.NbcFlupSpect.NBC_FLUP_SPECT;
 import static org.jooq.impl.DSL.val;
 
@@ -36,12 +38,12 @@ public class NbcFlupSpectDao {
         nbcFlupSpect.setN(fetch.get(0).getN());
     }
 
-    public NbcFlupSpect findByFollowUp(NbcFollowUp nbcFollowUp) {
+    public Optional<NbcFlupSpect> findByFollowUp(NbcFollowUp nbcFollowUp) {
         NbcFlupSpectRecord nbcFlupSpectRecord = context.fetchOne(NBC_FLUP_SPECT, NBC_FLUP_SPECT.NBC_FOLLOWUP_N.eq(nbcFollowUp.getN()));
         return NbcFlupSpect.buildFromRecord(nbcFlupSpectRecord);
     }
 
-    public NbcFlupSpect findById(Long id) {
+    public Optional<NbcFlupSpect> findById(Long id) {
         NbcFlupSpectRecord nbcFlupSpectRecord = context.fetchOne(NBC_FLUP_SPECT, NBC_FLUP_SPECT.N.eq(id));
         return NbcFlupSpect.buildFromRecord(nbcFlupSpectRecord);
     }

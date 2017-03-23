@@ -9,6 +9,7 @@ import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.util.*;
 import lgk.nsbc.view.SpectCRUDView;
+import lgk.nsbc.view.SpectDataRepresentationView;
 import lgk.nsbc.view.spectflup.AddSpectFlup;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,14 @@ import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
 public class MainSpectView extends UI {
     @Autowired
     private SpectCRUDView spectCRUDView;
+    @Autowired
+    private SpectDataRepresentationView spectDataRepresentationView;
 
     @Override
     protected void init(VaadinRequest request) {
         TabSheet tabSheet = new TabSheet();
         tabSheet.addTab(spectCRUDView, "Заполнение");
+        tabSheet.addTab(spectDataRepresentationView, "Просмотр");
         setContent(tabSheet);
     }
 }

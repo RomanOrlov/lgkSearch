@@ -21,7 +21,7 @@ class DataBlock extends HorizontalLayout {
 
     public DataBlock(TargetType targetType) {
         this.targetType = targetType;
-        setCaption(targetType.getName());
+        //setCaption(targetType.getName());
         setWidth("100%");
         setHeight("40px");
         setSpacing(true);

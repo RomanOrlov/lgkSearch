@@ -137,18 +137,19 @@ public class SpectData extends Grid {
         for (NbcStud nbcStud : patientsSpectStudy) {
             List<NbcFollowUp> nbcFollowUps = nbcFollowUpDao.findByStudy(nbcStud);
             for (NbcFollowUp nbcFollowUp : nbcFollowUps) {
-                NbcFlupSpect nbcFlupSpect = nbcFlupSpectDao.findByFollowUp(nbcFollowUp);
+                Optional<NbcFlupSpect> nbcFlupSpect = nbcFlupSpectDao.findByFollowUp(nbcFollowUp);
+                if (!nbcFlupSpect.isPresent()) continue;
                 NbcTarget nbcTarget = nbcTargetDao.findTargetById(nbcFollowUp.getNbc_target_n());
                 // А это уже непосредственно записи в таблице
-                List<NbcFlupSpectData> rowData = nbcFlupSpectDataDao.findBySpectFlup(nbcFlupSpect);
+                List<NbcFlupSpectData> rowData = nbcFlupSpectDataDao.findBySpectFlup(nbcFlupSpect.get());
                 RowData data = RowData.builder().datas(rowData)
                         .nbcTarget(nbcTarget)
                         .nbcStud(nbcStud)
-                        .nbcFlupSpect(nbcFlupSpect)
+                        .nbcFlupSpect(nbcFlupSpect.get())
                         .nbcFollowUp(nbcFollowUp)
                         .build();
                 // id - NbcFlupSpect.N
-                Item item = container.addItem(nbcFlupSpect.getN());
+                Item item = container.addItem(nbcFlupSpect.get().getN());
                 data.fillItem(item);
             }
         }

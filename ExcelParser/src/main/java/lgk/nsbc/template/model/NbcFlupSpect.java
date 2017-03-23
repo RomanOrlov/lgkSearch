@@ -3,6 +3,8 @@ package lgk.nsbc.template.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.util.Optional;
+
 import static lgk.nsbc.generated.tables.NbcFlupSpect.NBC_FLUP_SPECT;
 
 @Getter
@@ -16,12 +18,15 @@ public class NbcFlupSpect {
     private Long spect_num;
     private String diagnosis;
 
-    public static NbcFlupSpect buildFromRecord(Record record) {
-        return builder()
-                .n(record.get(NBC_FLUP_SPECT.N))
-                .nbc_followup_n(record.get(NBC_FLUP_SPECT.NBC_FOLLOWUP_N))
-                .spect_num(record.get(NBC_FLUP_SPECT.SPECT_NUM))
-                .diagnosis(record.get(NBC_FLUP_SPECT.DIAGNOSIS))
-                .build();
+    public static Optional<NbcFlupSpect> buildFromRecord(Record record) {
+        if (record==null) return Optional.empty();
+        return Optional.of(
+                builder()
+                        .n(record.get(NBC_FLUP_SPECT.N))
+                        .nbc_followup_n(record.get(NBC_FLUP_SPECT.NBC_FOLLOWUP_N))
+                        .spect_num(record.get(NBC_FLUP_SPECT.SPECT_NUM))
+                        .diagnosis(record.get(NBC_FLUP_SPECT.DIAGNOSIS))
+                        .build()
+        );
     }
 }

@@ -5,11 +5,13 @@ import com.vaadin.ui.*;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.util.*;
+import lgk.nsbc.util.excel.ExcelExporter;
 import lgk.nsbc.view.spectflup.AddSpectFlup;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,7 +41,8 @@ public class SpectCRUDView extends VerticalLayout {
 
     private SuggestionCombobox<NbcPatients> combobox;
 
-    public SpectCRUDView() {
+    @PostConstruct
+    private void init() {
         setSizeFull();
         setSpacing(true);
         setMargin(true);
@@ -62,7 +65,7 @@ public class SpectCRUDView extends VerticalLayout {
         Button readRecords = new Button("Просмотр");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new Button("Excel");
+        Button exportToExcel = new ExcelExporter(spectData,"Excel");
         newRecord.addClickListener(clickEvent -> {
             if (combobox.getSelectedPatient() == null) {
                 Notification.show("Не выбран паицент");

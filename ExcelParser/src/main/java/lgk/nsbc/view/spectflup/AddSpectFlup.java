@@ -17,12 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static lgk.nsbc.template.model.spect.ContourType.SPHERE;
 import static lgk.nsbc.template.model.spect.TargetType.*;
@@ -103,7 +99,7 @@ public class AddSpectFlup extends Window {
         targetsLayout.setHeightUndefined();
         targetsLayout.setSpacing(true);
         targetsLayout.addComponent(blank);
-        targetsLayout.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        targetsLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         addTargetData();
 
         Button addTargets = new Button("Добавить мишень");
@@ -156,8 +152,9 @@ public class AddSpectFlup extends Window {
      */
     private void fillWithData() {
         // Собираем данные
-        NbcFlupSpect nbcFlupSpect = nbcFlupSpectDao.findById(selectedRowId);
-        NbcFollowUp nbcFollowUp = nbcFollowUpDao.findById(nbcFlupSpect.getNbc_followup_n());
+        Optional<NbcFlupSpect> nbcFlupSpect = nbcFlupSpectDao.findById(selectedRowId);
+        if (!nbcFlupSpect.isPresent()) return;
+        NbcFollowUp nbcFollowUp = nbcFollowUpDao.findById(nbcFlupSpect.get().getNbc_followup_n());
         NbcStud nbcStud = nbcStudDao.findById(nbcFollowUp.getNbc_stud_n());
         NbcStudInj nbcStudInj = nbcStudInjDao.findByStudy(nbcStud);
         List<NbcFollowUp> nbcFollowUps = nbcFollowUpDao.findByStudy(nbcStud);
@@ -179,9 +176,9 @@ public class AddSpectFlup extends Window {
                     .findFirst().orElseThrow(RuntimeException::new);
             targetDataList.get(i).setSelectedTarfet(target);
 
-            NbcFlupSpect flupSpect = nbcFlupSpectDao.findByFollowUp(followUp);
-            nbcFlupSpects.add(flupSpect);
-            List<NbcFlupSpectData> nbcFlupSpectData = nbcFlupSpectDataDao.findBySpectFlup(flupSpect);
+            Optional<NbcFlupSpect> flupSpect = nbcFlupSpectDao.findByFollowUp(followUp);
+            nbcFlupSpects.add(flupSpect.get());
+            List<NbcFlupSpectData> nbcFlupSpectData = nbcFlupSpectDataDao.findBySpectFlup(flupSpect.get());
             // Заполняем строчку с данными опухоли
             targetDataFields.setListOfData(nbcFlupSpectData);
             // Заполняем один раз
@@ -191,7 +188,7 @@ public class AddSpectFlup extends Window {
                 hypField.setSpectData(hypSphereData);
                 // Заполняем хороидальное сплетение
                 hizField.setListOfData(nbcFlupSpectData);
-                spectNumField.setConvertedValue(flupSpect.getSpect_num());
+                spectNumField.setConvertedValue(flupSpect.get().getSpect_num());
             }
         }
         dateField.setValue(nbcStud.getStudydatetime());
@@ -208,41 +205,43 @@ public class AddSpectFlup extends Window {
                 .study_type(11L)
                 .nbc_patients_n(nbcPatients.getN())
                 .build();
-        if (!nbcStudDao.isSpectStudyExist(nbcStud)) {
-            nbcStudDao.createNbcStud(nbcStud);
-        }
-        // Информация о дозе
-        NbcStudInj nbcStudInj = NbcStudInj.builder()
-                .nbc_stud_n(nbcStud.getN())
-                .inj_activity_bq(dose)
-                .build();
-        nbcStudInjDao.insertStudInj(nbcStudInj);
-        // Общие данные,  - гипофиз, хор. сплетение.
-        // Гипофиз
-        NbcFlupSpectData hyp = hypField.getSpectData();
-        hyp.setContour_size(1L);
-        hyp.setStructure_type(HYP.getName());
-        hyp.setContour_type(SPHERE.getName());
-
-        // Хороидальное сплетение
-        List<NbcFlupSpectData> hiz = hizField.getListOfData();
-        hiz.forEach(hizData -> hizData.setStructure_type(TargetType.HIZ.getName()));
-
-        for (TargetData targetData : targetDataList) {
-            NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
+        context.transaction(configuration -> {
+            if (!nbcStudDao.isSpectStudyExist(nbcStud)) {
+                nbcStudDao.createNbcStud(nbcStud);
+            }
+            // Информация о дозе
+            NbcStudInj nbcStudInj = NbcStudInj.builder()
                     .nbc_stud_n(nbcStud.getN())
-                    .nbc_target_n(targetData.getSelectedTargetN())
+                    .inj_activity_bq(dose)
                     .build();
-            NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
-                    .spect_num(Long.class.cast(spectNumField.getConvertedValue()))
-                    .build();
-            List<NbcFlupSpectData> listOfData = targetData.getListOfData();
-            listOfData.forEach(data -> data.setStructure_type(TargetType.TARGET.getName()));
-            listOfData.add(hyp);
-            listOfData.addAll(hiz);
+            nbcStudInjDao.insertStudInj(nbcStudInj);
+            // Общие данные,  - гипофиз, хор. сплетение.
+            // Гипофиз
+            NbcFlupSpectData hyp = hypField.getSpectData();
+            hyp.setContour_size(1L);
+            hyp.setStructure_type(HYP.getName());
+            hyp.setContour_type(SPHERE.getName());
 
-            nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, nbcFlupSpect, listOfData);
-        }
+            // Хороидальное сплетение
+            List<NbcFlupSpectData> hiz = hizField.getListOfData();
+            hiz.forEach(hizData -> hizData.setStructure_type(TargetType.HIZ.getName()));
+
+            for (TargetData targetData : targetDataList) {
+                NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
+                        .nbc_stud_n(nbcStud.getN())
+                        .nbc_target_n(targetData.getSelectedTargetN())
+                        .build();
+                NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
+                        .spect_num(Long.class.cast(spectNumField.getConvertedValue()))
+                        .build();
+                List<NbcFlupSpectData> listOfData = targetData.getListOfData();
+                listOfData.forEach(data -> data.setStructure_type(TargetType.TARGET.getName()));
+                listOfData.add(hyp);
+                listOfData.addAll(hiz);
+
+                nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, nbcFlupSpect, listOfData);
+            }
+        });
     }
 
     /**
