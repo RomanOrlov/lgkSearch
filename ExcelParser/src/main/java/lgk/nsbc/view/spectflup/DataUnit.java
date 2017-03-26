@@ -1,7 +1,7 @@
 package lgk.nsbc.view.spectflup;
 
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 import lgk.nsbc.template.model.NbcFlupSpectData;
 import lgk.nsbc.template.model.spect.ContourType;
 import lgk.nsbc.util.DoubleTextField;

@@ -1,9 +1,9 @@
 package lgk.nsbc.presenter;
 
 import com.vaadin.addon.tableexport.ExcelExport;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.data.util.BeanItemContainer;
+import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.Notification;
 import lgk.nsbc.backend.SearchManager;
@@ -296,9 +296,9 @@ public class SearchPresenterImpl implements SearchPresenter, Serializable {
     @Override
     public void handleExportToExcel() {
         if (lastResult != null) {
-            com.vaadin.ui.Table table = new com.vaadin.ui.Table("Результат поиска", lastResult);
-            ExcelExport excelExport = new ExcelExport(table, "Экспортированные данные", "Выгрузка", session.getSysAgents().getName() + ".xls");
-            excelExport.export();
+            com.vaadin.v7.ui.Table table = new com.vaadin.v7.ui.Table("Результат поиска", lastResult);
+            //ExcelExport excelExport = new ExcelExport(table, "Экспортированные данные", "Выгрузка", session.getSysAgents().getName() + ".xls");
+            //excelExport.export();
         } else {
             searchView.showErrorMessage("Нет результатов поиска");
         }

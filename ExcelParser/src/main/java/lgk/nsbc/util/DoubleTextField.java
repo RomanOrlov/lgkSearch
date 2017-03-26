@@ -1,8 +1,8 @@
 package lgk.nsbc.util;
 
-import com.vaadin.data.util.converter.StringToDoubleConverter;
-import com.vaadin.data.validator.DoubleRangeValidator;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.data.util.converter.StringToDoubleConverter;
+import com.vaadin.v7.data.validator.DoubleRangeValidator;
+import com.vaadin.v7.ui.TextField;
 
 public class DoubleTextField extends TextField {
     public DoubleTextField(String caption) {

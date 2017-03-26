@@ -1,8 +1,8 @@
 package lgk.nsbc.view.searchview;
 
-import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import com.vaadin.ui.Grid;
+import com.vaadin.v7.ui.Grid;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

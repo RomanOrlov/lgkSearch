@@ -1,9 +1,9 @@
 package lgk.nsbc.backend.info.criteria;
 
-import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.v7.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.ui.TextField;
 import lgk.nsbc.backend.info.DisplayedInfo;
 import org.jooq.Condition;
 import org.jooq.TableField;

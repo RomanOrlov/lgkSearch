@@ -1,6 +1,6 @@
 package lgk.nsbc.presenter;
 
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.v7.data.util.BeanItemContainer;
 import lgk.nsbc.backend.info.DisplayedInfo;
 import lgk.nsbc.backend.info.SampleAdapter;
 import lgk.nsbc.backend.info.criteria.Criteria;

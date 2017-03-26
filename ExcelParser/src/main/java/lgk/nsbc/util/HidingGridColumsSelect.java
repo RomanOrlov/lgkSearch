@@ -1,7 +1,7 @@
 package lgk.nsbc.util;
 
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.ui.TwinColSelect;
+import com.vaadin.v7.data.util.IndexedContainer;
+import com.vaadin.v7.ui.TwinColSelect;
 import lgk.nsbc.template.model.spect.ContourType;
 import lgk.nsbc.template.model.spect.TargetType;
 

@@ -1,8 +1,8 @@
 package lgk.nsbc.util;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.ui.Grid;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
+import com.vaadin.v7.ui.Grid;
 import lgk.nsbc.model.StructureType;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;

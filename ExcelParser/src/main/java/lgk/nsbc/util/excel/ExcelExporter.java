@@ -1,13 +1,13 @@
 package lgk.nsbc.util.excel;
 
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
+import com.vaadin.v7.data.Container;
+import com.vaadin.v7.data.Item;
 import com.vaadin.server.Extension;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Grid.Column;
+import com.vaadin.v7.ui.Grid;
+import com.vaadin.v7.ui.Grid.Column;
 import com.vaadin.ui.Notification;
 import lgk.nsbc.model.StructureType;
 import lgk.nsbc.template.model.spect.ContourType;

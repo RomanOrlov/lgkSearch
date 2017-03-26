@@ -2,6 +2,12 @@ package lgk.nsbc.view.spectflup;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
+import com.vaadin.v7.ui.*;
+import com.vaadin.v7.ui.DateField;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.Label;
+import com.vaadin.v7.ui.TextField;
+import com.vaadin.v7.ui.VerticalLayout;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;
 import lgk.nsbc.template.model.spect.TargetType;

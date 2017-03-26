@@ -1,12 +1,15 @@
 package lgk.nsbc.view.searchview;
 
-import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.ui.*;
+import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import com.vaadin.ui.*;
+import com.vaadin.v7.ui.*;
+import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.v7.ui.NativeSelect;
 import lgk.nsbc.backend.entity.sample.Sample;
 import lgk.nsbc.backend.info.AllSearchTargets;
 import lgk.nsbc.backend.info.DisplayedInfo;

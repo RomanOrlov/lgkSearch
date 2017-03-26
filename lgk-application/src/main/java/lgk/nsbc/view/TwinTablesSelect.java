@@ -1,14 +1,16 @@
 package lgk.nsbc.view;
 
-import com.vaadin.data.Property;
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.v7.data.Property;
+import com.vaadin.v7.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
-import com.vaadin.event.DataBoundTransferable;
+import com.vaadin.v7.event.DataBoundTransferable;
 import com.vaadin.event.dd.DragAndDropEvent;
 import com.vaadin.event.dd.DropHandler;
 import com.vaadin.event.dd.acceptcriteria.*;
 import com.vaadin.shared.ui.dd.VerticalDropLocation;
-import com.vaadin.ui.*;
+import com.vaadin.v7.ui.*;
 import lgk.nsbc.backend.info.SelectableInfo;
 
 import java.util.ArrayList;

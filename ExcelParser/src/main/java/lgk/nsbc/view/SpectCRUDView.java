@@ -1,7 +1,11 @@
 package lgk.nsbc.view;
 
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
+import com.vaadin.v7.ui.*;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.util.*;

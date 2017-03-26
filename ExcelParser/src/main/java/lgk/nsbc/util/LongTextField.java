@@ -1,8 +1,8 @@
 package lgk.nsbc.util;
 
-import com.vaadin.data.util.converter.StringToLongConverter;
-import com.vaadin.data.validator.LongRangeValidator;
-import com.vaadin.ui.TextField;
+import com.vaadin.v7.data.util.converter.StringToLongConverter;
+import com.vaadin.v7.data.validator.LongRangeValidator;
+import com.vaadin.v7.ui.TextField;
 
 public class LongTextField extends TextField {
     public LongTextField(String caption) {

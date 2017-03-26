@@ -1,7 +1,7 @@
 package lgk.nsbc.backend.info.criteria;
 
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.DateField;
+import com.vaadin.v7.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import lgk.nsbc.backend.info.DisplayedInfo;
 import org.jooq.Condition;

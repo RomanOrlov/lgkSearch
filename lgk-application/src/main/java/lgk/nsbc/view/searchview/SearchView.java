@@ -1,6 +1,6 @@
 package lgk.nsbc.view.searchview;
 
-import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Component;
 import lgk.nsbc.backend.info.DisplayedInfo;

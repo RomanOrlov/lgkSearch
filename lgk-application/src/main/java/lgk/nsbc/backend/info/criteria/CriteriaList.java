@@ -2,7 +2,7 @@ package lgk.nsbc.backend.info.criteria;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.NativeSelect;
+import com.vaadin.v7.ui.NativeSelect;
 import lgk.nsbc.backend.info.DisplayedInfo;
 import org.jooq.Condition;
 import org.jooq.TableField;
