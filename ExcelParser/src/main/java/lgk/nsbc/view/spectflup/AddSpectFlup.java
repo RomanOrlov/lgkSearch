@@ -1,18 +1,11 @@
 package lgk.nsbc.view.spectflup;
 
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;
-import com.vaadin.v7.ui.*;
-import com.vaadin.v7.ui.DateField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
 import lgk.nsbc.template.dao.*;
 import lgk.nsbc.template.model.*;
 import lgk.nsbc.template.model.spect.TargetType;
-import lgk.nsbc.util.DoubleTextField;
-import lgk.nsbc.util.LongTextField;
 import lgk.nsbc.util.SpectData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,20 +22,19 @@ import java.util.stream.Collectors;
 import static lgk.nsbc.template.model.spect.ContourType.SPHERE;
 import static lgk.nsbc.template.model.spect.TargetType.*;
 
-@org.springframework.stereotype.Component
+@SpringComponent
 @Scope("prototype")
 @NoArgsConstructor
 public class AddSpectFlup extends Window {
     // Все мишени пациента
-    private List<NbcTarget> targets;
-    private List<TargetData> targetDataList = new ArrayList<>();
     private VerticalLayout targetsLayout = new VerticalLayout();
 
     private DateField dateField = new DateField("Дата исследования");
-    private DoubleTextField dozeField = new DoubleTextField("Доза");
-    private TextField spectNumField = new LongTextField("Номер ОФЕКТ");
+    private TextField dozeField = new TextField("Доза");
+
     private DataUnit hypField = new DataUnit(HYP.getName());
     private DataBlock hizField = new DataBlock(HIZ);
+    private List<TargetData> targetDataList = new ArrayList<>();
 
     @Autowired
     private NbcStudInjDao nbcStudInjDao;
@@ -55,13 +47,12 @@ public class AddSpectFlup extends Window {
     @Autowired
     private NbcTargetDao nbcTargetDao;
     @Autowired
-    private NbcFlupSpectDao nbcFlupSpectDao;
-    @Autowired
     private DSLContext context;
 
     private SpectData spectData;
     // Выбранный пациент
     private NbcPatients nbcPatients;
+    private List<NbcTarget> targets;
     // В случае редактирования выбранная id строчки с flup
     private Long selectedRowId;
     private DataToDelete dataToDelete;
@@ -101,19 +92,15 @@ public class AddSpectFlup extends Window {
         blank.setHeight("55px");
         blank.setWidth("100%");
 
-        targetsLayout.setWidth("100%");
-        targetsLayout.setHeightUndefined();
-        targetsLayout.setSpacing(true);
         targetsLayout.addComponent(blank);
         targetsLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         addTargetData();
 
         Button addTargets = new Button("Добавить мишень");
         Button removeSelectedTargets = new Button("Удалить выбранные");
-        HorizontalLayout firstLine = new HorizontalLayout(dateField, dozeField, spectNumField, addTargets, removeSelectedTargets);
+        HorizontalLayout firstLine = new HorizontalLayout(dateField, dozeField, addTargets, removeSelectedTargets);
         firstLine.setWidth("100%");
         firstLine.setHeight("40px");
-        firstLine.setSpacing(true);
         firstLine.setComponentAlignment(addTargets, Alignment.MIDDLE_CENTER);
         firstLine.setComponentAlignment(removeSelectedTargets, Alignment.MIDDLE_CENTER);
         addTargets.addClickListener(event -> addTargetData());
@@ -128,8 +115,6 @@ public class AddSpectFlup extends Window {
         HorizontalLayout buttons = initAcceptCancelButtons();
 
         content.setSizeFull();
-        content.setSpacing(true);
-        content.setMargin(new MarginInfo(false, true, true, true));
         content.addComponents(shortPatientInfo, firstLine, hypField, hizField, targetsPanel, buttons);
         content.setExpandRatio(targetsPanel, 0.5f);
         content.setExpandRatio(hizField, 0.1f);
@@ -180,7 +165,7 @@ public class AddSpectFlup extends Window {
             NbcTarget target = targets.stream()
                     .filter(nbcTarget -> Objects.equals(nbcTarget.getN(), followUp.getNbc_target_n()))
                     .findFirst().orElseThrow(RuntimeException::new);
-            targetDataList.get(i).setSelectedTarfet(target);
+            targetDataList.get(i).setSelectedTarget(target);
 
             Optional<NbcFlupSpect> flupSpect = nbcFlupSpectDao.findByFollowUp(followUp);
             nbcFlupSpects.add(flupSpect.get());
@@ -235,7 +220,7 @@ public class AddSpectFlup extends Window {
             for (TargetData targetData : targetDataList) {
                 NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
                         .nbc_stud_n(nbcStud.getN())
-                        .nbc_target_n(targetData.getSelectedTargetN())
+                        .nbc_target_n(targetData.getSelectedTarget())
                         .build();
                 NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
                         .spect_num(Long.class.cast(spectNumField.getConvertedValue()))

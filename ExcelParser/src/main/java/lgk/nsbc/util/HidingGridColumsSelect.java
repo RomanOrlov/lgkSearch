@@ -1,19 +1,16 @@
 package lgk.nsbc.util;
 
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.ui.TwinColSelect;
+import com.vaadin.ui.TwinColSelect;
 import lgk.nsbc.template.model.spect.ContourType;
 import lgk.nsbc.template.model.spect.TargetType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
-public class HidingGridColumsSelect extends TwinColSelect {
-    private final SpectData spectData;
+public class HidingGridColumsSelect extends TwinColSelect<String> {
     // Key - имя фильтра, Value - паттерн propertyId по которому искать нужные столбцы
     // Фильтры работают для всех столбцов, чьи проперти не начинаются с #
     private final Map<String, String> filters = new HashMap<>();
@@ -25,17 +22,17 @@ public class HidingGridColumsSelect extends TwinColSelect {
         for (ContourType contourType : ContourType.values()) {
             filters.put(contourType.getName(), contourType.toString());
         }
-
-        this.spectData = spectData;
-        setContainerDataSource(new IndexedContainer(filters.keySet()));
+        setItems(filters.keySet());
         setLeftColumnCaption("Отображаемые столбцы");
         setRightColumnCaption("Скрытые столбцы");
         addValueChangeListener(valueChangeEvent -> {
-            Set<String> value = (Set<String>) valueChangeEvent.getProperty().getValue();
-            Set<String> propertyId = value.stream().map(filters::get).collect(toSet());
-            spectData.updateVisibility(propertyId);
+            Set<String> selectedId = valueChangeEvent.getValue()
+                    .stream()
+                    .map(filters::get)
+                    .collect(toSet());
+            spectData.updateVisibility(selectedId);
         });
         setWidth("100%");
-        setHeight("100px");
+        setHeightUndefined();
     }
 }

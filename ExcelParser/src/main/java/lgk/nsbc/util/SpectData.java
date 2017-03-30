@@ -48,7 +48,6 @@ public class SpectData extends Grid {
     public SpectData() {
         Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
         Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
-        setSelectionMode(SelectionMode.MULTI);
         addHidebleColumn("#date", String.class, "Дата исследования");
         addHidebleColumn("#nbctarget", String.class, "Мишень");
         addHiddenColumn("#id", Long.class);

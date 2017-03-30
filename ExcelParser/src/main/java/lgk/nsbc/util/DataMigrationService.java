@@ -73,7 +73,6 @@ public class DataMigrationService {
 
             String parsingInfo = getParsingInfo(searchedPatients);
             System.out.println(parsingInfo);
-            new ParsingWindow(this, parsingInfo, duplicatePatients);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -157,7 +156,6 @@ public class DataMigrationService {
 
     private NbcFlupSpectData fromTarget(Target target) {
         return NbcFlupSpectData.builder()
-                .contour_size((long) target.getContourSize())
                 .contour_type(target.getContourType().toString())
                 .structure_type(target.getStructureType().toString())
                 .volume(target.getVolume())

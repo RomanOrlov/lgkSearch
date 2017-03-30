@@ -1,10 +1,10 @@
 package lgk.nsbc.view.spectflup;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToDoubleConverter;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
-import lgk.nsbc.template.model.NbcFlupSpectData;
-import lgk.nsbc.template.model.spect.ContourType;
-import lgk.nsbc.util.DoubleTextField;
+import com.vaadin.ui.TextField;
+import lgk.nsbc.view.spectflup.bind.DataUnitBind;
 
 import static lgk.nsbc.template.model.spect.MainInfo.*;
 
@@ -12,28 +12,24 @@ import static lgk.nsbc.template.model.spect.MainInfo.*;
  * Данные об объеме, ранней и поздней фазы
  */
 class DataUnit extends HorizontalLayout {
-    private final TextField volume = new DoubleTextField(VOLUME.getName());
-    private final TextField earlyPhase = new DoubleTextField(MIN30.getName());
-    private final TextField latePhase = new DoubleTextField(MIN60.getName());
+    Binder<DataUnitBind> bind = new Binder<>(DataUnitBind.class);
 
     public DataUnit(String caption) {
         setSizeFull();
         setCaption(caption);
+        TextField volume = new TextField(VOLUME.getName());
+        TextField earlyPhase = new TextField(MIN30.getName());
+        TextField latePhase = new TextField(MIN60.getName());
         addComponents(volume, earlyPhase, latePhase);
-        setSpacing(true);
-    }
 
-    public NbcFlupSpectData getSpectData() {
-        return NbcFlupSpectData.builder()
-                .volume(Double.class.cast(volume.getConvertedValue()))
-                .early_phase(Double.class.cast(earlyPhase.getConvertedValue()))
-                .late_phase(Double.class.cast(latePhase.getConvertedValue()))
-                .build();
-    }
-
-    public void setSpectData(NbcFlupSpectData hypData) {
-        volume.setConvertedValue(hypData.getVolume());
-        earlyPhase.setConvertedValue(hypData.getEarly_phase());
-        latePhase.setConvertedValue(hypData.getLate_phase());
+        bind.forField(volume)
+                .withConverter(new StringToDoubleConverter("Неправильный формат"))
+                .bind(DataUnitBind::getVolume, DataUnitBind::setVolume);
+        bind.forField(earlyPhase)
+                .withConverter(new StringToDoubleConverter("Неправильный формат"))
+                .bind(DataUnitBind::getEarlyPhase, DataUnitBind::setEarlyPhase);
+        bind.forField(latePhase)
+                .withConverter(new StringToDoubleConverter("Неправильный формат"))
+                .bind(DataUnitBind::getLatePhase, DataUnitBind::setLatePhase);
     }
 }

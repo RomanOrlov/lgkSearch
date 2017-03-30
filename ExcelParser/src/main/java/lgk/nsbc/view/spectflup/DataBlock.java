@@ -4,6 +4,7 @@ import com.vaadin.ui.HorizontalLayout;
 import lgk.nsbc.template.model.NbcFlupSpectData;
 import lgk.nsbc.template.model.spect.ContourType;
 import lgk.nsbc.template.model.spect.TargetType;
+import lgk.nsbc.view.spectflup.bind.DataUnitBind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,37 +15,22 @@ import static lgk.nsbc.template.model.spect.ContourType.*;
  * DataUnit для сферы и всех изолиний
  */
 class DataBlock extends HorizontalLayout {
-    private final DataUnit sphere = new DataUnit(SPHERE.getName());
-    private final DataUnit isolyne10 = new DataUnit(ISOLYNE10.getName());
-    private final DataUnit isolyne25 = new DataUnit(ISOLYNE25.getName());
+    final DataUnit sphere = new DataUnit(SPHERE.getName());
+    final DataUnit isolyne10 = new DataUnit(ISOLYNE10.getName());
+    final DataUnit isolyne25 = new DataUnit(ISOLYNE25.getName());
     private final TargetType targetType;
 
     public DataBlock(TargetType targetType) {
         this.targetType = targetType;
-        //setCaption(targetType.getName());
         setWidth("100%");
-        setHeight("40px");
-        setSpacing(true);
         addComponents(sphere, isolyne10, isolyne25);
-        setExpandRatio(sphere, 1.0f);
-        setExpandRatio(isolyne10, 1.0f);
-        setExpandRatio(isolyne25, 1.0f);
     }
 
     public List<NbcFlupSpectData> getListOfData() {
         List<NbcFlupSpectData> spectDataList = new ArrayList<>();
-        // Сфера
-        NbcFlupSpectData sphereData = sphere.getSpectData();
-        sphereData.setContour_size(1L);
-        sphereData.setContour_type(SPHERE.getName());
-        // Изолиния 10
-        NbcFlupSpectData isolyne10Data = isolyne10.getSpectData();
-        isolyne10Data.setContour_size(10L);
-        isolyne10Data.setContour_type(ContourType.ISOLYNE10.getName());
-        // Изолиния 25
-        NbcFlupSpectData isolyne25Data = isolyne25.getSpectData();
-        isolyne25Data.setContour_size(25L);
-        isolyne25Data.setContour_type(ContourType.ISOLYNE25.getName());
+        NbcFlupSpectData sphereData = fromDataBind(sphere.bind.getBean(), SPHERE);
+        NbcFlupSpectData isolyne10Data = fromDataBind(isolyne10.bind.getBean(), ISOLYNE10);
+        NbcFlupSpectData isolyne25Data = fromDataBind(isolyne25.bind.getBean(), ISOLYNE25);
         spectDataList.add(sphereData);
         spectDataList.add(isolyne10Data);
         spectDataList.add(isolyne25Data);
@@ -56,8 +42,28 @@ class DataBlock extends HorizontalLayout {
         NbcFlupSpectData sphereData = SPHERE.getDataOfContour(targetDataList);
         NbcFlupSpectData isolyne10Data = ISOLYNE10.getDataOfContour(targetDataList);
         NbcFlupSpectData isolyne25Data = ISOLYNE25.getDataOfContour(targetDataList);
-        sphere.setSpectData(sphereData);
-        isolyne10.setSpectData(isolyne10Data);
-        isolyne25.setSpectData(isolyne25Data);
+        sphere.bind.readBean(fromSpectData(sphereData));
+        isolyne10.bind.readBean(fromSpectData(isolyne10Data));
+        isolyne25.bind.readBean(fromSpectData(isolyne25Data));
+    }
+
+    private DataUnitBind fromSpectData(NbcFlupSpectData nbcFlupSpectData) {
+        return new DataUnitBind(nbcFlupSpectData.getN(),
+                nbcFlupSpectData.getVolume(),
+                nbcFlupSpectData.getEarly_phase(),
+                nbcFlupSpectData.getLate_phase());
+    }
+
+    private NbcFlupSpectData fromDataBind(DataUnitBind dataUnitBind, ContourType contourType) {
+        return NbcFlupSpectData.builder()
+                .n(dataUnitBind.getN())
+                .targetType(targetType)
+                .contourType(contourType)
+                .contourType(SPHERE)
+                .volume(dataUnitBind.getVolume())
+                .early_phase(dataUnitBind.getEarlyPhase())
+                .late_phase(dataUnitBind.getLatePhase())
+                .build();
+
     }
 }

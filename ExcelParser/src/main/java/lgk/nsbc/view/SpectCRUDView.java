@@ -1,12 +1,8 @@
 package lgk.nsbc.view;
 
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.*;
-import lgk.nsbc.template.dao.*;
+import com.vaadin.ui.*;
+import lgk.nsbc.template.dao.NbcPatientsDao;
 import lgk.nsbc.template.model.NbcPatients;
 import lgk.nsbc.util.*;
 import lgk.nsbc.util.excel.ExcelExporter;
@@ -52,9 +48,7 @@ public class SpectCRUDView extends VerticalLayout {
         setMargin(true);
 
         Upload upload = new Upload("Upload file", new ExcelFileReceiver());
-        upload.addFinishedListener((Upload.FinishedListener) event -> {
-            dataMigrationService.findPatients(tempFile);
-        });
+        upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
         Label patientName = new Label();
         combobox = new SuggestionCombobox<>(NbcPatients.class,
@@ -69,7 +63,7 @@ public class SpectCRUDView extends VerticalLayout {
         Button readRecords = new Button("Просмотр");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new ExcelExporter(spectData,"Excel");
+        Button exportToExcel = new ExcelExporter(spectData, "Excel");
         newRecord.addClickListener(clickEvent -> {
             if (combobox.getSelectedPatient() == null) {
                 Notification.show("Не выбран паицент");
@@ -112,7 +106,6 @@ public class SpectCRUDView extends VerticalLayout {
         buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord, exportToExcel);
 
         HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
-        instruments.setSpacing(true);
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 

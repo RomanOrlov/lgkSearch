@@ -1,10 +1,8 @@
 package lgk.nsbc.view.spectflup;
 
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.NativeSelect;
 import lgk.nsbc.template.model.NbcTarget;
 import lgk.nsbc.template.model.spect.TargetType;
 
@@ -13,43 +11,23 @@ import java.util.List;
 /**
  * Данные для мишени
  */
-class TargetData extends DataBlock {
-    private final CheckBox isSelected = new CheckBox();
-    private final ComboBox selectedTarget;
+class TargetData extends HorizontalLayout {
+    final CheckBox isSelected = new CheckBox();
+    final NativeSelect<NbcTarget> selectedTarget;
+    final DataBlock dataBlock;
 
     public TargetData(List<NbcTarget> targets, TargetType targetType) {
-        super(targetType);
-        HorizontalLayout components = new HorizontalLayout();
-        selectedTarget = new ComboBox("Выберите мишень", targets);
-        selectedTarget.setRequired(true);
-        selectedTarget.setNullSelectionAllowed(false);
+        dataBlock = new DataBlock(targetType);
+
+        selectedTarget = new NativeSelect<>("Выберите мишень", targets);
+        selectedTarget.setEmptySelectionAllowed(false);
         selectedTarget.setWidth("100%");
         selectedTarget.setHeight("40px");
-        components.addComponents(isSelected, selectedTarget);
-        addComponent(components, 0);
-        components.setComponentAlignment(isSelected, Alignment.BOTTOM_LEFT);
-        components.setComponentAlignment(selectedTarget, Alignment.BOTTOM_LEFT);
-        components.setSpacing(true);
+
+        addComponents(isSelected, selectedTarget, dataBlock);
+        setExpandRatio(dataBlock, 1);
+
         isSelected.setHeight("40px");
         isSelected.setWidth("20px");
-        setMargin(true);
-        setExpandRatio(components, 0.8f);
-    }
-
-    public boolean isRowSelected() {
-        return isSelected.getValue();
-    }
-
-    public boolean isEmpty() {
-        return selectedTarget.isEmpty();
-    }
-
-    public Long getSelectedTargetN() {
-        NbcTarget nbcTarget = (NbcTarget) selectedTarget.getValue();
-        return nbcTarget.getN();
-    }
-
-    public void setSelectedTarfet(Object newValue) {
-        selectedTarget.setValue(newValue);
     }
 }
