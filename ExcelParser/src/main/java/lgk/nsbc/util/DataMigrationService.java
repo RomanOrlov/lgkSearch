@@ -1,17 +1,15 @@
 package lgk.nsbc.util;
 
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.util.IndexedContainer;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.model.StudyRecords;
-import lgk.nsbc.model.StudyTarget;
-import lgk.nsbc.model.Target;
-import lgk.nsbc.template.dao.*;
-import lgk.nsbc.template.model.*;
+import lgk.nsbc.dao.BasPeopleDao;
+import lgk.nsbc.dao.NbcFlupSpectDataDao;
+import lgk.nsbc.dao.NbcFollowUpDao;
+import lgk.nsbc.dao.NbcStudDao;
+import lgk.nsbc.model.*;
+import lgk.nsbc.model.excelmigration.StudyRecords;
+import lgk.nsbc.model.excelmigration.StudyTarget;
+import lgk.nsbc.model.excelmigration.Target;
 import lgk.nsbc.util.excel.ParserService;
-import lgk.nsbc.view.ParsingWindow;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
@@ -34,83 +31,24 @@ public class DataMigrationService {
     @Autowired
     private BasPeopleDao basPeopleDao;
     @Autowired
-    private NbcPatientsDao nbcPatientsDao;
-    @Autowired
-    private NbcTargetDao nbcTargetDao;
-    @Autowired
-    private NbcProcDao nbcProcDao;
-    @Autowired
     private NbcStudDao nbcStudDao;
     @Autowired
     private NbcFollowUpDao nbcFollowUpDao;
     @Autowired
     private NbcFlupSpectDataDao nbcFlupSpectDataDao;
-
-
-    private Map<String, TreeSet<StudyRecords>> records;
-    // Распознанные пациенты
-    private Map<String, NbcPatients> patients = new TreeMap<>();
-    private Map<String, PatientSearchInfo> searchedPatients;
-
+    @Autowired
+    private PatientsDuplicatesResolver duplicatesResolver;
 
     public void findPatients(File tempFile) {
         try {
-            records = mapByFullName(tempFile);
-            searchedPatients = parseNames(records.keySet());
-            Map<String, IndexedContainer> duplicatePatients = searchedPatients.entrySet().stream()
-                    .filter(entry -> entry.getValue().getSearchResult() == SearchResult.IMPOSSIBLE_TO_IDENTIFY)
-                    .collect(toMap(Map.Entry::getKey, e -> getIndexedContainerForDuplicates(e.getKey(), e.getValue())));
-
-            searchedPatients.entrySet().stream()
-                    .filter(entry -> entry.getValue().getSearchResult() == SearchResult.PARSING_SUCCESS)
-                    .forEach(entry -> patients.put(entry.getKey(), entry.getValue().getNbcPatients().get(0)));
-
-            // Для дупликатов проверить нет ли этих пациентов в NbcStud с типом процедуры ОФЕКТ
-            // Это нечто вроде автоматического разрешения конлифктов.
-
-            // Поскольку мы отображаем только новые записи, должны для начала проверить, что
-            // Записей об ОФЕКТ нет.
-
-            String parsingInfo = getParsingInfo(searchedPatients);
-            System.out.println(parsingInfo);
+            // Получаем записи
+            Map<String, TreeSet<StudyRecords>> records = mapByFullName(tempFile);
+            // Пытаемся найти паицентов, присутствующих в записях.
+            StringBuilder shortMessage = new StringBuilder();
+            Map<String, Optional<NbcPatients>> patients = parseNames(records.keySet(), shortMessage);
+            persist(records, patients);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private IndexedContainer getIndexedContainerForDuplicates(String name, PatientSearchInfo patientSearchInfo) {
-        List<NbcPatients> nbcPatients = patientSearchInfo.getNbcPatients();
-        IndexedContainer indexedContainer = new IndexedContainer();
-        indexedContainer.addContainerProperty("Имя", String.class, null);
-        indexedContainer.addContainerProperty("ID", Long.class, null);
-        indexedContainer.addContainerProperty("№ Истории болезни", Integer.class, null);
-        indexedContainer.addContainerProperty("Процедуры/Мишени", String.class, null);
-        for (NbcPatients patient : nbcPatients) {
-            Item item = indexedContainer.addItem(patient.getN());
-            item.getItemProperty("Имя").setValue(name);
-            item.getItemProperty("ID").setValue(patient.getN());
-            item.getItemProperty("№ Истории болезни").setValue(patient.getCase_history_num());
-            int targetsNum = nbcTargetDao.countTargetsForPatient(patient);
-            int procNum = nbcProcDao.countProceduresForPatient(patient);
-            String stats = String.format("%d/%d", targetsNum, procNum);
-            item.getItemProperty("Процедуры/Мишени").setValue(stats);
-        }
-        return indexedContainer;
-    }
-
-    /**
-     * Добавляем выбранных пациентов, - те, которые распознаны
-     * @param selectedPatients выбранные пациенты в Grid
-     */
-    public void addResolvedConflicts(Map<String, Object> selectedPatients) {
-        for (Map.Entry<String, Object> entry : selectedPatients.entrySet()) {
-            String name = entry.getKey();
-            PatientSearchInfo patientSearchInfo = searchedPatients.get(name);
-            Long id = (Long) entry.getValue();
-            NbcPatients patient = patientSearchInfo.getNbcPatients().stream()
-                    .filter(nbcPatients -> Objects.equals(nbcPatients.getN(), id))
-                    .findFirst().orElseThrow(RuntimeException::new);
-            patients.put(name, patient);
         }
     }
 
@@ -118,10 +56,12 @@ public class DataMigrationService {
      * Должен проверить, что такой поцедуры нет.
      * Сохраняет процедуры у пациентов.
      */
-    public void saveDataToDB() {
-        for (Map.Entry<String, NbcPatients> patientEntry : patients.entrySet()) {
-            NbcPatients patient = patientEntry.getValue();
-            TreeSet<StudyRecords> studyRecordsTreeSet = records.get(patientEntry.getKey());
+    public void persist(Map<String, TreeSet<StudyRecords>> patientRecords,
+                        Map<String, Optional<NbcPatients>> patients) {
+        for (Map.Entry<String, Optional<NbcPatients>> patientEntry : patients.entrySet()) {
+            if (!patientEntry.getValue().isPresent()) continue;
+            NbcPatients patient = patientEntry.getValue().get();
+            TreeSet<StudyRecords> studyRecordsTreeSet = patientRecords.get(patientEntry.getKey());
             for (StudyRecords records : studyRecordsTreeSet) {
                 NbcStud nbcStud = studyFromRecord(records, patient);
                 // Запись о исследовании
@@ -134,30 +74,30 @@ public class DataMigrationService {
                 // Заносим в базу, только если данных нет
                 if (followUps.isEmpty()) {
                     for (StudyTarget target : targets) {
-                        // Запись в NBC_FLUP_SPECT Я просто должен быть уверен что их столько же скольо и записей о мишенях
                         NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
                                 .nbc_stud_n(nbcStud.getN())
-                                .build();
-                        NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
-                                .nbc_followup_n(nbcFollowUp.getN())
-                                .spect_num(records.getSpectNumder())
-                                .diagnosis(target.getDiagnosis())
                                 .build();
                         List<NbcFlupSpectData> dataList = target.getTargets()
                                 .stream()
                                 .map(this::fromTarget)
                                 .collect(toList());
-                        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, nbcFlupSpect, dataList);
+                        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, dataList);
                     }
                 }
             }
         }
     }
 
+    /**
+     * Не забываем что nbc followup n будет известно только после сохранения в бд
+     *
+     * @param target
+     * @return
+     */
     private NbcFlupSpectData fromTarget(Target target) {
         return NbcFlupSpectData.builder()
-                .contour_type(target.getContourType().toString())
-                .structure_type(target.getStructureType().toString())
+                .contourType(target.getContourType())
+                .targetType(target.getTargetType())
                 .volume(target.getVolume())
                 .early_phase(target.getCountsAfter30min())
                 .late_phase(target.getCountsAfter60min())
@@ -173,52 +113,35 @@ public class DataMigrationService {
                 .build();
     }
 
-    private String getParsingInfo(Map<String, PatientSearchInfo> peoples) {
-        StringBuilder message = new StringBuilder();
-        message.append("Данные следующих пациентов были успено добавлены в базу:\n");
-        peoples.entrySet().stream()
-                .filter(entry -> entry.getValue().getSearchResult() == SearchResult.PARSING_SUCCESS)
-                .forEach(entry -> message.append(entry.getKey()).append("\n"));
-        message.append("\n");
-        message.append("Следующие пациенты не были найдены в базе (либо они отсуттствуют либо невозможно разобрать имя):\n");
-        peoples.entrySet().stream()
-                .filter(entry -> entry.getValue().getSearchResult() == SearchResult.NO_SUCH_PATIENT ||
-                        entry.getValue().getSearchResult() == SearchResult.IMPOSSIBLE_PARSE_NAME)
-                .forEach(entry -> message.append(entry.getKey()).append("\n"));
-        message.append("\n");
-        message.append("Возникли конфликты при попытке распознать пациентов:\n");
-        peoples.entrySet().stream()
-                .filter(entry -> entry.getValue().getSearchResult() == SearchResult.IMPOSSIBLE_TO_IDENTIFY)
-                .forEach(entry -> message.append(entry.getKey()).append("\n"));
-        return message.toString();
-    }
-
-    private Map<String, PatientSearchInfo> parseNames(Set<String> names) {
-        Map<String, PatientSearchInfo> peoples = new TreeMap<>();
+    private Map<String, Optional<NbcPatients>> parseNames(Set<String> names, StringBuilder shortMessage) {
+        Map<String, Optional<NbcPatients>> peoples = new TreeMap<>();
         Set<String> surnames = names.stream()
                 .map(name -> name.trim().split(" ")[0])
                 .collect(toSet());
-        // Get all data from db in one time
         List<BasPeople> basPeoples = basPeopleDao.getPeoplesBySurname(surnames);
         Map<String[], BasPeople> basPeopleMap = basPeoples.stream()
                 .collect(toMap(people -> new String[]{people.getSurname(), people.getName(), people.getPatronymic()}, identity()));
         for (String fullName : names) {
             String[] parsedName = fullName.trim().split(" ");
             if (parsedName.length == 3) {
+                // Нашли всех возможных дубликатов
                 List<BasPeople> man = basPeopleMap.entrySet().stream()
                         .filter(entry -> Arrays.deepEquals(entry.getKey(), parsedName))
                         .map(Map.Entry::getValue)
                         .collect(toList());
                 if (man.isEmpty()) {
-                    peoples.put(fullName, new PatientSearchInfo(emptyList(), SearchResult.NO_SUCH_PATIENT));
+                    peoples.put(fullName, Optional.empty());
+                    shortMessage.append(fullName)
+                            .append("Не нашелся в базе\n");
                 } else {
-                    List<NbcPatients> nbcPatients = getPatients(man);
-                    // Рассмотреть случай когда 0
-                    SearchResult searchResult = nbcPatients.size() == 1 ? SearchResult.PARSING_SUCCESS : SearchResult.IMPOSSIBLE_TO_IDENTIFY;
-                    peoples.put(fullName, new PatientSearchInfo(nbcPatients, searchResult));
+                    // Находим нужного паицента
+                    Optional<NbcPatients> patient = duplicatesResolver.getPatient(man.get(0));
+                    peoples.put(fullName, patient);
                 }
             } else {
-                peoples.put(fullName, new PatientSearchInfo(emptyList(), SearchResult.IMPOSSIBLE_PARSE_NAME));
+                peoples.put(fullName, Optional.empty());
+                shortMessage.append(fullName)
+                        .append("Имя не распозналось из Excel\n");
             }
         }
         return peoples;
@@ -234,50 +157,5 @@ public class DataMigrationService {
             map.get(record.getFullName()).add(record);
         }
         return map;
-    }
-
-    private List<NbcPatients> getPatients(List<BasPeople> basPeoples) {
-        if (basPeoples.size() == 1) {
-            Optional<NbcPatients> patient = nbcPatientsDao.getPatientByBasPeople(basPeoples.get(0));
-            if (patient.isPresent()) {
-                return Collections.singletonList(patient.get());
-            } else {
-                return emptyList();
-            }
-        }
-        // Должен принадлежать радиологии и быть единственным на кого навешены все процедуры и мишени
-        List<NbcPatients> patients = basPeoples.stream()
-                .map(basPeople -> nbcPatientsDao.getPatientByBasPeople(basPeople))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(toList());
-
-        List<NbcPatients> filtered = patients.stream()
-                .filter(nbcPatients -> nbcPatients.getNbc_organizations_n() == 11)
-                .filter(patient -> nbcProcDao.countProceduresForPatient(patient) != 0)
-                .filter(patient -> nbcTargetDao.countTargetsForPatient(patient) != 0)
-                .collect(toList());
-
-        return filtered.size() == 1 ? filtered : patients;
-    }
-
-    @Getter
-    private enum SearchResult {
-        PARSING_SUCCESS("Найден уникальный пациент с данным именем"),
-        IMPOSSIBLE_PARSE_NAME("Невозможно автоматически определить имя из файла"),
-        NO_SUCH_PATIENT("Пациент с таким именем не существует в базе данных"),
-        IMPOSSIBLE_TO_IDENTIFY("Существует несколько пациентов с таким именем. Невозможно определить нужного.");
-        private final String message;
-
-        SearchResult(String message) {
-            this.message = message;
-        }
-    }
-
-    @Getter
-    @AllArgsConstructor
-    private static class PatientSearchInfo {
-        private final List<NbcPatients> nbcPatients;
-        private final SearchResult searchResult;
     }
 }

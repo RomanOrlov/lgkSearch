@@ -1,9 +1,9 @@
 package lgk.nsbc.util.excel;
 
-import lgk.nsbc.model.ExcelDataPosition;
-import lgk.nsbc.model.StudyRecords;
-import lgk.nsbc.model.StudyTarget;
-import lgk.nsbc.model.Target;
+import lgk.nsbc.model.excelmigration.ExcelDataPosition;
+import lgk.nsbc.model.excelmigration.StudyRecords;
+import lgk.nsbc.model.excelmigration.StudyTarget;
+import lgk.nsbc.model.excelmigration.Target;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;

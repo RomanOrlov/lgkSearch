@@ -2,8 +2,7 @@ package lgk.nsbc.view;
 
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
-import lgk.nsbc.template.dao.NbcPatientsDao;
-import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.dao.NbcPatientsDao;
 import lgk.nsbc.util.*;
 import lgk.nsbc.util.excel.ExcelExporter;
 import lgk.nsbc.view.spectflup.AddSpectFlup;
@@ -19,8 +18,8 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE10;
-import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
+import static lgk.nsbc.model.spect.ContourType.ISOLYNE10;
+import static lgk.nsbc.model.spect.ContourType.ISOLYNE25;
 
 @Service
 @VaadinSessionScope
@@ -39,7 +38,7 @@ public class SpectCRUDView extends VerticalLayout {
     @Autowired
     private PatientsDuplicatesResolver patientsDuplicatesResolver;
 
-    private SuggestionCombobox<NbcPatients> combobox;
+    private SuggestionCombobox combobox;
 
     @PostConstruct
     private void init() {
@@ -51,13 +50,8 @@ public class SpectCRUDView extends VerticalLayout {
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
         Label patientName = new Label();
-        combobox = new SuggestionCombobox<>(NbcPatients.class,
-                nbcPatientsDao::getPatientsWithDifferetNames,
-                patientsDuplicatesResolver::getPatient);
-        combobox.addValueChangeListener(valueChangeEvent -> {
-            NbcPatients selectedPatient = combobox.getSelectedPatient();
-            patientName.setValue(selectedPatient.toString());
-        });
+        combobox = new SuggestionCombobox(nbcPatientsDao::getPatientsWithDifferetNames);
+        combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue(combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");
         Button readRecords = new Button("Просмотр");

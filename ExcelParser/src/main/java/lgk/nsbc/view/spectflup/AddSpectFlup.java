@@ -1,26 +1,26 @@
 package lgk.nsbc.view.spectflup;
 
+import com.vaadin.data.Binder;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;
-import lgk.nsbc.template.dao.*;
-import lgk.nsbc.template.model.*;
-import lgk.nsbc.template.model.spect.TargetType;
+import lgk.nsbc.dao.*;
+import lgk.nsbc.model.NbcPatients;
+import lgk.nsbc.model.NbcTarget;
 import lgk.nsbc.util.SpectData;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lgk.nsbc.view.spectflup.bind.SpectDataPropertySet;
+import lgk.nsbc.view.spectflup.bind.SpectFlupData;
 import lombok.NoArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
-import static lgk.nsbc.template.model.spect.ContourType.SPHERE;
-import static lgk.nsbc.template.model.spect.TargetType.*;
+import static lgk.nsbc.model.spect.ContourType.SPHERE;
+import static lgk.nsbc.model.spect.TargetType.*;
 
 @SpringComponent
 @Scope("prototype")
@@ -31,10 +31,10 @@ public class AddSpectFlup extends Window {
 
     private DateField dateField = new DateField("Дата исследования");
     private TextField dozeField = new TextField("Доза");
-
-    private DataUnit hypField = new DataUnit(HYP.getName());
-    private DataBlock hizField = new DataBlock(HIZ);
-    private List<TargetData> targetDataList = new ArrayList<>();
+    private DataUnit hypField;
+    private DataBlock hizField;
+    private final List<TargetData> targetDataList = new ArrayList<>();
+    private Binder<SpectFlupData> bind;
 
     @Autowired
     private NbcStudInjDao nbcStudInjDao;
@@ -55,24 +55,25 @@ public class AddSpectFlup extends Window {
     private List<NbcTarget> targets;
     // В случае редактирования выбранная id строчки с flup
     private Long selectedRowId;
-    private DataToDelete dataToDelete;
+
 
     public AddSpectFlup(NbcPatients nbcPatients, SpectData spectData) {
         this.spectData = spectData;
         this.nbcPatients = nbcPatients;
+        bind = Binder.withPropertySet(new SpectDataPropertySet(null));
+        hypField = new DataUnit(bind, SPHERE, HYP);
+        hizField = new DataBlock(bind, HIZ);
     }
 
     public AddSpectFlup(NbcPatients nbcPatients, SpectData spectData, Long selectedRowId) {
-        this.nbcPatients = nbcPatients;
+        this(nbcPatients, spectData);
         this.selectedRowId = selectedRowId;
-        this.spectData = spectData;
     }
 
     @PostConstruct
     public void init() {
         VerticalLayout content = new VerticalLayout();
         this.targets = nbcTargetDao.getPatientsTargets(nbcPatients);
-        dateField.setRequired(true);
 
         Label shortPatientInfo = new Label(nbcPatients.toString());
         shortPatientInfo.setSizeUndefined();
@@ -106,7 +107,7 @@ public class AddSpectFlup extends Window {
         addTargets.addClickListener(event -> addTargetData());
         removeSelectedTargets.addClickListener(event -> {
             targetDataList.stream()
-                    .filter(TargetData::isRowSelected)
+                    .filter(components -> components.isSelected.getValue())
                     .forEach(components -> targetsLayout.removeComponent(components));
             targetDataList.removeIf(TargetData::isRowSelected);
         });
@@ -138,124 +139,6 @@ public class AddSpectFlup extends Window {
             targetsLayout.addComponent(targetData, targetsLayout.getComponentCount() - 1 - 1);
     }
 
-    /**
-     * Выгрузка информации из базы и выставление даных интерфейса
-     */
-    private void fillWithData() {
-        // Собираем данные
-        Optional<NbcFlupSpect> nbcFlupSpect = nbcFlupSpectDao.findById(selectedRowId);
-        if (!nbcFlupSpect.isPresent()) return;
-        NbcFollowUp nbcFollowUp = nbcFollowUpDao.findById(nbcFlupSpect.get().getNbc_followup_n());
-        NbcStud nbcStud = nbcStudDao.findById(nbcFollowUp.getNbc_stud_n());
-        NbcStudInj nbcStudInj = nbcStudInjDao.findByStudy(nbcStud);
-        List<NbcFollowUp> nbcFollowUps = nbcFollowUpDao.findByStudy(nbcStud);
-        List<NbcFlupSpect> nbcFlupSpects = new ArrayList<>();
-        dataToDelete = new DataToDelete(nbcFollowUps, nbcStud, nbcFlupSpects, nbcStudInj);
-
-        // Выставляем дозу
-        dozeField.setConvertedValue(nbcStudInj.getInj_activity_bq());
-        // Добавляем необходимое количество строк в мишенях
-        for (int i = 0; i < nbcFollowUps.size() - 1; i++) {
-            addTargetData();
-        }
-        for (int i = 0; i < nbcFollowUps.size(); i++) {
-            NbcFollowUp followUp = nbcFollowUps.get(i);
-            TargetData targetDataFields = targetDataList.get(i);
-            // Выставляем выбранную мишень
-            NbcTarget target = targets.stream()
-                    .filter(nbcTarget -> Objects.equals(nbcTarget.getN(), followUp.getNbc_target_n()))
-                    .findFirst().orElseThrow(RuntimeException::new);
-            targetDataList.get(i).setSelectedTarget(target);
-
-            Optional<NbcFlupSpect> flupSpect = nbcFlupSpectDao.findByFollowUp(followUp);
-            nbcFlupSpects.add(flupSpect.get());
-            List<NbcFlupSpectData> nbcFlupSpectData = nbcFlupSpectDataDao.findBySpectFlup(flupSpect.get());
-            // Заполняем строчку с данными опухоли
-            targetDataFields.setListOfData(nbcFlupSpectData);
-            // Заполняем один раз
-            if (i == 0) {
-                // Заполняем гипофиз
-                NbcFlupSpectData hypSphereData = SPHERE.getDataOfContour(HYP.getSublistOfTarget(nbcFlupSpectData));
-                hypField.setSpectData(hypSphereData);
-                // Заполняем хороидальное сплетение
-                hizField.setListOfData(nbcFlupSpectData);
-                spectNumField.setConvertedValue(flupSpect.get().getSpect_num());
-            }
-        }
-        dateField.setValue(nbcStud.getStudydatetime());
-    }
-
-    /**
-     * Непосредстивенное сохранение в базу
-     */
-    private void saveToDb() {
-        Date studyDate = dateField.getValue();
-        Double dose = (Double) dozeField.getConvertedValue();
-        NbcStud nbcStud = NbcStud.builder()
-                .studydatetime(studyDate)
-                .study_type(11L)
-                .nbc_patients_n(nbcPatients.getN())
-                .build();
-        context.transaction(configuration -> {
-            if (!nbcStudDao.isSpectStudyExist(nbcStud)) {
-                nbcStudDao.createNbcStud(nbcStud);
-            }
-            // Информация о дозе
-            NbcStudInj nbcStudInj = NbcStudInj.builder()
-                    .nbc_stud_n(nbcStud.getN())
-                    .inj_activity_bq(dose)
-                    .build();
-            nbcStudInjDao.insertStudInj(nbcStudInj);
-            // Общие данные,  - гипофиз, хор. сплетение.
-            // Гипофиз
-            NbcFlupSpectData hyp = hypField.getSpectData();
-            hyp.setContour_size(1L);
-            hyp.setStructure_type(HYP.getName());
-            hyp.setContour_type(SPHERE.getName());
-
-            // Хороидальное сплетение
-            List<NbcFlupSpectData> hiz = hizField.getListOfData();
-            hiz.forEach(hizData -> hizData.setStructure_type(TargetType.HIZ.getName()));
-
-            for (TargetData targetData : targetDataList) {
-                NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
-                        .nbc_stud_n(nbcStud.getN())
-                        .nbc_target_n(targetData.getSelectedTarget())
-                        .build();
-                NbcFlupSpect nbcFlupSpect = NbcFlupSpect.builder()
-                        .spect_num(Long.class.cast(spectNumField.getConvertedValue()))
-                        .build();
-                List<NbcFlupSpectData> listOfData = targetData.getListOfData();
-                listOfData.forEach(data -> data.setStructure_type(TargetType.TARGET.getName()));
-                listOfData.add(hyp);
-                listOfData.addAll(hiz);
-
-                nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, nbcFlupSpect, listOfData);
-            }
-        });
-    }
-
-    /**
-     * Предикат валидности данных, - выставлена дата, доза, выставлены мишени.
-     *
-     * @return Валидны ли данные
-     */
-    private boolean isInputDataValid() {
-        if (dateField.isEmpty()) {
-            Notification.show("Дата исследовантя не выставлена");
-            return false;
-        }
-        if (dozeField.isEmpty()) {
-            Notification.show("Нет значения дозы");
-            return false;
-        }
-        if (targetDataList.stream().anyMatch(TargetData::isEmpty)) {
-            Notification.show("Не все мишени выбраны");
-            return false;
-        }
-        return true;
-    }
-
     private HorizontalLayout initAcceptCancelButtons() {
         Button commit = new Button("Принять");
         Button cancel = new Button("Отмена");
@@ -278,28 +161,5 @@ public class AddSpectFlup extends Window {
         buttons.setHeight("40px");
         buttons.setSpacing(true);
         return buttons;
-    }
-
-    private void deleteOldData() {
-        context.transaction(configuration -> {
-            nbcStudDao.deleteStudy(dataToDelete.getNbcStud());
-            nbcFollowUpDao.deleteFollowUp(dataToDelete.getNbcFollowUps());
-            List<Long> ids = dataToDelete.getNbcFlupSpects()
-                    .stream()
-                    .map(NbcFlupSpect::getN)
-                    .collect(Collectors.toList());
-            nbcFlupSpectDataDao.deleteByNbcFlupSpectId(ids);
-            nbcStudInjDao.deleteStudInj(dataToDelete.getNbcStudInj());
-        });
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    private static class DataToDelete {
-        private final List<NbcFollowUp> nbcFollowUps;
-        private final NbcStud nbcStud;
-        private final List<NbcFlupSpect> nbcFlupSpects;
-        private final NbcStudInj nbcStudInj;
     }
 }

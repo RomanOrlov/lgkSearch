@@ -3,8 +3,8 @@ package lgk.nsbc.view.spectflup;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
-import lgk.nsbc.template.model.NbcTarget;
-import lgk.nsbc.template.model.spect.TargetType;
+import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.model.spect.TargetType;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ class TargetData extends HorizontalLayout {
     final DataBlock dataBlock;
 
     public TargetData(List<NbcTarget> targets, TargetType targetType) {
-        dataBlock = new DataBlock(targetType);
+        dataBlock = new DataBlock(bind, targetType);
 
         selectedTarget = new NativeSelect<>("Выберите мишень", targets);
         selectedTarget.setEmptySelectionAllowed(false);

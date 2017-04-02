@@ -1,8 +1,8 @@
 package lgk.nsbc.util;
 
 import com.vaadin.ui.TwinColSelect;
-import lgk.nsbc.template.model.spect.ContourType;
-import lgk.nsbc.template.model.spect.TargetType;
+import lgk.nsbc.model.spect.ContourType;
+import lgk.nsbc.model.spect.TargetType;
 
 import java.util.HashMap;
 import java.util.Map;

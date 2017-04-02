@@ -1,11 +1,11 @@
 package lgk.nsbc.util;
 
-import lgk.nsbc.template.dao.NbcPatientsDao;
-import lgk.nsbc.template.dao.NbcProcDao;
-import lgk.nsbc.template.dao.NbcStudDao;
-import lgk.nsbc.template.dao.NbcTargetDao;
-import lgk.nsbc.template.model.BasPeople;
-import lgk.nsbc.template.model.NbcPatients;
+import lgk.nsbc.dao.NbcPatientsDao;
+import lgk.nsbc.dao.NbcProcDao;
+import lgk.nsbc.dao.NbcStudDao;
+import lgk.nsbc.dao.NbcTargetDao;
+import lgk.nsbc.model.BasPeople;
+import lgk.nsbc.model.NbcPatients;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,10 @@ public class PatientsDuplicatesResolver {
 
     public Optional<NbcPatients> getPatient(NbcPatients nbcPatients) {
         BasPeople basPeople = nbcPatients.getBasPeople();
+        return getPatient(basPeople.getSurname(), basPeople.getName(), basPeople.getPatronymic());
+    }
+
+    public Optional<NbcPatients> getPatient(BasPeople basPeople) {
         return getPatient(basPeople.getSurname(), basPeople.getName(), basPeople.getPatronymic());
     }
 

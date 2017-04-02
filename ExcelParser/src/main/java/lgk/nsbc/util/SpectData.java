@@ -1,14 +1,13 @@
 package lgk.nsbc.util;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.ui.Grid;
-import lgk.nsbc.model.StructureType;
-import lgk.nsbc.template.dao.*;
-import lgk.nsbc.template.model.*;
-import lgk.nsbc.template.model.spect.ContourType;
-import lgk.nsbc.template.model.spect.MainInfo;
-import lgk.nsbc.template.model.spect.TargetType;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.data.Container;
+import lgk.nsbc.dao.*;
+import lgk.nsbc.model.*;
+import lgk.nsbc.model.spect.ContourType;
+import lgk.nsbc.model.spect.MainInfo;
+import lgk.nsbc.model.spect.TargetType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,14 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE10;
-import static lgk.nsbc.template.model.spect.ContourType.ISOLYNE25;
-import static lgk.nsbc.template.model.spect.MainInfo.*;
+import static lgk.nsbc.model.spect.MainInfo.*;
 
 @Component
 @Scope("prototype")
@@ -35,19 +31,15 @@ public class SpectData extends Grid {
     @Autowired
     private NbcFollowUpDao nbcFollowUpDao;
     @Autowired
-    private NbcFlupSpectDao getNbcFlupSpectDao;
-    @Autowired
     private NbcFlupSpectDataDao nbcFlupSpectDataDao;
     @Autowired
     private NbcTargetDao nbcTargetDao;
-    @Autowired
-    private NbcFlupSpectDao nbcFlupSpectDao;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
 
     public SpectData() {
-        Grid.HeaderRow structureTypeHeader = addHeaderRowAt(0);
-        Grid.HeaderRow targetTypeHeader = addHeaderRowAt(0);
+        HeaderRow structureTypeHeader = addHeaderRowAt(0);
+        HeaderRow targetTypeHeader = addHeaderRowAt(0);
         addHidebleColumn("#date", String.class, "Дата исследования");
         addHidebleColumn("#nbctarget", String.class, "Мишень");
         addHiddenColumn("#id", Long.class);
@@ -58,6 +50,7 @@ public class SpectData extends Grid {
             for (ContourType contourType : ContourType.values()) {
                 for (MainInfo mainInfo : MainInfo.values()) {
                     String propertyId = targetType.toString() + contourType.toString() + mainInfo.toString();
+                    addColumn()
                     Grid.Column column = addColumn(propertyId, Double.class);
                     column.setHeaderCaption(mainInfo.getName());
                     column.setHidable(false);
