@@ -4,6 +4,7 @@ import lombok.*;
 import org.jooq.Record;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 
@@ -22,8 +23,9 @@ public class NbcStudInj {
     private Date inj_begin;
     private Date inj_end;
 
-    public static NbcStudInj buildFromRecord(Record record) {
-        return builder()
+    public static Optional<NbcStudInj> buildFromRecord(Record record) {
+        if (record == null) return Optional.empty();
+        return Optional.of(builder()
                 .n(record.get(NBC_STUD_INJ.N))
                 .op_create(record.get(NBC_STUD_INJ.OP_CREATE))
                 .nbc_stud_n(record.get(NBC_STUD_INJ.NBC_STUD_N))
@@ -32,6 +34,6 @@ public class NbcStudInj {
                 .inj_vol_ml(record.get(NBC_STUD_INJ.INJ_VOL_ML))
                 .inj_begin(record.get(NBC_STUD_INJ.INJ_BEGIN))
                 .inj_end(record.get(NBC_STUD_INJ.INJ_END))
-                .build();
+                .build());
     }
 }

@@ -9,34 +9,46 @@ import java.util.Optional;
 
 public class SpectDataPropertyDefinition<V> implements PropertyDefinition<SpectFlupData, V> {
     private final SpectDataPropertySet spectDataPropertySet;
+    private final String propertyName;
+    private final Class<V> vClass;
+    private final String propertyCaption;
 
-    public SpectDataPropertyDefinition(SpectDataPropertySet spectDataPropertySet) {
+    public SpectDataPropertyDefinition(SpectDataPropertySet spectDataPropertySet,
+                                       String propertyName,
+                                       Class<V> vClass,
+                                       String propertyCaption) {
         this.spectDataPropertySet = spectDataPropertySet;
+        this.propertyName = propertyName;
+        this.vClass = vClass;
+        this.propertyCaption = propertyCaption;
     }
 
     @Override
     public ValueProvider<SpectFlupData, V> getGetter() {
-        return spectFlupData -> spectFlupData.getProperties().get("");
+        return (spectFlupData -> {
+            Object propertyValue = spectFlupData.getValueByPropertyName(propertyName);
+            return vClass.cast(propertyValue);
+        });
     }
 
     @Override
     public Optional<Setter<SpectFlupData, V>> getSetter() {
-        return null;
+        return Optional.of((spectFlupData, v) -> spectFlupData.setValueByPropertyName(propertyName, v));
     }
 
     @Override
     public Class<V> getType() {
-        return null;
+        return vClass;
     }
 
     @Override
     public String getName() {
-        return null;
+        return propertyName;
     }
 
     @Override
     public String getCaption() {
-        return null;
+        return propertyCaption;
     }
 
     @Override

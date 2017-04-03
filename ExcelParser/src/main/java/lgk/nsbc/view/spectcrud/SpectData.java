@@ -1,6 +1,7 @@
-package lgk.nsbc.util;
+package lgk.nsbc.view.spectcrud;
 
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.data.Container;
 import lgk.nsbc.dao.*;
@@ -24,8 +25,6 @@ import static lgk.nsbc.model.spect.MainInfo.*;
 @Component
 @Scope("prototype")
 public class SpectData extends Grid {
-    // Item id is NbcFlupSpect.N
-    private Container.Indexed container;
     @Autowired
     private NbcStudDao nbcStudDao;
     @Autowired
@@ -50,9 +49,8 @@ public class SpectData extends Grid {
             for (ContourType contourType : ContourType.values()) {
                 for (MainInfo mainInfo : MainInfo.values()) {
                     String propertyId = targetType.toString() + contourType.toString() + mainInfo.toString();
-                    addColumn()
                     Grid.Column column = addColumn(propertyId, Double.class);
-                    column.setHeaderCaption(mainInfo.getName());
+                    column.setCaption(mainInfo.getName());
                     column.setHidable(false);
                     column.setResizable(false);
                     column.setEditable(false);
@@ -75,7 +73,7 @@ public class SpectData extends Grid {
             List<Object> propertyId = getColumnsProperty(columns, contourType.toString());
             if (propertyId.size() % 3 != 0) throw new RuntimeException("Несовпадение размера ячеек");
             for (int i = 0; i < propertyId.size(); i += 3) {
-                Grid.HeaderCell join = structureTypeHeader.join(propertyId.get(i), propertyId.get(i + 1), propertyId.get(i + 2));
+                HeaderCell join = structureTypeHeader.join(propertyId.get(i), propertyId.get(i + 1), propertyId.get(i + 2));
                 join.setText(contourType.getName());
             }
         }
@@ -86,7 +84,7 @@ public class SpectData extends Grid {
 
     public Column addHidebleColumn(String propertyId, Class<?> aClass, String headerCaption) {
         Column column = addColumn(propertyId, aClass);
-        column.setHeaderCaption(headerCaption);
+        column.setCaption(headerCaption);
         column.setHidable(true);
         column.setEditable(false);
         return column;

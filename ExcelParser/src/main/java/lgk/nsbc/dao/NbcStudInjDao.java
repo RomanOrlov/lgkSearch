@@ -9,6 +9,8 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 import static org.jooq.impl.DSL.val;
 
@@ -38,7 +40,7 @@ public class NbcStudInjDao {
                 .execute();
     }
 
-    public NbcStudInj findByStudy(NbcStud nbcStud) {
+    public Optional<NbcStudInj> findByStudy(NbcStud nbcStud) {
         NbcStudInjRecord nbcStudInjRecord = context.fetchOne(NBC_STUD_INJ, NBC_STUD_INJ.NBC_STUD_N.eq(nbcStud.getN()));
         return NbcStudInj.buildFromRecord(nbcStudInjRecord);
     }

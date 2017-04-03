@@ -14,13 +14,11 @@ import static lgk.nsbc.model.spect.MainInfo.*;
  * Данные об объеме, ранней и поздней фазы
  */
 class DataUnit extends HorizontalLayout {
-    private final Binder<SpectFlupData> bind;
     private TextField volume = new TextField(VOLUME.getName());
     private TextField earlyPhase = new TextField(MIN30.getName());
     private TextField latePhase = new TextField(MIN60.getName());
 
     public DataUnit(Binder<SpectFlupData> bind, ContourType contourType, TargetType targetType) {
-        this.bind = bind;
         setSizeFull();
         setCaption(contourType.getName());
         addComponents(volume, earlyPhase, latePhase);
@@ -39,7 +37,6 @@ class DataUnit extends HorizontalLayout {
     }
 
     public DataUnit(Binder<SpectFlupData> bind, ContourType contourType, TargetType targetType, String propertyPrefix) {
-        this.bind = bind;
         setSizeFull();
         setCaption(contourType.getName());
         addComponents(volume, earlyPhase, latePhase);

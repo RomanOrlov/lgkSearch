@@ -65,7 +65,7 @@ public class DataMigrationService {
             for (StudyRecords records : studyRecordsTreeSet) {
                 NbcStud nbcStud = studyFromRecord(records, patient);
                 // Запись о исследовании
-                if (!nbcStudDao.isSpectStudyExist(nbcStud)) {
+                if (!nbcStudDao.isSpectStudyExist(nbcStud.getNbc_patients_n(), nbcStud.getStudydatetime())) {
                     nbcStudDao.createNbcStud(nbcStud);
                 }
                 // Это все разные мишени, - разные записи в NbcFollowUp

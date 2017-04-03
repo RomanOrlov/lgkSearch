@@ -1,13 +1,11 @@
 package lgk.nsbc.util.excel;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Item;
 import com.vaadin.server.Extension;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.Grid.Column;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Notification;
 import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
@@ -57,7 +55,7 @@ public class ExcelExporter extends Button {
         XSSFRow secondHeader = sheet.createRow(1);
         XSSFRow headers = sheet.createRow(2);
 
-        Container.Indexed dataSource = grid.getContainerDataSource();
+        /*Container.Indexed dataSource = grid.getContainerDataSource();
         List<?> filteredProperties = dataSource.getContainerPropertyIds()
                 .stream()
                 .filter(o -> !exludedProperties.contains(o))
@@ -91,7 +89,7 @@ public class ExcelExporter extends Button {
         createMergedRegionsForContours(sheet, filteredProperties);
         workbook.write(outputStream);
         // Выставляем размеры столбцов
-        IntStream.range(0, filteredProperties.size()).forEach(sheet::autoSizeColumn);
+        IntStream.range(0, filteredProperties.size()).forEach(sheet::autoSizeColumn);*/
     }
 
     private void createMergedRegionsForTargets(XSSFSheet sheet, List<?> properties) {
@@ -127,7 +125,7 @@ public class ExcelExporter extends Button {
                     List<Integer> group = new ArrayList<>();
                     Integer prevIndex = indexes.get(propertyIndex);
                     group.add(prevIndex);
-                    while ((propertyIndex+1 < indexes.size()) && (indexes.get(propertyIndex + 1) - prevIndex) == 1) {
+                    while ((propertyIndex + 1 < indexes.size()) && (indexes.get(propertyIndex + 1) - prevIndex) == 1) {
                         Integer nextIndex = indexes.get(propertyIndex + 1);
                         group.add(nextIndex);
                         prevIndex = nextIndex;

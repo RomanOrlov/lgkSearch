@@ -1,10 +1,15 @@
 package lgk.nsbc.view;
 
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
 import lgk.nsbc.dao.NbcPatientsDao;
 import lgk.nsbc.util.*;
 import lgk.nsbc.util.excel.ExcelExporter;
+import lgk.nsbc.view.spectcrud.HidingGridColumsSelect;
+import lgk.nsbc.view.spectcrud.SpectData;
+import lgk.nsbc.view.spectcrud.SuggestionCombobox;
 import lgk.nsbc.view.spectflup.AddSpectFlup;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,28 +28,23 @@ import static lgk.nsbc.model.spect.ContourType.ISOLYNE25;
 
 @Service
 @VaadinSessionScope
-public class SpectCRUDView extends VerticalLayout {
+public class SpectCRUDView extends VerticalLayout implements View{
     // Файл куда заливается Excel file
     private File tempFile;
-
+    @Autowired
+    private BeanFactory beanFactory;
     @Autowired
     private DataMigrationService dataMigrationService;
     @Autowired
     private NbcPatientsDao nbcPatientsDao;
     @Autowired
-    private BeanFactory beanFactory;
-    @Autowired
     private SpectData spectData;
-    @Autowired
-    private PatientsDuplicatesResolver patientsDuplicatesResolver;
 
     private SuggestionCombobox combobox;
 
     @PostConstruct
     private void init() {
         setSizeFull();
-        setSpacing(true);
-        setMargin(true);
 
         Upload upload = new Upload("Upload file", new ExcelFileReceiver());
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
@@ -59,34 +59,30 @@ public class SpectCRUDView extends VerticalLayout {
         Button deleteRecord = new Button("Удалить");
         Button exportToExcel = new ExcelExporter(spectData, "Excel");
         newRecord.addClickListener(clickEvent -> {
-            if (combobox.getSelectedPatient() == null) {
+            if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран паицент");
                 return;
             }
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), spectData);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get(), spectData);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         readRecords.addClickListener(clickEvent -> readData());
         editExistingRecord.addClickListener(clickEvent -> {
-            if (combobox.getSelectedPatient() == null) {
+            if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран паицент");
                 return;
             }
             // Редактирование основано на удалении данных и их вставке.
-            if (spectData.getSelectedRows().isEmpty()) {
+            if (spectData.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для редактирования");
                 return;
             }
-            if (spectData.getSelectedRows().size() != 1) {
-                Notification.show("Для редактирования выбрано более 1 записи");
-                return;
-            }
             Long selectedRowId = spectData.getSelectedRowId();
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedPatient(), spectData, selectedRowId);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get(), spectData, selectedRowId);
             UI.getCurrent().addWindow(addSpectFlup);
         });
         deleteRecord.addClickListener(clickEvent -> {
-            if (spectData.getSelectedRows().isEmpty()) {
+            if (spectData.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для удаления");
                 return;
             }
@@ -119,7 +115,12 @@ public class SpectCRUDView extends VerticalLayout {
             Notification.show("Не выбран паицент");
             return;
         }
-        spectData.readData(combobox.getSelectedPatient());
+        spectData.readData(combobox.getValue());
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {

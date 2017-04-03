@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -56,7 +57,7 @@ public class NbcFollowUpDao {
         return NbcFollowUp.buildFromRecord(nbcFollowupRecord);
     }
 
-    public void deleteFollowUp(List<NbcFollowUp> nbcFollowUps) {
+    public void deleteFollowUp(Collection<NbcFollowUp> nbcFollowUps) {
         List<Long> nbcFollowUpIds = nbcFollowUps.stream()
                 .map(NbcFollowUp::getN)
                 .collect(toList());

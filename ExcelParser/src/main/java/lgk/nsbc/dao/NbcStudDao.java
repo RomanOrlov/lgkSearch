@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -23,9 +25,9 @@ public class NbcStudDao {
     @Autowired
     private DSLContext context;
 
-    public boolean isSpectStudyExist(NbcStud nbcStud) {
-        Timestamp timestamp = new Timestamp(nbcStud.getStudydatetime().getTime());
-        return context.fetchExists(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(nbcStud.getNbc_patients_n())
+    public boolean isSpectStudyExist(Long patientsId, Date studyDate) {
+        Timestamp timestamp = new Timestamp(studyDate.getTime());
+        return context.fetchExists(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patientsId)
                 .and(NBC_STUD.STUDYDATETIME.eq(timestamp))
                 .and(NBC_STUD.STUDY_TYPE.eq(11L)));
     }
@@ -58,10 +60,19 @@ public class NbcStudDao {
 
         return result.stream()
                 .map(NbcStud::buildFromRecord)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public NbcStud findById(Long id) {
+    public Optional<NbcStud> findSpectStudyByDate(NbcPatients nbcPatients, Date studyDate) {
+        Timestamp timestamp = new Timestamp(studyDate.getTime());
+        NbcStudRecord result = context.fetchOne(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(nbcPatients.getN())
+                .and(NBC_STUD.STUDYDATETIME.eq(timestamp))
+                .and(NBC_STUD.STUDY_TYPE.eq(11L)));
+        return NbcStud.buildFromRecord(result);
+    }
+
+    public Optional<NbcStud> findById(Long id) {
         NbcStudRecord nbcStudRecord = context.fetchOne(NBC_STUD, NBC_STUD.N.eq(id));
         return NbcStud.buildFromRecord(nbcStudRecord);
     }
@@ -75,5 +86,9 @@ public class NbcStudDao {
     public boolean isPatientHasSpectStudy(NbcPatients nbcPatients) {
         return context.fetchExists(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(nbcPatients.getN())
                 .and(NBC_STUD.STUDY_TYPE.eq(11L)));
+    }
+
+    public void updateStudy(NbcStud nbcStud) {
+
     }
 }
