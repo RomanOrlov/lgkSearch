@@ -8,7 +8,8 @@ import lgk.nsbc.dao.NbcPatientsDao;
 import lgk.nsbc.util.*;
 import lgk.nsbc.util.excel.ExcelExporter;
 import lgk.nsbc.view.spectcrud.HidingGridColumsSelect;
-import lgk.nsbc.view.spectcrud.SpectData;
+import lgk.nsbc.view.spectcrud.SpectGrid;
+import lgk.nsbc.view.spectcrud.SpectGridData;
 import lgk.nsbc.view.spectcrud.SuggestionCombobox;
 import lgk.nsbc.view.spectflup.AddSpectFlup;
 import org.springframework.beans.factory.BeanFactory;
@@ -38,7 +39,7 @@ public class SpectCRUDView extends VerticalLayout implements View{
     @Autowired
     private NbcPatientsDao nbcPatientsDao;
     @Autowired
-    private SpectData spectData;
+    private SpectGrid spectGrid;
 
     private SuggestionCombobox combobox;
 
@@ -57,13 +58,13 @@ public class SpectCRUDView extends VerticalLayout implements View{
         Button readRecords = new Button("Просмотр");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new ExcelExporter(spectData, "Excel");
+        Button exportToExcel = new ExcelExporter(spectGrid, "Excel");
         newRecord.addClickListener(clickEvent -> {
             if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран паицент");
                 return;
             }
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get(), spectData);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get());
             UI.getCurrent().addWindow(addSpectFlup);
         });
         readRecords.addClickListener(clickEvent -> readData());
@@ -73,23 +74,23 @@ public class SpectCRUDView extends VerticalLayout implements View{
                 return;
             }
             // Редактирование основано на удалении данных и их вставке.
-            if (spectData.asSingleSelect().isEmpty()) {
+            if (spectGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для редактирования");
                 return;
             }
-            Long selectedRowId = spectData.getSelectedRowId();
-            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get(), spectData, selectedRowId);
+            AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get(), spectGrid.asSingleSelect().getValue().getStudyDate());
             UI.getCurrent().addWindow(addSpectFlup);
         });
         deleteRecord.addClickListener(clickEvent -> {
-            if (spectData.asSingleSelect().isEmpty()) {
+            if (spectGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для удаления");
                 return;
             }
-            spectData.deleteSelectedRecords();
+            // TODO удаление записи
+            SpectGridData value = spectGrid.asSingleSelect().getValue();
         });
 
-        TwinColSelect twinColSelect = new HidingGridColumsSelect(spectData);
+        HidingGridColumsSelect twinColSelect = new HidingGridColumsSelect(spectGrid);
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
@@ -99,8 +100,8 @@ public class SpectCRUDView extends VerticalLayout implements View{
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 
-        addComponents(upload, combobox, patientName, instruments, spectData);
-        setExpandRatio(spectData, 1.0f);
+        addComponents(combobox, patientName, instruments, spectGrid);
+        setExpandRatio(spectGrid, 1.0f);
 
         // По дефолту что то будет скрыто (Например изолинии, которые не нужны)
         Set<String> invisibleColumns = new HashSet<>();
@@ -115,7 +116,7 @@ public class SpectCRUDView extends VerticalLayout implements View{
             Notification.show("Не выбран паицент");
             return;
         }
-        spectData.readData(combobox.getValue());
+        //spectData.readData(combobox.getValue());
     }
 
     @Override

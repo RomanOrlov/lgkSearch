@@ -37,14 +37,14 @@ public class ExcelExporter extends Button {
     public ExcelExporter(Grid grid, String caption) {
         super(caption);
         this.grid = grid;
-        exludedProperties.add("#id");
+        /*exludedProperties.add("#id");
         StreamResource myResource = createResource();
         FileDownloader fileDownloader = new FileDownloader(myResource);
         fileDownloader.extend(this);
         addClickListener(event -> {
             if (currrentExtension != null) removeExtension(currrentExtension);
             currrentExtension = fileDownloader;
-        });
+        });*/
 
     }
 

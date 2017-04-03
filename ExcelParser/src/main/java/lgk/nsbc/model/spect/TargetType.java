@@ -2,9 +2,12 @@ package lgk.nsbc.model.spect;
 
 import lgk.nsbc.model.NbcFlupSpectData;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public enum TargetType {
     HIZ("Хороидальное сплетение", 9L), TARGET("Опухоль", 1L), HYP("Гипофиз", 8L);
@@ -37,5 +40,11 @@ public enum TargetType {
         return spectDatas.stream()
                 .filter(nbcFlupSpectData -> nbcFlupSpectData.getTargetType() == this)
                 .collect(toList());
+    }
+
+    public static Set<String> getNames() {
+        return Arrays.stream(values())
+                .map(TargetType::getName)
+                .collect(toSet());
     }
 }

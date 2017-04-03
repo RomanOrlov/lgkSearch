@@ -7,6 +7,7 @@ import com.vaadin.ui.*;
 import lgk.nsbc.dao.NbcTargetDao;
 import lgk.nsbc.model.NbcPatients;
 import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.view.spectflup.bind.SpectDBData;
 import lgk.nsbc.view.spectflup.bind.SpectDataPropertySet;
 import lgk.nsbc.view.spectflup.bind.SpectFlupData;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +49,11 @@ public class AddSpectFlup extends Window {
     public AddSpectFlup(NbcPatients nbcPatients, Date studyDate) {
         this(nbcPatients);
         this.studyDate = studyDate;
+    }
+
+    public AddSpectFlup(NbcPatients nbcPatients, LocalDate studyDate) {
+        this(nbcPatients);
+        this.studyDate = DateUtils.asDate(studyDate);
     }
 
     @PostConstruct

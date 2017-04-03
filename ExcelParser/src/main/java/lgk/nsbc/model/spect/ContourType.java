@@ -2,7 +2,11 @@ package lgk.nsbc.model.spect;
 
 import lgk.nsbc.model.NbcFlupSpectData;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public enum ContourType {
     SPHERE("Сфера", 0L), ISOLYNE10("Изолиния 10", 1L), ISOLYNE25("Изолиния 25", 2L);
@@ -35,5 +39,11 @@ public enum ContourType {
 
     public Long getDictionaryId() {
         return dictionaryId;
+    }
+
+    public static Set<String> getNames() {
+        return Arrays.stream(values())
+                .map(ContourType::getName)
+                .collect(toSet());
     }
 }
