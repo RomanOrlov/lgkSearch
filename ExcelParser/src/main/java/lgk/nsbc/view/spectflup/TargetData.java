@@ -23,12 +23,11 @@ class TargetData extends HorizontalLayout {
         dataBlock = new DataBlock(bind, TARGET, order.toString());
         selectedTarget = new NativeSelect<>("Выберите мишень", targets);
         selectedTarget.setEmptySelectionAllowed(false);
-        selectedTarget.setWidth("100%");
-        selectedTarget.setHeight("40px");
+        selectedTarget.setWidth("200px");
 
         addComponents(selectedTarget, dataBlock);
         setExpandRatio(dataBlock, 1);
-
+        setSizeFull();
         bind.forField(selectedTarget).bind(order.toString() + TARGET.toString());
     }
 }

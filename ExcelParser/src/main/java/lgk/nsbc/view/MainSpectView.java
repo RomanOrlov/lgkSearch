@@ -26,6 +26,7 @@ public class MainSpectView extends UI {
         navigator = new Navigator(this, this);
         navigator.addView(LOGIN, loginPage);
         navigator.addView(MAIN_VIEW, spectCRUDView);
-        navigator.navigateTo(LOGIN);
+        //navigator.navigateTo(LOGIN);
+        navigator.navigateTo(MAIN_VIEW);
     }
 }

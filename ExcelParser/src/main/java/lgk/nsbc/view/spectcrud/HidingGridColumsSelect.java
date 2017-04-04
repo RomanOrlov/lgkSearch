@@ -18,7 +18,7 @@ public class HidingGridColumsSelect extends TwinColSelect<String> {
         setItems(filters);
         setLeftColumnCaption("Отображаемые столбцы");
         setRightColumnCaption("Скрытые столбцы");
-        setWidth("100%");
+        setWidth("400px");
         setHeight("100px");
         addValueChangeListener(valueChangeEvent -> spectGrid.updateColumnsVisibility(valueChangeEvent.getValue()));
     }

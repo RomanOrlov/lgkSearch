@@ -12,6 +12,7 @@ public class SuggestionCombobox extends ComboBox<NbcPatients> {
 
     public SuggestionCombobox(Function<String, List<NbcPatients>> suggestionFilter) {
         FetchItemsCallback<NbcPatients> callback = (filter, offset, limit) -> {
+
             if (!isInputValid(filter)) return Stream.empty();
             return suggestionFilter.apply(filter)
                     .stream()
@@ -29,6 +30,6 @@ public class SuggestionCombobox extends ComboBox<NbcPatients> {
     }
 
     private boolean isInputValid(String value) {
-        return value.trim().length() > 3 && !value.matches("[a-zA-Z0-9\\Q,.<>;:'\"[]{}\\E]+");
+        return value.trim().length() > 4 && !value.matches("[a-zA-Z0-9\\Q,.<>;:'\"[]{}\\E]+");
     }
 }

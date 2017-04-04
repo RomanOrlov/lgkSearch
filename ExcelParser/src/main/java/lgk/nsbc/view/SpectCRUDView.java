@@ -55,7 +55,8 @@ public class SpectCRUDView extends VerticalLayout implements View{
         combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue(combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");
-        Button readRecords = new Button("Просмотр");
+        Button readRecords = new Button("Пациент");
+        Button readAllRecords = new Button("Все записи");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
         Button exportToExcel = new ExcelExporter(spectGrid, "Excel");
@@ -94,9 +95,10 @@ public class SpectCRUDView extends VerticalLayout implements View{
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord, exportToExcel);
+        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord, readAllRecords, exportToExcel);
 
         HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
+        instruments.setExpandRatio(buttons,1);
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 

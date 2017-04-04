@@ -17,14 +17,25 @@ class DataUnit extends HorizontalLayout {
     private TextField volume = new TextField(VOLUME.getName());
     private TextField earlyPhase = new TextField(MIN30.getName());
     private TextField latePhase = new TextField(MIN60.getName());
+    private TargetType targetType;
 
     public DataUnit(Binder<SpectFlupData> bind, ContourType contourType, TargetType targetType) {
-        setSizeFull();
-        setCaption(contourType.getName());
-        addComponents(volume, earlyPhase, latePhase);
-
-        String errorMessage = "Неправильный формат";
+        this.targetType = targetType;
+        init(contourType);
         String firstIdPart = targetType.toString() + contourType.toString();
+        bind(bind, firstIdPart);
+    }
+
+    public DataUnit(Binder<SpectFlupData> bind, ContourType contourType, TargetType targetType, String propertyPrefix) {
+        this.targetType = targetType;
+        init(contourType);
+        String firstIdPart = propertyPrefix + targetType.toString() + contourType.toString();
+        bind(bind, firstIdPart);
+
+    }
+
+    private void bind(Binder<SpectFlupData> bind, String firstIdPart) {
+        String errorMessage = "Неправильный формат";
         bind.forField(volume)
                 .withConverter(new StringToDoubleConverter(errorMessage))
                 .bind(firstIdPart + VOLUME.toString());
@@ -36,21 +47,22 @@ class DataUnit extends HorizontalLayout {
                 .bind(firstIdPart + MIN60.toString());
     }
 
-    public DataUnit(Binder<SpectFlupData> bind, ContourType contourType, TargetType targetType, String propertyPrefix) {
+    private void init(ContourType contourType) {
         setSizeFull();
-        setCaption(contourType.getName());
         addComponents(volume, earlyPhase, latePhase);
-
-        String errorMessage = "Неправильный формат";
-        String firstIdPart = propertyPrefix + targetType.toString() + contourType.toString();
-        bind.forField(volume)
-                .withConverter(new StringToDoubleConverter(errorMessage))
-                .bind(firstIdPart + VOLUME.toString());
-        bind.forField(earlyPhase)
-                .withConverter(new StringToDoubleConverter(errorMessage))
-                .bind(firstIdPart + MIN30.toString());
-        bind.forField(latePhase)
-                .withConverter(new StringToDoubleConverter(errorMessage))
-                .bind(firstIdPart + MIN60.toString());
+        if (targetType != TargetType.HYP) {
+            setCaption(contourType.getName());
+            volume.setWidth("100px");
+            earlyPhase.setWidth("100px");
+            latePhase.setWidth("100px");
+        }
+        else {
+            volume.setWidth("100%");
+            earlyPhase.setWidth("100%");
+            latePhase.setWidth("100%");
+            setExpandRatio(volume, 1);
+            setExpandRatio(earlyPhase, 1);
+            setExpandRatio(latePhase, 1);
+        }
     }
 }

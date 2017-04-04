@@ -2,6 +2,8 @@ package lgk.nsbc.view.spectflup;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationException;
+import com.vaadin.data.converter.StringToDoubleConverter;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;
 import lgk.nsbc.dao.NbcTargetDao;
@@ -22,8 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static lgk.nsbc.model.spect.ContourType.SPHERE;
-import static lgk.nsbc.model.spect.TargetType.HIZ;
-import static lgk.nsbc.model.spect.TargetType.HYP;
+import static lgk.nsbc.model.spect.TargetType.*;
 import static lgk.nsbc.view.spectflup.bind.SpectDataPropertySet.MAX_TARGETS;
 
 @SpringComponent
@@ -58,41 +59,52 @@ public class AddSpectFlup extends Window {
 
     @PostConstruct
     public void init() {
-        setCaption("Добавление данных ОФЕКТ");
+        setCaption("Добавление данных ОФЕКТ - " + nbcPatients.toString());
         setModal(true);
         setClosable(false);
         setSizeFull();
 
+
         VerticalLayout content = new VerticalLayout();
         content.setSizeFull();
+        content.setSpacing(false);
 
-        Label shortPatientInfo = new Label(nbcPatients.toString());
+        Label hypLabel = new Label("<h4>" + HYP.getName() + ":</h4>", ContentMode.HTML);
+        hypLabel.setHeightUndefined();
+        Label hizLabel = new Label("<h4>" + HIZ.getName() + "</h4>", ContentMode.HTML);
+        hizLabel.setHeightUndefined();
+        Label targetLabel = new Label("<h4>" + TARGET.getName() + "</h4>", ContentMode.HTML);
+        targetLabel.setHeightUndefined();
         DateField dateField = new DateField("Дата исследования");
         bind.forField(dateField)
                 .asRequired("Выставите дату исследования")
                 .bind("studyDate");
+
         TextField dozeField = new TextField("Доза");
-        bind.forField(dateField)
+        bind.forField(dozeField)
                 .asRequired("Выставите дозу")
+                .withConverter(new StringToDoubleConverter("Неверное значение"))
                 .bind("dose");
         DataUnit hypField = new DataUnit(bind, SPHERE, HYP);
         DataBlock hizField = new DataBlock(bind, HIZ);
 
-        HorizontalLayout firstLine = new HorizontalLayout(dateField, dozeField);
-        firstLine.setWidth("100%");
-
-        List<NbcTarget> patientsTargets = nbcTargetDao.getPatientsTargets(nbcPatients);
-        VerticalLayout targetsLayout = new VerticalLayout();
-        targetsLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        for (int i = 0; i < MAX_TARGETS; i++) {
-            TargetData targetData = new TargetData(bind, patientsTargets, i);
-            targetsLayout.addComponent(targetData);
-        }
+        hypField.addComponent(hypLabel, 0);
+        hypField.addComponent(dateField, 0);
+        hypField.addComponent(dozeField, 0);
 
         HorizontalLayout buttons = initAcceptCancelButtons();
-        content.addComponents(shortPatientInfo, firstLine, hypField, hizField, targetsLayout, buttons);
-        content.setExpandRatio(targetsLayout, 1);
-
+        content.addComponents(hypField, hizLabel, hizField, targetLabel);
+        content.setExpandRatio(hypField, 1);
+        content.setComponentAlignment(hizLabel, Alignment.MIDDLE_CENTER);
+        content.setComponentAlignment(targetLabel, Alignment.MIDDLE_CENTER);
+        List<NbcTarget> patientsTargets = nbcTargetDao.getPatientsTargets(nbcPatients);
+        for (int i = 0; i < MAX_TARGETS; i++) {
+            TargetData targetData = new TargetData(bind, patientsTargets, i);
+            content.addComponent(targetData);
+            content.setExpandRatio(targetData, 1);
+        }
+        content.addComponent(buttons);
+        content.setExpandRatio(buttons,1);
         setContent(content);
 
         if (studyDate == null)
@@ -107,6 +119,8 @@ public class AddSpectFlup extends Window {
     private HorizontalLayout initAcceptCancelButtons() {
         Button commit = new Button("Принять");
         Button cancel = new Button("Отмена", event -> close());
+        commit.setWidth("200px");
+        cancel.setWidth("200px");
         commit.setStyleName("primary");
         cancel.setStyleName("primary");
         commit.addClickListener(event -> {
@@ -120,6 +134,10 @@ public class AddSpectFlup extends Window {
                 }
             }
         });
-        return new HorizontalLayout(commit, cancel);
+        HorizontalLayout components = new HorizontalLayout();
+        components.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        components.addComponents(commit, cancel);
+        components.setSizeFull();
+        return components;
     }
 }

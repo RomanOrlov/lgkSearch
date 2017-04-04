@@ -33,7 +33,7 @@ public class NbcFlupSpectDataDao {
             List<NbcFlupSpectDataRecord> records = spectDatas.stream()
                     .map(NbcFlupSpectData::getRecord)
                     .collect(toList());
-            context.batchInsert(records);
+            context.batchInsert(records).execute();
         });
     }
 
@@ -42,7 +42,7 @@ public class NbcFlupSpectDataDao {
             List<NbcFlupSpectDataRecord> records = spectDatas.stream()
                     .map(NbcFlupSpectData::getRecord)
                     .collect(toList());
-            context.batchUpdate(records);
+            context.batchUpdate(records).execute();
         });
     }
 
