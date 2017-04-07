@@ -91,7 +91,6 @@ public class SpectDBData {
 
     /**
      * @param spectFlupData
-     * @return количество мишеней
      */
     public void readFromDB(SpectFlupData spectFlupData) {
         if (nbcStudInj != null)

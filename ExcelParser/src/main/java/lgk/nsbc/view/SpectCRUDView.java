@@ -5,6 +5,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
 import lgk.nsbc.dao.NbcPatientsDao;
+import lgk.nsbc.dao.SpectDataManager;
 import lgk.nsbc.util.*;
 import lgk.nsbc.util.excel.ExcelExporter;
 import lgk.nsbc.view.spectcrud.HidingGridColumsSelect;
@@ -40,6 +41,8 @@ public class SpectCRUDView extends VerticalLayout implements View{
     private NbcPatientsDao nbcPatientsDao;
     @Autowired
     private SpectGrid spectGrid;
+    @Autowired
+    private SpectDataManager spectDataManager;
 
     private SuggestionCombobox combobox;
 
@@ -67,6 +70,9 @@ public class SpectCRUDView extends VerticalLayout implements View{
             }
             AddSpectFlup addSpectFlup = beanFactory.getBean(AddSpectFlup.class, combobox.getSelectedItem().get());
             UI.getCurrent().addWindow(addSpectFlup);
+        });
+        readAllRecords.addClickListener(event -> {
+            spectGrid.setItems(spectDataManager.findAllData().stream());
         });
         readRecords.addClickListener(clickEvent -> readData());
         editExistingRecord.addClickListener(clickEvent -> {

@@ -11,6 +11,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,7 @@ import static java.util.stream.Collectors.toMap;
  * В случае, если всё по нулям (несколько пустых пациентов) выбираем того, у которого N больше.
  */
 @Service
-public class PatientsDuplicatesResolver {
+public class PatientsDuplicatesResolver implements Serializable{
     @Autowired
     private NbcPatientsDao nbcPatientsDao;
     @Autowired

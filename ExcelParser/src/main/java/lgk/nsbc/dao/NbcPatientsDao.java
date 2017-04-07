@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import static lgk.nsbc.model.NbcPatients.buildFromRecord;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcPatientsDao {
+public class NbcPatientsDao implements Serializable{
     @Autowired
     private DSLContext context;
 

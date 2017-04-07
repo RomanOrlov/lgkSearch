@@ -8,6 +8,9 @@ import lgk.nsbc.model.spect.TargetType;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Класс необходимый для настройки видимости групп столбцов
+ */
 public class HidingGridColumsSelect extends TwinColSelect<String> {
 
     public HidingGridColumsSelect(SpectGrid spectGrid) {
@@ -15,6 +18,7 @@ public class HidingGridColumsSelect extends TwinColSelect<String> {
         filters.addAll(ContourType.getNames());
         filters.addAll(MainInfo.getNames());
         filters.addAll(TargetType.getNames());
+        filters.add("ИН");
         setItems(filters);
         setLeftColumnCaption("Отображаемые столбцы");
         setRightColumnCaption("Скрытые столбцы");

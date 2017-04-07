@@ -8,13 +8,14 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 
 @Service
-public class NbcTargetDao {
+public class NbcTargetDao implements Serializable{
     @Autowired
     private DSLContext context;
 

@@ -5,10 +5,12 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
 
 @Service
-public class NbcProcDao {
+public class NbcProcDao implements Serializable{
     @Autowired
     private DSLContext context;
 

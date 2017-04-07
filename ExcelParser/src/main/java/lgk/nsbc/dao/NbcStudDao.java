@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +21,7 @@ import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcStudDao {
+public class NbcStudDao implements Serializable{
     private Logger logger = Logger.getLogger(NbcStudDao.class.getName());
     @Autowired
     private DSLContext context;

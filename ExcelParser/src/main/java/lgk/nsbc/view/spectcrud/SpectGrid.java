@@ -35,27 +35,36 @@ public class SpectGrid extends Grid<SpectGridData> {
     private List<Column<SpectGridData, Double>> sphereColumns;
     private List<Column<SpectGridData, Double>> isoline10Columns;
     private List<Column<SpectGridData, Double>> isoline25Columns;
+    private List<Column<SpectGridData, Double>> inColumns;
 
     public SpectGrid() {
         setSizeFull();
-        setReadOnly(true);
+        setReadOnly(false);
         setColumnReorderingAllowed(false);
-
+        // By default all columns is NOT hidable
         Column<SpectGridData, String> surnameColumn = addColumn(SpectGridData::getSurname)
                 .setCaption("Фамилия")
-                .setHidable(true);
+                .setHidable(true)
+                .setEditable(false);
         Column<SpectGridData, String> nameColumn = addColumn(SpectGridData::getName)
                 .setCaption("Имя")
-                .setHidable(true);
+                .setHidable(true)
+                .setEditable(false)
+                .setHidden(true);
         Column<SpectGridData, String> patronumicColumn = addColumn(SpectGridData::getPatronymic)
                 .setCaption("Отчество")
-                .setHidable(true);
+                .setHidable(true)
+                .setEditable(false)
+                .setHidden(true);
         Column<SpectGridData, String> caseHistoryNum = addColumn(SpectGridData::getCaseHistoryNum)
                 .setCaption("Номер истории")
-                .setHidable(true);
+                .setHidable(true)
+                .setEditable(false)
+                .setHidden(true);
         Column<SpectGridData, LocalDate> studyDate = addColumn(SpectGridData::getStudyDate)
                 .setCaption("Дата исследования")
-                .setHidable(true);
+                .setHidable(true)
+                .setEditable(true);
         Column<SpectGridData, String> targetName = addColumn(SpectGridData::getTargetName)
                 .setCaption("Мишень")
                 .setHidable(true);
@@ -113,6 +122,16 @@ public class SpectGrid extends Grid<SpectGridData> {
         mainInfoColumns.addAll(hizColumns);
         mainInfoColumns.addAll(targetsColumns);
 
+        // Индекс накопления - генерируемые данные.
+        Column<SpectGridData, Double> inEarly = addColumn(SpectGridData::getInEarly);
+        inEarly.setCaption(MIN30.getName());
+        Column<SpectGridData, Double> inLate = addColumn(SpectGridData::getInLate);
+        inLate.setCaption(MIN60.getName());
+        Column<SpectGridData, Double> inOut = addColumn(SpectGridData::getInOut);
+        inOut.setCaption("Вымывание");
+        inColumns = Arrays.asList(inEarly, inLate, inOut);
+
+
         volumeColumns = mainInfoColumns.stream()
                 .filter(column -> column.getCaption().equals(VOLUME.getName()))
                 .collect(toList());
@@ -125,7 +144,8 @@ public class SpectGrid extends Grid<SpectGridData> {
 
         sphereColumns = Arrays.asList(hypVolume, hypMin30, hypMin60,
                 hizSphereVolume, hizSphereMin30, hizSphereMin60,
-                targetSphereVolume, targetSphereMin30, targetSphereMin60);
+                targetSphereVolume, targetSphereMin30, targetSphereMin60,
+                inEarly, inLate, inOut);
         isoline10Columns = Arrays.asList(hizIsoline10Volume, hizIsoline10Min30, hizIsoline10Min60,
                 targetIsoline10Volume, targetIsoline10Min30, targetIsoline10Min60);
         isoline25Columns = Arrays.asList(hizIsoline25Volume, hizIsoline25Min30, hizIsoline25Min60,
@@ -138,14 +158,20 @@ public class SpectGrid extends Grid<SpectGridData> {
         // Наведение красоты
         structureTypeHeader.join(nameColumn, patronumicColumn, caseHistoryNum, studyDate, targetName);
         contourTypeHeader.join(nameColumn, patronumicColumn, caseHistoryNum, studyDate, targetName);
-        HeaderRow filterHeader = addHeaderRowAt(2);
+        HeaderRow filterHeader = appendHeaderRow();
         addTextFilter(filterHeader, surnameColumn);
-        FooterRow footerRow = addFooterRowAt(0);
+
+        // Заполняем маленькую статистику
+        FooterRow footerRow = appendFooterRow();
+        getDataProvider().addDataProviderListener(event -> {
+            //event.getSource().
+
+        });
         setFrozenColumnCount(1);
     }
 
     private HeaderRow configureContourHeaderRow() {
-        HeaderRow structureTypeHeader = addHeaderRowAt(1);
+        HeaderRow structureTypeHeader = appendHeaderRow();
         for (int i = 0; i < sphereColumns.size(); i += 3) {
             HeaderCell join = structureTypeHeader.join(sphereColumns.get(i), sphereColumns.get(i + 1), sphereColumns.get(i + 2));
             join.setText(SPHERE.getName());
@@ -162,13 +188,19 @@ public class SpectGrid extends Grid<SpectGridData> {
     }
 
     private HeaderRow configureStructureHeaderRow() {
-        HeaderRow targetTypeHeader = addHeaderRowAt(0);
+        HeaderRow targetTypeHeader = appendHeaderRow();
+
         HeaderCell targetJoinCell = targetTypeHeader.join((Column<?, ?>[]) (targetsColumns).toArray());
         targetJoinCell.setText(TARGET.getName());
+
         HeaderCell hizJoinCell = targetTypeHeader.join((Column<?, ?>[]) (hizColumns).toArray());
         hizJoinCell.setText(HIZ.getName());
+
         HeaderCell hypJoinCell = targetTypeHeader.join((Column<?, ?>[]) (hypColumns).toArray());
         hypJoinCell.setText(HYP.getName());
+
+        HeaderCell inJoin = targetTypeHeader.join((Column<?, ?>[]) (inColumns).toArray());
+        inJoin.setText("ИН");
         return targetTypeHeader;
     }
 
@@ -233,6 +265,9 @@ public class SpectGrid extends Grid<SpectGridData> {
                     break;
                 case "60 минут":
                     min60Columns.forEach(column -> column.setHidden(true));
+                    break;
+                case "ИН":
+                    inColumns.forEach(column -> column.setHidden(true));
                     break;
             }
         }

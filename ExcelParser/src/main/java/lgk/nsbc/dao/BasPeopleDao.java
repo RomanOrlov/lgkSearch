@@ -7,6 +7,7 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 
 @Service
-public class BasPeopleDao {
+public class BasPeopleDao implements Serializable{
     @Autowired
     private DSLContext context;
 

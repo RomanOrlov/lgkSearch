@@ -9,6 +9,7 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import static lgk.nsbc.generated.tables.NbcFollowup.NBC_FOLLOWUP;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcFollowUpDao {
+public class NbcFollowUpDao implements Serializable{
     @Autowired
     private DSLContext context;
 

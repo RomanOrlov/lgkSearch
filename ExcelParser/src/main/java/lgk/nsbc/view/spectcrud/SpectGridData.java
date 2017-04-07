@@ -5,9 +5,13 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * Класс представления данных в Grid
+ */
 @Setter
 @Getter
 public class SpectGridData {
+    private final SpectGridDBData spectGridDBData;
     private String name;
     private String surname;
     private String patronymic;
@@ -47,4 +51,25 @@ public class SpectGridData {
     private Double targetIsoline25Volume;
     private Double targetIsoline25Min30;
     private Double targetIsoline25Min60;
+
+    public SpectGridData(SpectGridDBData spectGridDBData) {
+        this.spectGridDBData = spectGridDBData;
+    }
+
+    public Double getInEarly() {
+        if (targetSphereMin30 == null || hizSphereMin30 == null) return null;
+        return targetSphereMin30 / targetSphereMin30;
+    }
+
+    public Double getInLate() {
+        if (targetSphereMin60 == null || hizSphereMin60 == null) return null;
+        return targetSphereMin60 / targetSphereMin60;
+    }
+
+    public Double getInOut() {
+        Double inEarly = getInEarly();
+        Double inLate = getInLate();
+        if (inEarly == null || inLate == null) return null;
+        return inEarly - inLate;
+    }
 }

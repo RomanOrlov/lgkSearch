@@ -9,13 +9,14 @@ import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcStudInjDao {
+public class NbcStudInjDao implements Serializable{
     @Autowired
     private DSLContext context;
 
