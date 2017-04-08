@@ -1,5 +1,6 @@
 package lgk.nsbc.view;
 
+import com.vaadin.data.provider.Query;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
@@ -23,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static lgk.nsbc.model.spect.ContourType.ISOLYNE10;
@@ -58,7 +60,6 @@ public class SpectCRUDView extends VerticalLayout implements View{
         combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue(combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");
-        Button readRecords = new Button("Пациент");
         Button readAllRecords = new Button("Все записи");
         Button editExistingRecord = new Button("Редактировать");
         Button deleteRecord = new Button("Удалить");
@@ -72,9 +73,11 @@ public class SpectCRUDView extends VerticalLayout implements View{
             UI.getCurrent().addWindow(addSpectFlup);
         });
         readAllRecords.addClickListener(event -> {
-            spectGrid.setItems(spectDataManager.findAllData().stream());
+            List<SpectGridData> allItems = spectGrid.getAllItems();
+            allItems.clear();
+            allItems.addAll(spectDataManager.findAllData());
+            spectGrid.getDataProvider().refreshAll();
         });
-        readRecords.addClickListener(clickEvent -> readData());
         editExistingRecord.addClickListener(clickEvent -> {
             if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран паицент");
@@ -101,7 +104,7 @@ public class SpectCRUDView extends VerticalLayout implements View{
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        buttons.addComponents(newRecord, readRecords, editExistingRecord, deleteRecord, readAllRecords, exportToExcel);
+        buttons.addComponents(newRecord, editExistingRecord, deleteRecord, readAllRecords, exportToExcel);
 
         HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
         instruments.setExpandRatio(buttons,1);

@@ -1,21 +1,24 @@
 package lgk.nsbc.view.spectcrud;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.data.provider.Query;
 import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.components.grid.FooterCell;
 import com.vaadin.ui.components.grid.FooterRow;
 import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.components.grid.HeaderRow;
+import com.vaadin.ui.renderers.NumberRenderer;
 import com.vaadin.ui.themes.ValoTheme;
+import lombok.Getter;
 import org.springframework.context.annotation.Scope;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.model.spect.ContourType.*;
@@ -37,34 +40,37 @@ public class SpectGrid extends Grid<SpectGridData> {
     private List<Column<SpectGridData, Double>> isoline25Columns;
     private List<Column<SpectGridData, Double>> inColumns;
 
+    private DecimalFormat doubleFormat = new DecimalFormat("###0.00");
+
+    @Getter
+    private List<SpectGridData> allItems = new ArrayList<>();
+
     public SpectGrid() {
+        ListDataProvider<SpectGridData> dataProvider = new ListDataProvider<>(getAllItems());
+        setItems();
+        setDataProvider(dataProvider);
         setSizeFull();
         setReadOnly(false);
         setColumnReorderingAllowed(false);
         // By default all columns is NOT hidable
         Column<SpectGridData, String> surnameColumn = addColumn(SpectGridData::getSurname)
                 .setCaption("Фамилия")
-                .setHidable(true)
-                .setEditable(false);
+                .setHidable(true);
         Column<SpectGridData, String> nameColumn = addColumn(SpectGridData::getName)
                 .setCaption("Имя")
                 .setHidable(true)
-                .setEditable(false)
                 .setHidden(true);
         Column<SpectGridData, String> patronumicColumn = addColumn(SpectGridData::getPatronymic)
                 .setCaption("Отчество")
                 .setHidable(true)
-                .setEditable(false)
                 .setHidden(true);
         Column<SpectGridData, String> caseHistoryNum = addColumn(SpectGridData::getCaseHistoryNum)
                 .setCaption("Номер истории")
                 .setHidable(true)
-                .setEditable(false)
                 .setHidden(true);
         Column<SpectGridData, LocalDate> studyDate = addColumn(SpectGridData::getStudyDate)
                 .setCaption("Дата исследования")
-                .setHidable(true)
-                .setEditable(true);
+                .setHidable(true);
         Column<SpectGridData, String> targetName = addColumn(SpectGridData::getTargetName)
                 .setCaption("Мишень")
                 .setHidable(true);
@@ -123,11 +129,11 @@ public class SpectGrid extends Grid<SpectGridData> {
         mainInfoColumns.addAll(targetsColumns);
 
         // Индекс накопления - генерируемые данные.
-        Column<SpectGridData, Double> inEarly = addColumn(SpectGridData::getInEarly);
+        Column<SpectGridData, Double> inEarly = addColumn(SpectGridData::getInEarly, new NumberRenderer(doubleFormat));
         inEarly.setCaption(MIN30.getName());
-        Column<SpectGridData, Double> inLate = addColumn(SpectGridData::getInLate);
+        Column<SpectGridData, Double> inLate = addColumn(SpectGridData::getInLate, new NumberRenderer(doubleFormat));
         inLate.setCaption(MIN60.getName());
-        Column<SpectGridData, Double> inOut = addColumn(SpectGridData::getInOut);
+        Column<SpectGridData, Double> inOut = addColumn(SpectGridData::getInOut, new NumberRenderer(doubleFormat));
         inOut.setCaption("Вымывание");
         inColumns = Arrays.asList(inEarly, inLate, inOut);
 
@@ -153,72 +159,98 @@ public class SpectGrid extends Grid<SpectGridData> {
 
         mainInfoColumns.forEach(spectGridDataDoubleColumn -> spectGridDataDoubleColumn.setHidable(false));
 
-        HeaderRow structureTypeHeader = configureStructureHeaderRow();
+        HeaderRow filterHeader = prependHeaderRow();
+        filterHeader.setStyleName("align-center");
         HeaderRow contourTypeHeader = configureContourHeaderRow();
+        contourTypeHeader.setStyleName("align-center");
+        HeaderRow structureTypeHeader = configureStructureHeaderRow();
+        structureTypeHeader.setStyleName("align-center");
         // Наведение красоты
         structureTypeHeader.join(nameColumn, patronumicColumn, caseHistoryNum, studyDate, targetName);
         contourTypeHeader.join(nameColumn, patronumicColumn, caseHistoryNum, studyDate, targetName);
-        HeaderRow filterHeader = appendHeaderRow();
-        addTextFilter(filterHeader, surnameColumn);
-
+        addTextFilter(filterHeader, surnameColumn, dataProvider);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
-        getDataProvider().addDataProviderListener(event -> {
-            //event.getSource().
+        dataProvider.addDataProviderListener(event -> {
+            List<SpectGridData> data = event.getSource()
+                    .fetch(new Query<>())
+                    .collect(Collectors.toList());
+            footerRow.getCell(surnameColumn).setText("Всего " + Integer.toString(data.size()));
+            setMeanInColumn(footerRow.getCell(inEarly), SpectGridData::getInEarly, data);
+            setMeanInColumn(footerRow.getCell(inLate), SpectGridData::getInLate, data);
+            setMeanInColumn(footerRow.getCell(inOut), SpectGridData::getInOut, data);
+
+            setMeanInColumn(footerRow.getCell(hizSphereVolume), SpectGridData::getHizSphereVolume, data);
+            setMeanInColumn(footerRow.getCell(hizSphereMin30), SpectGridData::getHizSphereMin30, data);
+            setMeanInColumn(footerRow.getCell(hizSphereMin60), SpectGridData::getHizSphereMin60, data);
+
+            setMeanInColumn(footerRow.getCell(targetSphereVolume), SpectGridData::getTargetSphereVolume, data);
+            setMeanInColumn(footerRow.getCell(targetSphereMin30), SpectGridData::getTargetSphereMin30, data);
+            setMeanInColumn(footerRow.getCell(targetSphereMin60), SpectGridData::getTargetSphereMin60, data);
 
         });
+        dataProvider.refreshAll();
         setFrozenColumnCount(1);
     }
 
+    private void setMeanInColumn(FooterCell footerCell, ToDoubleFunction<? super SpectGridData> getValue, List<SpectGridData> data) {
+        double meanValue = data.stream()
+                .mapToDouble(getValue)
+                .average().orElse(0);
+        footerCell.setText(doubleFormat.format(meanValue));
+    }
+
     private HeaderRow configureContourHeaderRow() {
-        HeaderRow structureTypeHeader = appendHeaderRow();
+        HeaderRow structureTypeHeader = prependHeaderRow();
         for (int i = 0; i < sphereColumns.size(); i += 3) {
             HeaderCell join = structureTypeHeader.join(sphereColumns.get(i), sphereColumns.get(i + 1), sphereColumns.get(i + 2));
             join.setText(SPHERE.getName());
+            join.setStyleName("align-center");
         }
         for (int i = 0; i < isoline10Columns.size(); i += 3) {
             HeaderCell join = structureTypeHeader.join(isoline10Columns.get(i), isoline10Columns.get(i + 1), isoline10Columns.get(i + 2));
             join.setText(ISOLYNE10.getName());
+            join.setStyleName("align-center");
         }
         for (int i = 0; i < isoline25Columns.size(); i += 3) {
             HeaderCell join = structureTypeHeader.join(isoline25Columns.get(i), isoline25Columns.get(i + 1), isoline25Columns.get(i + 2));
             join.setText(ISOLYNE25.getName());
+            join.setStyleName("align-center");
         }
         return structureTypeHeader;
     }
 
     private HeaderRow configureStructureHeaderRow() {
-        HeaderRow targetTypeHeader = appendHeaderRow();
+        HeaderRow targetTypeHeader = prependHeaderRow();
 
         HeaderCell targetJoinCell = targetTypeHeader.join((Column<?, ?>[]) (targetsColumns).toArray());
         targetJoinCell.setText(TARGET.getName());
+        targetJoinCell.setStyleName("align-center");
 
         HeaderCell hizJoinCell = targetTypeHeader.join((Column<?, ?>[]) (hizColumns).toArray());
         hizJoinCell.setText(HIZ.getName());
+        hizJoinCell.setStyleName("align-center");
 
         HeaderCell hypJoinCell = targetTypeHeader.join((Column<?, ?>[]) (hypColumns).toArray());
         hypJoinCell.setText(HYP.getName());
+        hypJoinCell.setStyleName("align-center");
 
         HeaderCell inJoin = targetTypeHeader.join((Column<?, ?>[]) (inColumns).toArray());
         inJoin.setText("ИН");
+        inJoin.setStyleName("align-center");
         return targetTypeHeader;
     }
 
-    /**
-     * Shit! It's seems to multiple filtering is in progress in Vaadin 8. Peace of crap!
-     *
-     * @param filterHeader
-     * @param column
-     */
-    private void addTextFilter(HeaderRow filterHeader, Column<?, ?> column) {
+    private void addTextFilter(HeaderRow filterHeader, Column<?, ?> column, ListDataProvider<SpectGridData> dataProvider) {
         HeaderCell cell = filterHeader.getCell(column);
         TextField filterField = getColumnTextFilterField();
         cell.setComponent(filterField);
         filterField.addValueChangeListener(event -> {
             String enteredValue = event.getValue();
-            DataProvider<SpectGridData, ?> dataProvider = getDataProvider();
-
-            ConfigurableFilterDataProvider<SpectGridData, Void, ?> filter = dataProvider.withConfigurableFilter();
+            dataProvider.setFilter(SpectGridData::getSurname, surname -> {
+                if (surname == null) return false;
+                return surname.contains(enteredValue);
+            });
         });
     }
 
@@ -237,6 +269,7 @@ public class SpectGrid extends Grid<SpectGridData> {
      */
     public void updateColumnsVisibility(Set<String> columnNames) {
         mainInfoColumns.forEach(column -> column.setHidden(false));
+        inColumns.forEach(column -> column.setHidden(false));
         for (String columnName : columnNames) {
             switch (columnName) {
                 case "Сфера":

@@ -58,12 +58,12 @@ public class SpectGridData {
 
     public Double getInEarly() {
         if (targetSphereMin30 == null || hizSphereMin30 == null) return null;
-        return targetSphereMin30 / targetSphereMin30;
+        return targetSphereMin30 / hizSphereMin30;
     }
 
     public Double getInLate() {
         if (targetSphereMin60 == null || hizSphereMin60 == null) return null;
-        return targetSphereMin60 / targetSphereMin60;
+        return targetSphereMin60 / hizSphereMin60;
     }
 
     public Double getInOut() {

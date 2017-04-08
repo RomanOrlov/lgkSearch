@@ -95,13 +95,20 @@ public class SpectDataManager {
                     .stream()
                     .map(nbcFollowUp -> {
                         NbcStud nbcStud = study.get(nbcFollowUp.getNbc_stud_n());
-                        NbcTarget nbcTarget = targets.get(nbcFollowUp.getNbc_target_n());
+                        if (nbcStud == null) return Optional.empty();
                         NbcPatients nbcPatients = patients.get(nbcStud.getNbc_patients_n());
+                        if (nbcPatients == null) return Optional.empty();
+                        NbcTarget nbcTarget = targets.get(nbcFollowUp.getNbc_target_n());
                         List<NbcFlupSpectData> datas = dataByFollowUp.get(nbcFollowUp.getN());
-                        return new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcTarget, datas).getSpectGridData();
-                    }).collect(toList());
+                        if (datas == null) return Optional.empty();
+                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcTarget, datas).getSpectGridData());
+                    })
+                    .filter(Optional::isPresent)
+                    .map(o -> (SpectGridData)(o.get()))
+                    .collect(toList());
             return gridData;
         } catch (Exception ex) {
+            ex.printStackTrace();
             return Collections.emptyList();
         }
     }

@@ -5,6 +5,7 @@ import lgk.nsbc.model.NbcFlupSpectData;
 import lgk.nsbc.model.NbcFollowUp;
 import lgk.nsbc.model.NbcStud;
 import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.util.DateUtils;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class SpectGridDBData {
         spectGridData.setPatronymic(nbcPatients.getBasPeople().getPatronymic());
         spectGridData.setTargetName(nbcTarget.getTargetname());
         spectGridData.setCaseHistoryNum(nbcPatients.getCase_history_num().toString());
+        spectGridData.setStudyDate(DateUtils.asLocalDate(nbcStud.getStudydatetime()));
         NbcFlupSpectData hyp = dataMap.get(HYP.toString() + SPHERE.toString());
         NbcFlupSpectData hizSphere = dataMap.get(HIZ.toString() + SPHERE.toString());
         NbcFlupSpectData hizIsoline10 = dataMap.get(HIZ.toString() + ISOLYNE10.toString());

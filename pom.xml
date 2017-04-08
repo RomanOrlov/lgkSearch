@@ -30,6 +30,11 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>vaadin-prereleases</id>
+			<name>Vaadin Pre-releases</name>
+			<url>https://maven.vaadin.com/vaadin-prereleases</url>
+		</repository>
 	</repositories>
 
 
@@ -41,7 +46,7 @@
 	</parent>
 
 	<properties>
-		<vaadin.version>8.0.1</vaadin.version>
+		<vaadin.version>8.1.0.alpha4</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<project.encoding>UTF-8</project.encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,6 +141,15 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>vaadin-prereleases</id>
+			<name>Vaadin Pre-releases</name>
+			<url>https://maven.vaadin.com/vaadin-prereleases</url>
+		</pluginRepository>
+
+	</pluginRepositories>
 
 	<build>
 		<plugins>
