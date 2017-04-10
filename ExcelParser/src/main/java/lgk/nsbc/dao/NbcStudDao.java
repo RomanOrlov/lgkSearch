@@ -90,6 +90,10 @@ public class NbcStudDao implements Serializable{
     }
 
     public void updateStudy(NbcStud nbcStud) {
-
+        Timestamp timestamp = new Timestamp(nbcStud.getStudydatetime().getTime());
+        context.update(NBC_STUD)
+                .set(NBC_STUD.STUDYDATETIME, timestamp)
+                .where(NBC_STUD.N.eq(nbcStud.getN()))
+                .execute();
     }
 }

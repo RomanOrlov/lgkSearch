@@ -66,4 +66,10 @@ public class NbcFollowUpDao implements Serializable{
                 .where(NBC_FOLLOWUP.N.in(nbcFollowUpIds))
                 .execute();
     }
+
+    public void deleteFollowUp(NbcFollowUp nbcFollowUps) {
+        int removedRecords = context.deleteFrom(NBC_FOLLOWUP)
+                .where(NBC_FOLLOWUP.N.eq(nbcFollowUps.getN()))
+                .execute();
+    }
 }

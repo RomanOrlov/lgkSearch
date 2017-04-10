@@ -1,5 +1,6 @@
 package lgk.nsbc.view.spectcrud;
 
+import lgk.nsbc.model.NbcTarget;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,8 +17,9 @@ public class SpectGridData {
     private String surname;
     private String patronymic;
     private String caseHistoryNum;
+    private Double dose;
     private LocalDate studyDate;
-    private String targetName;
+    private NbcTarget target;
 
     // Гипофиз
     private Double hypVolume;

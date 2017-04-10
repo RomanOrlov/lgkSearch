@@ -2,9 +2,10 @@ package lgk.nsbc.dao;
 
 import lgk.nsbc.generated.tables.records.NbcFlupSpectDataRecord;
 import lgk.nsbc.generated.tables.records.NbcFollowupRecord;
+import lgk.nsbc.generated.tables.records.NbcStudInjRecord;
 import lgk.nsbc.generated.tables.records.NbcStudRecord;
-import lgk.nsbc.generated.tables.records.NbcTargetRecord;
 import lgk.nsbc.model.*;
+import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.view.spectcrud.SpectGridDBData;
 import lgk.nsbc.view.spectcrud.SpectGridData;
 import org.jooq.DSLContext;
@@ -19,23 +20,35 @@ import java.util.concurrent.CompletableFuture;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static lgk.nsbc.generated.Tables.NBC_STUD_INJ;
 import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 import static lgk.nsbc.generated.tables.NbcFollowup.NBC_FOLLOWUP;
 import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
 import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
+import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYPE;
 
 @Service
 public class SpectDataManager {
     @Autowired
     private DSLContext context;
+    @Autowired
+    private NbcTargetDao nbcTargetDao;
+    @Autowired
+    private NbcFollowUpDao nbcFollowUpDao;
+    @Autowired
+    private NbcFlupSpectDataDao nbcFlupSpectDataDao;
+    @Autowired
+    private NbcStudDao nbcStudDao;
+    @Autowired
+    private NbcStudInjDao nbcStudInjDao;
 
     /**
      * Этот метод должен быть чертовски быстрым.
      * Поэтому он
+     *
      * @return
-     * @throws Exception
      */
     public List<SpectGridData> findAllData() {
         try {
@@ -67,8 +80,19 @@ public class SpectDataManager {
                     .collect(toList());
             CompletableFuture<Result<NbcFlupSpectDataRecord>> spectDataResult = context.fetchAsync(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.in(followup.keySet()))
                     .toCompletableFuture();
-            CompletableFuture<Result<NbcTargetRecord>> targetsResult = context.fetchAsync(NBC_TARGET, NBC_TARGET.N.in(targetsId))
+            CompletableFuture<Result<Record>> targetsResult = context.select()
+                    .from(NBC_TARGET)
+                    .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
+                    .where(NBC_TARGET.N.in(targetsId))
+                    .fetchAsync()
                     .toCompletableFuture();
+            CompletableFuture<Result<NbcStudInjRecord>> inj = context.fetchAsync(NBC_STUD_INJ, NBC_STUD_INJ.NBC_STUD_N.in(studId))
+                    .toCompletableFuture();
+            Map<Long, NbcStudInj> injByStudyId = inj.get()
+                    .stream()
+                    .map(NbcStudInj::buildFromRecord)
+                    .map(Optional::get)
+                    .collect(toMap(NbcStudInj::getNbc_stud_n, identity()));
             Map<Long, NbcPatients> patients = patientsRecords.get()
                     .stream()
                     .map(record -> {
@@ -101,15 +125,56 @@ public class SpectDataManager {
                         NbcTarget nbcTarget = targets.get(nbcFollowUp.getNbc_target_n());
                         List<NbcFlupSpectData> datas = dataByFollowUp.get(nbcFollowUp.getN());
                         if (datas == null) return Optional.empty();
-                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcTarget, datas).getSpectGridData());
+                        NbcStudInj nbcStudInj = injByStudyId.getOrDefault(nbcStud.getN(), NbcStudInj.builder().n(-1L)
+                                .nbc_stud_n(nbcStud.getN())
+                                .build());
+                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcStudInj, nbcTarget, datas, targets.values()).getSpectGridData());
                     })
                     .filter(Optional::isPresent)
-                    .map(o -> (SpectGridData)(o.get()))
+                    .map(o -> (SpectGridData) (o.get()))
                     .collect(toList());
             return gridData;
         } catch (Exception ex) {
             ex.printStackTrace();
             return Collections.emptyList();
         }
+    }
+
+    public SpectGridData getBlankSpectGridData(NbcPatients nbcPatients) {
+        return new SpectGridDBData(nbcPatients, nbcTargetDao.getPatientsTargets(nbcPatients)).getSpectGridData();
+    }
+
+    public void persistSpectData(SpectGridData spectGridData) {
+        SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
+        // study
+        NbcStud nbcStud = spectGridDBData.getNbcStud();
+        if (nbcStud.getN() == -1) {
+            nbcStud.setStudydatetime(DateUtils.asDate(spectGridData.getStudyDate()));
+            nbcStudDao.createNbcStud(nbcStud);
+        } else if (!spectGridData.getStudyDate().equals(DateUtils.asLocalDate(nbcStud.getStudydatetime()))) {
+            nbcStudDao.updateStudy(nbcStud);
+        }
+        // inj
+        NbcStudInj nbcStudInj = spectGridDBData.getNbcStudInj();
+        if (nbcStudInj.getN() == -1) {
+            nbcStudInj.setInj_activity_bq(spectGridData.getDose());
+            nbcStudInj.setNbc_stud_n(nbcStud.getN());
+            nbcStudInjDao.insertStudInj(nbcStudInj);
+        } else if (!nbcStudInj.getInj_activity_bq().equals(spectGridData.getDose()) || !nbcStudInj.getNbc_stud_n().equals(nbcStud.getN())) {
+            nbcStudInj.setInj_activity_bq(spectGridData.getDose());
+            nbcStudInj.setNbc_stud_n(nbcStud.getN());
+            nbcStudInjDao.updateInj(nbcStudInj);
+        }
+
+    }
+
+    public void deleteSpectData(SpectGridData spectGridData) {
+        SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
+        // Нет данных.
+        if (spectGridDBData.getNbcFollowUp().getN() == null) return;
+        context.transaction(configuration -> {
+            nbcFollowUpDao.deleteFollowUp(spectGridDBData.getNbcFollowUp());
+            nbcFlupSpectDataDao.deleteSpectData(spectGridDBData.getNbcFollowUp());
+        });
     }
 }

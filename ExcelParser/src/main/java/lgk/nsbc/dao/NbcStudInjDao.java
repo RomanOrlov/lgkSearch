@@ -45,4 +45,12 @@ public class NbcStudInjDao implements Serializable{
         NbcStudInjRecord nbcStudInjRecord = context.fetchOne(NBC_STUD_INJ, NBC_STUD_INJ.NBC_STUD_N.eq(nbcStud.getN()));
         return NbcStudInj.buildFromRecord(nbcStudInjRecord);
     }
+
+    public void updateInj(NbcStudInj nbcStudInj) {
+        context.update(NBC_STUD_INJ)
+                .set(NBC_STUD_INJ.INJ_ACTIVITY_BQ, nbcStudInj.getInj_activity_bq())
+                .set(NBC_STUD_INJ.NBC_STUD_N, nbcStudInj.getNbc_stud_n())
+                .where(NBC_STUD_INJ.N.eq(nbcStudInj.getN()))
+                .execute();
+    }
 }

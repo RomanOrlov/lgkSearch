@@ -73,10 +73,9 @@ public class NbcFlupSpectDataDao implements Serializable{
                 .collect(toList());
     }
 
-    public void deleteSpectData(List<NbcFlupSpectData> oldAllSpectFlupData) {
-        int[] execute = context.batchDelete(oldAllSpectFlupData.stream()
-                .map(NbcFlupSpectData::getRecord)
-                .collect(toList()))
+    public void deleteSpectData(NbcFollowUp nbcFollowUp) {
+        int execute = context.deleteFrom(NBC_FLUP_SPECT_DATA)
+                .where(NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.eq(nbcFollowUp.getN()))
                 .execute();
     }
 }
