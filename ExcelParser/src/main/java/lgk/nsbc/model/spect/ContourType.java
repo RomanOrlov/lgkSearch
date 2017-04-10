@@ -1,9 +1,6 @@
 package lgk.nsbc.model.spect;
 
-import lgk.nsbc.model.NbcFlupSpectData;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -29,12 +26,6 @@ public enum ContourType {
                 return contourType;
         }
         throw new RuntimeException("No such contour type with id " + id);
-    }
-
-    public NbcFlupSpectData getDataOfContour(List<NbcFlupSpectData> spectDatas) {
-        return spectDatas.stream()
-                .filter(nbcFlupSpectData -> nbcFlupSpectData.getContourType() == this)
-                .findFirst().orElseThrow(RuntimeException::new);
     }
 
     public Long getDictionaryId() {

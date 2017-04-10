@@ -1,12 +1,8 @@
 package lgk.nsbc.model.spect;
 
-import lgk.nsbc.model.NbcFlupSpectData;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public enum TargetType {
@@ -34,12 +30,6 @@ public enum TargetType {
                 return targetType;
         }
         throw new RuntimeException("No such target type with id " + id);
-    }
-
-    public List<NbcFlupSpectData> getSublistOfTarget(List<NbcFlupSpectData> spectDatas) {
-        return spectDatas.stream()
-                .filter(nbcFlupSpectData -> nbcFlupSpectData.getTargetType() == this)
-                .collect(toList());
     }
 
     public static Set<String> getNames() {

@@ -48,6 +48,7 @@ public class SpectGridDBData {
                 .study_type(11L)
                 .build();
         this.nbcFollowUp = NbcFollowUp.builder()
+                .n(-1L)
                 .build();
         this.nbcTarget = NbcTarget.builder()
                 .nbc_patients_n(nbcPatients.getN())

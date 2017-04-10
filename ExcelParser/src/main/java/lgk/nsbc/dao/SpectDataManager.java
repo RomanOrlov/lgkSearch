@@ -5,6 +5,8 @@ import lgk.nsbc.generated.tables.records.NbcFollowupRecord;
 import lgk.nsbc.generated.tables.records.NbcStudInjRecord;
 import lgk.nsbc.generated.tables.records.NbcStudRecord;
 import lgk.nsbc.model.*;
+import lgk.nsbc.model.spect.ContourType;
+import lgk.nsbc.model.spect.TargetType;
 import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.view.spectcrud.SpectGridDBData;
 import lgk.nsbc.view.spectcrud.SpectGridData;
@@ -165,16 +167,80 @@ public class SpectDataManager {
             nbcStudInj.setNbc_stud_n(nbcStud.getN());
             nbcStudInjDao.updateInj(nbcStudInj);
         }
+        NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
+                .nbc_stud_n(nbcStud.getN())
+                .nbc_target_n(spectGridData.getTarget().getN())
+                .build();
+        List<NbcFlupSpectData> data = createData(spectGridData);
+        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, data);
 
     }
 
     public void deleteSpectData(SpectGridData spectGridData) {
         SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
         // Нет данных.
-        if (spectGridDBData.getNbcFollowUp().getN() == null) return;
+        if (spectGridDBData.getNbcFollowUp().getN() == -1) return;
         context.transaction(configuration -> {
             nbcFollowUpDao.deleteFollowUp(spectGridDBData.getNbcFollowUp());
             nbcFlupSpectDataDao.deleteSpectData(spectGridDBData.getNbcFollowUp());
         });
+    }
+
+    private List<NbcFlupSpectData> createData(SpectGridData spectGridData) {
+        NbcFlupSpectData hyp = NbcFlupSpectData.builder()
+                .targetType(TargetType.HYP)
+                .contourType(ContourType.SPHERE)
+                .volume(spectGridData.getHypVolume())
+                .early_phase(spectGridData.getHypMin30())
+                .late_phase(spectGridData.getHypMin60())
+                .build();
+        NbcFlupSpectData hizSphere = NbcFlupSpectData.builder()
+                .targetType(TargetType.HIZ)
+                .contourType(ContourType.SPHERE)
+                .volume(spectGridData.getHizSphereVolume())
+                .early_phase(spectGridData.getHizSphereMin30())
+                .late_phase(spectGridData.getHizSphereMin60())
+                .build();
+
+        NbcFlupSpectData hizIsoline10 = NbcFlupSpectData.builder()
+                .targetType(TargetType.HIZ)
+                .contourType(ContourType.ISOLYNE10)
+                .volume(spectGridData.getHizIsoline10Volume())
+                .early_phase(spectGridData.getHizIsoline10Min30())
+                .late_phase(spectGridData.getHizIsoline10Min60())
+                .build();
+
+        NbcFlupSpectData hizIsoline25 = NbcFlupSpectData.builder()
+                .targetType(TargetType.HIZ)
+                .contourType(ContourType.ISOLYNE25)
+                .volume(spectGridData.getHizIsoline25Volume())
+                .early_phase(spectGridData.getHizIsoline25Min30())
+                .late_phase(spectGridData.getHizIsoline25Min60())
+                .build();
+
+        NbcFlupSpectData targetSphere = NbcFlupSpectData.builder()
+                .targetType(TargetType.TARGET)
+                .contourType(ContourType.SPHERE)
+                .volume(spectGridData.getTargetSphereVolume())
+                .early_phase(spectGridData.getTargetSphereMin30())
+                .late_phase(spectGridData.getTargetSphereMin60())
+                .build();
+
+        NbcFlupSpectData targetIsoline10 = NbcFlupSpectData.builder()
+                .targetType(TargetType.TARGET)
+                .contourType(ContourType.ISOLYNE10)
+                .volume(spectGridData.getTargetIsoline10Volume())
+                .early_phase(spectGridData.getTargetIsoline10Min30())
+                .late_phase(spectGridData.getTargetIsoline10Min60())
+                .build();
+
+        NbcFlupSpectData targetIsoline25 = NbcFlupSpectData.builder()
+                .targetType(TargetType.TARGET)
+                .contourType(ContourType.ISOLYNE25)
+                .volume(spectGridData.getTargetIsoline25Volume())
+                .early_phase(spectGridData.getTargetIsoline25Min30())
+                .late_phase(spectGridData.getTargetIsoline25Min60())
+                .build();
+        return Arrays.asList(hyp, hizSphere, hizIsoline10, hizIsoline25, targetSphere, targetIsoline10, targetIsoline25);
     }
 }

@@ -3,6 +3,7 @@ package lgk.nsbc.view.spectcrud;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.converter.StringToDoubleConverter;
+import com.vaadin.data.provider.GridSortOrderBuilder;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.Query;
 import com.vaadin.server.Setter;
@@ -218,6 +219,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         dataProvider.refreshAll();
         configureEditor();
         setFrozenColumnCount(1);
+        setSortOrder(new GridSortOrderBuilder<SpectGridData>().thenAsc(surnameColumn)
+                .thenAsc(studyDate));
     }
 
     private void splitByMainInfo() {
@@ -287,12 +290,13 @@ public class SpectGrid extends Grid<SpectGridData> {
             if (editor.getBinder().hasChanges()) {
                 spectDataManager.deleteSpectData(event.getBean());
                 spectDataManager.persistSpectData(event.getBean());
-                getDataProvider().refreshAll();
+                refreashAllData();
             }
         });
     }
 
     private void setMeanInColumn(FooterCell footerCell, Function<? super SpectGridData, Double> getValue, List<SpectGridData> data) {
+        // TODO странная ошибка в DoubleStream при average()
         List<Double> collect = data.stream()
                 .map(getValue::apply)
                 .filter(Objects::nonNull)
@@ -348,6 +352,12 @@ public class SpectGrid extends Grid<SpectGridData> {
         getDataProvider().refreshAll();
         select(blankSpectGridData);
         Notification.show("Дважды кликните для редактирования", Notification.Type.TRAY_NOTIFICATION);
+    }
+
+    public void refreashAllData() {
+        allItems.clear();
+        allItems.addAll(spectDataManager.findAllData());
+        getDataProvider().refreshAll();
     }
 
     public void deleteSelected() {

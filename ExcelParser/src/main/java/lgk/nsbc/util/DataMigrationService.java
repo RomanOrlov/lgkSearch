@@ -1,10 +1,7 @@
 package lgk.nsbc.util;
 
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import lgk.nsbc.dao.BasPeopleDao;
-import lgk.nsbc.dao.NbcFlupSpectDataDao;
-import lgk.nsbc.dao.NbcFollowUpDao;
-import lgk.nsbc.dao.NbcStudDao;
+import lgk.nsbc.dao.*;
 import lgk.nsbc.model.*;
 import lgk.nsbc.model.excelmigration.StudyRecords;
 import lgk.nsbc.model.excelmigration.StudyTarget;
@@ -37,6 +34,8 @@ public class DataMigrationService {
     @Autowired
     private NbcFlupSpectDataDao nbcFlupSpectDataDao;
     @Autowired
+    private NbcStudInjDao nbcStudInjDao;
+    @Autowired
     private PatientsDuplicatesResolver duplicatesResolver;
 
     public void findPatients(File tempFile) {
@@ -67,6 +66,18 @@ public class DataMigrationService {
                 // Запись о исследовании
                 if (!nbcStudDao.isSpectStudyExist(nbcStud.getNbc_patients_n(), nbcStud.getStudydatetime())) {
                     nbcStudDao.createNbcStud(nbcStud);
+                }
+                Optional<NbcStudInj> injOptional = nbcStudInjDao.findByStudy(nbcStud);
+                if (injOptional.isPresent()) {
+                    NbcStudInj nbcStudInj = injOptional.get();
+                    nbcStudInj.setInj_activity_bq(records.getDose());
+                    nbcStudInjDao.updateInj(nbcStudInj);
+                } else {
+                    NbcStudInj nbcStudInj = NbcStudInj.builder()
+                            .nbc_stud_n(nbcStud.getN())
+                            .inj_activity_bq(records.getDose())
+                            .build();
+                    nbcStudInjDao.insertStudInj(nbcStudInj);
                 }
                 // Это все разные мишени, - разные записи в NbcFollowUp
                 List<StudyTarget> targets = records.getTargets();

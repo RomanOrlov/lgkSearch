@@ -10,7 +10,6 @@ import lgk.nsbc.util.DataMigrationService;
 import lgk.nsbc.util.excel.ExcelExporter;
 import lgk.nsbc.view.spectcrud.HidingGridColumsSelect;
 import lgk.nsbc.view.spectcrud.SpectGrid;
-import lgk.nsbc.view.spectcrud.SpectGridData;
 import lgk.nsbc.view.spectcrud.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static lgk.nsbc.model.spect.ContourType.ISOLYNE10;
@@ -58,7 +56,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         Button newRecord = new Button("Добавить");
         Button readAllRecords = new Button("Все записи");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new ExcelExporter(spectGrid, "Excel");
+        Button exportToExcel = new ExcelExporter(spectGrid, "Экспорт в Excel");
         newRecord.addClickListener(clickEvent -> {
             if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран пациент");
@@ -66,18 +64,13 @@ public class SpectCRUDView extends VerticalLayout implements View {
             }
             spectGrid.addNewSpecDataRecord(combobox.getValue());
         });
-        readAllRecords.addClickListener(event -> {
-            List<SpectGridData> allItems = spectGrid.getAllItems();
-            allItems.clear();
-            allItems.addAll(spectDataManager.findAllData());
-            spectGrid.getDataProvider().refreshAll();
-        });
+        readAllRecords.addClickListener(event -> spectGrid.refreashAllData());
         deleteRecord.addClickListener(clickEvent -> {
             if (spectGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для удаления");
                 return;
             }
-            ConfirmDialog.show(getUI(), "Удалить выбраную запись", "Вы уверены?", "Да" , "Нет" ,dialog -> {
+            ConfirmDialog.show(getUI(), "Удалить выбраную запись", "Вы уверены?", "Да", "Нет", dialog -> {
                 if (dialog.isConfirmed()) {
                     spectDataManager.deleteSpectData(spectGrid.asSingleSelect().getValue());
                     spectGrid.deleteSelected();
