@@ -287,11 +287,9 @@ public class SpectGrid extends Grid<SpectGridData> {
         editor.setCancelCaption("Отмена");
         editor.setBuffered(true);
         editor.addSaveListener(event -> {
-            if (editor.getBinder().hasChanges()) {
-                spectDataManager.deleteSpectData(event.getBean());
-                spectDataManager.persistSpectData(event.getBean());
-                refreashAllData();
-            }
+            spectDataManager.deleteSpectData(event.getBean());
+            spectDataManager.persistSpectData(event.getBean());
+            refreashAllData();
         });
     }
 
@@ -362,9 +360,9 @@ public class SpectGrid extends Grid<SpectGridData> {
 
     public void deleteSelected() {
         if (asSingleSelect().isEmpty()) return;
-        deselectAll();
         SpectGridData value = asSingleSelect().getValue();
         allItems.remove(value);
+        deselectAll();
         getDataProvider().refreshAll();
     }
 }
