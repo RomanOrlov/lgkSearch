@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
@@ -82,12 +83,6 @@ public class SpectDataManager {
                     .collect(toList());
             CompletableFuture<Result<NbcFlupSpectDataRecord>> spectDataResult = context.fetchAsync(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.in(followup.keySet()))
                     .toCompletableFuture();
-            CompletableFuture<Result<Record>> targetsResult = context.select()
-                    .from(NBC_TARGET)
-                    .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
-                    .where(NBC_TARGET.N.in(targetsId))
-                    .fetchAsync()
-                    .toCompletableFuture();
             CompletableFuture<Result<NbcStudInjRecord>> inj = context.fetchAsync(NBC_STUD_INJ, NBC_STUD_INJ.NBC_STUD_N.in(studId))
                     .toCompletableFuture();
             Map<Long, NbcStudInj> injByStudyId = inj.get()
@@ -103,6 +98,12 @@ public class SpectDataManager {
                         nbcPatients.setBasPeople(basPeople);
                         return nbcPatients;
                     }).collect(toMap(NbcPatients::getN, identity()));
+            CompletableFuture<Result<Record>> targetsResult = context.select()
+                    .from(NBC_TARGET)
+                    .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
+                    .where(NBC_TARGET.NBC_PATIENTS_N.in(patients.keySet()))
+                    .fetchAsync()
+                    .toCompletableFuture();
             Map<Long, NbcTarget> targets = targetsResult.get().stream()
                     .map(NbcTarget::buildFromRecord)
                     .collect(toMap(NbcTarget::getN, identity()));
@@ -130,7 +131,11 @@ public class SpectDataManager {
                         NbcStudInj nbcStudInj = injByStudyId.getOrDefault(nbcStud.getN(), NbcStudInj.builder().n(-1L)
                                 .nbc_stud_n(nbcStud.getN())
                                 .build());
-                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcStudInj, nbcTarget, datas, targets.values()).getSpectGridData());
+                        List<NbcTarget> allPatientsTargets = targets.values()
+                                .stream()
+                                .filter(target -> target.getNbc_patients_n().equals(nbcPatients.getN()))
+                                .collect(Collectors.toList());
+                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcStudInj, nbcTarget, datas, allPatientsTargets).getSpectGridData());
                     })
                     .filter(Optional::isPresent)
                     .map(o -> (SpectGridData) (o.get()))

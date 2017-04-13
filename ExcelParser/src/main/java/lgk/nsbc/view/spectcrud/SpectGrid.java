@@ -15,6 +15,7 @@ import lgk.nsbc.dao.SpectDataManager;
 import lgk.nsbc.model.NbcPatients;
 import lgk.nsbc.model.NbcTarget;
 import lombok.Getter;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
@@ -49,11 +50,15 @@ public class SpectGrid extends Grid<SpectGridData> {
     List<Column<SpectGridData, Double>> inColumns;
     @Autowired
     private SpectDataManager spectDataManager;
+    @Autowired
+    private DSLContext context;
 
     private DecimalFormat doubleFormat = new DecimalFormat("###0.00");
 
     @Getter
     private List<SpectGridData> allItems = new ArrayList<>();
+
+    private NativeSelect<NbcTarget> targets;
 
     @PostConstruct
     public void init() {
@@ -88,20 +93,11 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .setCaption("Мишень")
                 .setHidable(true)
                 .setEditorBinding(getTargetBind());
-        addColumn(SpectGridData::getDose)
+        Column<SpectGridData, Double> doseColumn = addColumn(SpectGridData::getDose)
                 .setCaption("Доза")
                 .setHidable(true)
                 .setEditorBinding(getDoubleBind(SpectGridData::getDose, SpectGridData::setDose));
 
-        Column<SpectGridData, Double> hypVolume = addColumn(SpectGridData::getHypVolume)
-                .setCaption(VOLUME.getName())
-                .setEditorBinding(getDoubleBind(SpectGridData::getHypVolume, SpectGridData::setHypVolume));
-        Column<SpectGridData, Double> hypMin30 = addColumn(SpectGridData::getHypMin30)
-                .setCaption(MIN30.getName())
-                .setEditorBinding(getDoubleBind(SpectGridData::getHypMin30, SpectGridData::setHypMin30));
-        Column<SpectGridData, Double> hypMin60 = addColumn(SpectGridData::getHypMin60)
-                .setCaption(MIN60.getName())
-                .setEditorBinding(getDoubleBind(SpectGridData::getHypMin60, SpectGridData::setHypMin60));
         Column<SpectGridData, Double> hizSphereVolume = addColumn(SpectGridData::getHizSphereVolume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizSphereVolume, SpectGridData::setHizSphereVolume));
@@ -156,6 +152,15 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> targetIsoline25Min60 = addColumn(SpectGridData::getTargetIsoline25Min60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline25Min60, SpectGridData::setTargetIsoline25Min60));
+        Column<SpectGridData, Double> hypVolume = addColumn(SpectGridData::getHypVolume)
+                .setCaption(VOLUME.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHypVolume, SpectGridData::setHypVolume));
+        Column<SpectGridData, Double> hypMin30 = addColumn(SpectGridData::getHypMin30)
+                .setCaption(MIN30.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHypMin30, SpectGridData::setHypMin30));
+        Column<SpectGridData, Double> hypMin60 = addColumn(SpectGridData::getHypMin60)
+                .setCaption(MIN60.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHypMin60, SpectGridData::setHypMin60));
 
         hypColumns = Arrays.asList(hypVolume, hypMin30, hypMin60);
         hizColumns = Arrays.asList(hizSphereVolume, hizSphereMin30, hizSphereMin60,
@@ -194,8 +199,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         HeaderRow contourTypeHeader = configureContourHeaderRow();
         HeaderRow structureTypeHeader = configureStructureHeaderRow();
         // Наведение красоты
-        structureTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName);
-        contourTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName);
+        structureTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName,doseColumn );
+        contourTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName, doseColumn);
         ColumnsFilterUtil.addTextFilter(filterHeader, surnameColumn, dataProvider);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
@@ -258,8 +263,8 @@ public class SpectGrid extends Grid<SpectGridData> {
     }
 
     private Binder.Binding<SpectGridData, NbcTarget> getTargetBind() {
-        NativeSelect<NbcTarget> targets = new NativeSelect<>("Мишень");
-        targets.setEmptySelectionAllowed(false);
+        targets = new NativeSelect<>("Мишень");
+        targets.setEmptySelectionAllowed(true);
         targets.setRequiredIndicatorVisible(true);
         addItemClickListener(event -> {
             System.out.println(event.getMouseEventDetails().isDoubleClick());
@@ -276,7 +281,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                         .targetName("Мишень не выбрана")
                         .targetType(-1L)
                         .build()
-                )
+                ).withValidator(target -> target != null && target.getN() != -1, "Мишень должна быть выбрана")
                 .bind(SpectGridData::getTarget, SpectGridData::setTarget);
     }
 
@@ -287,9 +292,13 @@ public class SpectGrid extends Grid<SpectGridData> {
         editor.setCancelCaption("Отмена");
         editor.setBuffered(true);
         editor.addSaveListener(event -> {
-            spectDataManager.deleteSpectData(event.getBean());
-            spectDataManager.persistSpectData(event.getBean());
-            refreashAllData();
+            context.transaction(configuration -> {
+                SpectGridData bean = event.getBean();
+                bean.setTarget(targets.getValue());
+                spectDataManager.deleteSpectData(bean);
+                spectDataManager.persistSpectData(bean);
+                refreashAllData();
+            });
         });
     }
 

@@ -82,7 +82,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        buttons.addComponents(newRecord, deleteRecord, readAllRecords, exportToExcel);
+        buttons.addComponents(newRecord, deleteRecord, readAllRecords, exportToExcel, upload);
 
         HorizontalLayout instruments = new HorizontalLayout(twinColSelect, buttons);
         instruments.setExpandRatio(buttons, 1);

@@ -25,7 +25,7 @@ public class HidingGridColumsSelect extends TwinColSelect<String> {
         setLeftColumnCaption("Отображаемые столбцы");
         setRightColumnCaption("Скрытые столбцы");
         setWidth("450px");
-        setHeight("150px");
+        setHeight("125px");
         addValueChangeListener(valueChangeEvent -> updateColumnsVisibility(valueChangeEvent.getValue()));
     }
 

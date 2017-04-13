@@ -68,7 +68,7 @@ public class SpectGridDBData {
         spectGridData.setSurname(nbcPatients.getBasPeople().getSurname());
         spectGridData.setPatronymic(nbcPatients.getBasPeople().getPatronymic());
         spectGridData.setTarget(nbcTarget);
-        spectGridData.setCaseHistoryNum(nbcPatients.getCase_history_num().toString());
+        spectGridData.setCaseHistoryNum(String.valueOf(nbcPatients.getCase_history_num()));
         spectGridData.setDose(nbcStudInj.getInj_activity_bq());
         if (nbcStud != null && nbcStud.getStudydatetime() != null)
             spectGridData.setStudyDate(DateUtils.asLocalDate(nbcStud.getStudydatetime()));

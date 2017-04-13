@@ -4,6 +4,7 @@ import lgk.nsbc.model.excelmigration.ExcelDataPosition;
 import lgk.nsbc.model.excelmigration.StudyRecords;
 import lgk.nsbc.model.excelmigration.StudyTarget;
 import lgk.nsbc.model.excelmigration.Target;
+import lgk.nsbc.model.spect.TargetType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -83,7 +84,12 @@ public class ParserService {
                 StudyTarget nextTarget = getStudyTarget(studyRows.get(i));
                 for (int j = 0; j < nextTarget.getTargets().size(); j++) {
                     Target target = nextTarget.getTargets().get(j);
-                    if (target.getVolume() == null) {
+                    if (target.getTargetType() != TargetType.TARGET) {
+                        // У всех мишеней одно и тоже значение в гипофизе и хиазме
+                        nextTarget.getTargets().set(j, targets.get(0).getTargets().get(j));
+                        continue;
+                    }
+                    if (target.getVolume() == null || target.getVolume() == 0.d) {
                         target.setVolume(targets.get(0).getTargets().get(j).getVolume());
                     }
                 }
