@@ -46,11 +46,6 @@
 
 		<dependency>
 			<groupId>lgk.nsbc</groupId>
-			<artifactId>domain</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>lgk.nsbc</groupId>
 			<artifactId>generated</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

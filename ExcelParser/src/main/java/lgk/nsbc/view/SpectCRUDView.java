@@ -2,6 +2,7 @@ package lgk.nsbc.view;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
 import lgk.nsbc.dao.NbcPatientsDao;
@@ -45,13 +46,14 @@ public class SpectCRUDView extends VerticalLayout implements View {
     @PostConstruct
     private void init() {
         setSizeFull();
+        setSpacing(false);
 
         Upload upload = new Upload("Upload file", new ExcelFileReceiver());
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
         Label patientName = new Label();
         combobox = new SuggestionCombobox(nbcPatientsDao::getPatientsWithDifferetNames);
-        combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue(combobox.getValue().toString()));
+        combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue("Выбран пациент: " + combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");
         Button readAllRecords = new Button("Все записи");

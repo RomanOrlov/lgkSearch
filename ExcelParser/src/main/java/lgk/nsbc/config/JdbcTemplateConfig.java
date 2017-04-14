@@ -12,9 +12,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.SQLException;
 
-@Configuration
+//@Configuration
 public class JdbcTemplateConfig {
-    @Bean
+    //@Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
         NamedParameterJdbcTemplate NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         return NamedParameterJdbcTemplate;

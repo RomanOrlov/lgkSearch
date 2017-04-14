@@ -207,7 +207,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         dataProvider.addDataProviderListener(event -> {
             List<SpectGridData> data = event.getSource()
                     .fetch(new Query<>())
-                    .collect(Collectors.toList());
+                    .collect(toList());
             footerRow.getCell(surnameColumn).setText("Всего " + Integer.toString(data.size()));
             setMeanInColumn(footerRow.getCell(inEarly), SpectGridData::getInEarly, data);
             setMeanInColumn(footerRow.getCell(inLate), SpectGridData::getInLate, data);
@@ -224,8 +224,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         dataProvider.refreshAll();
         configureEditor();
         setFrozenColumnCount(1);
-        setSortOrder(new GridSortOrderBuilder<SpectGridData>().thenAsc(surnameColumn)
-                .thenAsc(studyDate));
+        setSortOrder(new GridSortOrderBuilder<SpectGridData>().thenAsc(surnameColumn).thenAsc(studyDate));
+
     }
 
     private void splitByMainInfo() {
@@ -267,7 +267,6 @@ public class SpectGrid extends Grid<SpectGridData> {
         targets.setEmptySelectionAllowed(true);
         targets.setRequiredIndicatorVisible(true);
         addItemClickListener(event -> {
-            System.out.println(event.getMouseEventDetails().isDoubleClick());
             SpectGridData item = event.getItem();
             targets.setItems(item.getSpectGridDBData().getTargets());
         });
@@ -280,8 +279,8 @@ public class SpectGrid extends Grid<SpectGridData> {
                         .nbc_patients_n(-1L)
                         .targetName("Мишень не выбрана")
                         .targetType(-1L)
-                        .build()
-                ).withValidator(target -> target != null && target.getN() != -1, "Мишень должна быть выбрана")
+                        .build())
+                .withValidator(target -> target != null && target.getN() != -1, "Мишень должна быть выбрана")
                 .bind(SpectGridData::getTarget, SpectGridData::setTarget);
     }
 
@@ -307,7 +306,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         List<Double> collect = data.stream()
                 .map(getValue::apply)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collect(toList());
         Double meanValue;
         if (collect.isEmpty())
             meanValue = 0.d;

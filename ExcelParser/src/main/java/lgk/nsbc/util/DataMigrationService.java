@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 import static java.util.function.Function.identity;
@@ -22,7 +23,7 @@ import static java.util.stream.Collectors.*;
 
 @Service
 @VaadinSessionScope
-public class DataMigrationService {
+public class DataMigrationService implements Serializable{
     @Autowired
     private ParserService parserService;
     @Autowired
