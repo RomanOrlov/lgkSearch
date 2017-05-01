@@ -11,7 +11,11 @@
 		<module>lgk-generated</module>
 		<module>lgk-application</module>
 		<module>lgk-domain</module>
-	</modules>
+        <module>lgk-histology</module>
+        <module>lgk-spect</module>
+        <module>lgk-model</module>
+        <module>lgk-utils</module>
+    </modules>
 	<name>Search</name>
 	<description>LGK database interface</description>
 
