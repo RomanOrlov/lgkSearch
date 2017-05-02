@@ -10,7 +10,7 @@ import lgk.nsbc.spect.util.DataMigrationService;
 import lgk.nsbc.spect.util.excel.ExcelExporter;
 import lgk.nsbc.spect.view.spectcrud.HidingGridColumsSelect;
 import lgk.nsbc.spect.view.spectcrud.SpectGrid;
-import lgk.nsbc.spect.view.spectcrud.SuggestionCombobox;
+import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;

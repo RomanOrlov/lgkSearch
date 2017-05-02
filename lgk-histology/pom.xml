@@ -11,5 +11,16 @@
 
     <artifactId>histology</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>lgk.nsbc</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>lgk.nsbc</groupId>
+            <artifactId>model</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

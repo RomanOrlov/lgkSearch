@@ -1,4 +1,4 @@
-package lgk.nsbc.spect.view.spectcrud;
+package lgk.nsbc.util.components;
 
 import com.vaadin.server.SerializableToIntFunction;
 import com.vaadin.ui.ComboBox;
