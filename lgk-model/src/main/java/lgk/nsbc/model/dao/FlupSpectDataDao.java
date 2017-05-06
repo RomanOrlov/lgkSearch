@@ -1,8 +1,9 @@
 package lgk.nsbc.model.dao;
 
 import lgk.nsbc.generated.tables.records.NbcFlupSpectDataRecord;
-import lgk.nsbc.model.NbcFlupSpectData;
-import lgk.nsbc.model.NbcFollowUp;
+import lgk.nsbc.model.FlupSpectData;
+import lgk.nsbc.model.FollowUp;
+import lgk.nsbc.model.FollowUp;
 import org.jooq.DSLContext;
 import org.jooq.InsertValuesStep7;
 import org.jooq.Result;
@@ -18,21 +19,21 @@ import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcFlupSpectDataDao implements Serializable{
+public class FlupSpectDataDao implements Serializable{
     @Autowired
     private DSLContext context;
     @Autowired
-    private NbcFollowUpDao nbcFollowUpDao;
+    private FollowUpDao followUpDao;
 
-    public void createSpectFollowUpData(NbcFollowUp nbcFollowUp, List<NbcFlupSpectData> spectDatas) {
+    public void createSpectFollowUpData(FollowUp followUp, List<FlupSpectData> spectDatas) {
         context.transaction(configuration -> {
-            nbcFollowUpDao.createFollowUp(nbcFollowUp);
-            spectDatas.forEach(data -> data.setNbc_followup_n(nbcFollowUp.getN()));
+            followUpDao.createFollowUp(followUp);
+            spectDatas.forEach(data -> data.setNbc_followup_n(followUp.getN()));
             persistSpectData(spectDatas);
         });
     }
 
-    public void persistSpectData(List<NbcFlupSpectData> spectDatas) {
+    public void persistSpectData(List<FlupSpectData> spectDatas) {
         context.transaction(configuration -> {
             InsertValuesStep7<NbcFlupSpectDataRecord, Long, Long, Long, Long, Double, Double, Double> insertStep = context.insertInto(NBC_FLUP_SPECT_DATA)
                     .columns(NBC_FLUP_SPECT_DATA.N,
@@ -42,7 +43,7 @@ public class NbcFlupSpectDataDao implements Serializable{
                             NBC_FLUP_SPECT_DATA.VOLUME,
                             NBC_FLUP_SPECT_DATA.EARLY_PHASE,
                             NBC_FLUP_SPECT_DATA.LATE_PHASE);
-            for (NbcFlupSpectData data : spectDatas) {
+            for (FlupSpectData data : spectDatas) {
                 insertStep = insertStep.values(
                         NBC_FLUP_SPECT_DATA_N.nextval(),
                         val(data.getNbc_followup_n()),
@@ -57,25 +58,25 @@ public class NbcFlupSpectDataDao implements Serializable{
         });
     }
 
-    public void updateSpectData(List<NbcFlupSpectData> spectDatas) {
+    public void updateSpectData(List<FlupSpectData> spectDatas) {
         context.transaction(configuration -> {
             List<NbcFlupSpectDataRecord> records = spectDatas.stream()
-                    .map(NbcFlupSpectData::getRecord)
+                    .map(FlupSpectData::getRecord)
                     .collect(toList());
             context.batchUpdate(records).execute();
         });
     }
 
-    public List<NbcFlupSpectData> findByNbcFollowup(NbcFollowUp nbcFollowUp) {
-        Result<NbcFlupSpectDataRecord> records = context.fetch(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.eq(nbcFollowUp.getN()));
+    public List<FlupSpectData> findByNbcFollowup(FollowUp followUp) {
+        Result<NbcFlupSpectDataRecord> records = context.fetch(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.eq(followUp.getN()));
         return records.stream()
-                .map(NbcFlupSpectData::buildFromRecord)
+                .map(FlupSpectData::buildFromRecord)
                 .collect(toList());
     }
 
-    public void deleteSpectData(NbcFollowUp nbcFollowUp) {
+    public void deleteSpectData(FollowUp followUp) {
         int execute = context.deleteFrom(NBC_FLUP_SPECT_DATA)
-                .where(NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.eq(nbcFollowUp.getN()))
+                .where(NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.eq(followUp.getN()))
                 .execute();
     }
 }

@@ -13,7 +13,7 @@ import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 @AllArgsConstructor
 @Builder
 @ToString(of = {"n", "surname", "name", "patronymic"})
-public class BasPeople {
+public class People {
     private Long n;
     private String name;
     private String surname;
@@ -21,7 +21,7 @@ public class BasPeople {
     private String sex;
     private Date birthday;
 
-    public static BasPeople buildFromRecord(Record record) {
+    public static People buildFromRecord(Record record) {
         return builder()
                 .n(record.get(BAS_PEOPLE.N))
                 .name(record.get(BAS_PEOPLE.NAME))

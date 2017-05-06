@@ -4,7 +4,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
-import lgk.nsbc.model.dao.NbcPatientsDao;
+import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.spect.util.DataMigrationService;
 import lgk.nsbc.spect.util.excel.ExcelExporter;
@@ -34,7 +34,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
     @Autowired
     private DataMigrationService dataMigrationService;
     @Autowired
-    private NbcPatientsDao nbcPatientsDao;
+    private PatientsDao patientsDao;
     @Autowired
     private SpectGrid spectGrid;
     @Autowired
@@ -51,7 +51,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
         Label patientName = new Label();
-        combobox = new SuggestionCombobox(nbcPatientsDao::getPatientsWithDifferetNames);
+        combobox = new SuggestionCombobox(patientsDao::getPatientsWithDifferetNames);
         combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue("Выбран пациент: " + combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");

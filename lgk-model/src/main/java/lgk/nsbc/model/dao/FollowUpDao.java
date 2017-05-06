@@ -2,8 +2,9 @@ package lgk.nsbc.model.dao;
 
 import lgk.nsbc.generated.Sequences;
 import lgk.nsbc.generated.tables.records.NbcFollowupRecord;
-import lgk.nsbc.model.NbcFollowUp;
-import lgk.nsbc.model.NbcStud;
+import lgk.nsbc.model.FollowUp;
+import lgk.nsbc.model.FollowUp;
+import lgk.nsbc.model.Stud;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,11 @@ import static lgk.nsbc.generated.tables.NbcFollowup.NBC_FOLLOWUP;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class NbcFollowUpDao implements Serializable{
+public class FollowUpDao implements Serializable{
     @Autowired
     private DSLContext context;
 
-    public void createFollowUp(NbcFollowUp nbcFollowUp) {
+    public void createFollowUp(FollowUp followUp) {
         Result<NbcFollowupRecord> result = context.insertInto(NBC_FOLLOWUP)
                 .columns(
                         NBC_FOLLOWUP.N,
@@ -33,43 +34,43 @@ public class NbcFollowUpDao implements Serializable{
                 .values(
                         Sequences.NBC_FOLLOWUP_N.nextval(),
                         Sequences.SYS_OPERATION_N.nextval(),
-                        val(nbcFollowUp.getNbc_target_n()),
-                        val(nbcFollowUp.getNbc_stud_n())
+                        val(followUp.getNbc_target_n()),
+                        val(followUp.getNbc_stud_n())
                 )
                 .returning(NBC_FOLLOWUP.N)
                 .fetch();
         Long geberatedId = result.get(0).getN();
-        nbcFollowUp.setN(geberatedId);
+        followUp.setN(geberatedId);
     }
 
-    public List<NbcFollowUp> findByStudy(NbcStud nbcStud) {
-        return findByStudy(nbcStud.getN());
+    public List<FollowUp> findByStudy(Stud stud) {
+        return findByStudy(stud.getN());
     }
 
-    public List<NbcFollowUp> findByStudy(Long nbcStudId) {
+    public List<FollowUp> findByStudy(Long nbcStudId) {
         Result<NbcFollowupRecord> result = context.fetch(NBC_FOLLOWUP, NBC_FOLLOWUP.NBC_STUD_N.eq(nbcStudId));
         return result.stream()
-                .map(NbcFollowUp::buildFromRecord)
+                .map(FollowUp::buildFromRecord)
                 .collect(toList());
     }
 
-    public NbcFollowUp findById(Long id) {
+    public FollowUp findById(Long id) {
         NbcFollowupRecord nbcFollowupRecord = context.fetchOne(NBC_FOLLOWUP, NBC_FOLLOWUP.N.eq(id));
-        return NbcFollowUp.buildFromRecord(nbcFollowupRecord);
+        return FollowUp.buildFromRecord(nbcFollowupRecord);
     }
 
-    public void deleteFollowUp(Collection<NbcFollowUp> nbcFollowUps) {
-        List<Long> nbcFollowUpIds = nbcFollowUps.stream()
-                .map(NbcFollowUp::getN)
+    public void deleteFollowUp(Collection<FollowUp> followUps) {
+        List<Long> nbcFollowUpIds = followUps.stream()
+                .map(FollowUp::getN)
                 .collect(toList());
         int removedRecords = context.deleteFrom(NBC_FOLLOWUP)
                 .where(NBC_FOLLOWUP.N.in(nbcFollowUpIds))
                 .execute();
     }
 
-    public void deleteFollowUp(NbcFollowUp nbcFollowUps) {
+    public void deleteFollowUp(FollowUp followUps) {
         int removedRecords = context.deleteFrom(NBC_FOLLOWUP)
-                .where(NBC_FOLLOWUP.N.eq(nbcFollowUps.getN()))
+                .where(NBC_FOLLOWUP.N.eq(followUps.getN()))
                 .execute();
     }
 }

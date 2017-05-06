@@ -10,8 +10,8 @@ import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcPatients {
-    private BasPeople basPeople;
+public class Patients {
+    private People people;
     private Long n;
     private Integer case_history_num;
     private Long diagnosis;
@@ -22,10 +22,10 @@ public class NbcPatients {
      * @return
      */
     public String getRepresentationName() {
-        return basPeople.getSurname() + " " + basPeople.getName() + " " + basPeople.getPatronymic();
+        return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
     }
 
-    public static NbcPatients buildFromRecord(Record record) {
+    public static Patients buildFromRecord(Record record) {
         return builder()
                 .n(record.get(NBC_PATIENTS.N))
                 .case_history_num(record.get(NBC_PATIENTS.CASE_HISTORY_NUM))
@@ -36,6 +36,6 @@ public class NbcPatients {
 
     @Override
     public String toString() {
-        return case_history_num + " " + basPeople.getSurname() + " " + basPeople.getName() + " " + basPeople.getPatronymic();
+        return case_history_num + " " + people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
     }
 }

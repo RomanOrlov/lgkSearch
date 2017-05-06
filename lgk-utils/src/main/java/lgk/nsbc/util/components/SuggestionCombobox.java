@@ -2,16 +2,16 @@ package lgk.nsbc.util.components;
 
 import com.vaadin.server.SerializableToIntFunction;
 import com.vaadin.ui.ComboBox;
-import lgk.nsbc.model.NbcPatients;
+import lgk.nsbc.model.Patients;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class SuggestionCombobox extends ComboBox<NbcPatients> {
+public class SuggestionCombobox extends ComboBox<Patients> {
 
-    public SuggestionCombobox(Function<String, List<NbcPatients>> suggestionFilter) {
-        FetchItemsCallback<NbcPatients> callback = (filter, offset, limit) -> {
+    public SuggestionCombobox(Function<String, List<Patients>> suggestionFilter) {
+        FetchItemsCallback<Patients> callback = (filter, offset, limit) -> {
 
             if (!isInputValid(filter)) return Stream.empty();
             return suggestionFilter.apply(filter)

@@ -1,7 +1,7 @@
 package lgk.nsbc.model.dao;
 
-import lgk.nsbc.model.NbcPatients;
-import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.Target;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,31 +15,31 @@ import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYPE;
 
 @Service
-public class NbcTargetDao implements Serializable {
+public class TargetDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    public int countTargetsForPatient(NbcPatients nbcPatients) {
-        return context.fetchCount(NBC_TARGET, NBC_TARGET.NBC_PATIENTS_N.eq(nbcPatients.getN()));
+    public int countTargetsForPatient(Patients patients) {
+        return context.fetchCount(NBC_TARGET, NBC_TARGET.NBC_PATIENTS_N.eq(patients.getN()));
     }
 
-    public List<NbcTarget> getPatientsTargets(NbcPatients nbcPatients) {
+    public List<Target> getPatientsTargets(Patients patients) {
         return context.select()
                 .from(NBC_TARGET)
                 .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
-                .where(NBC_TARGET.NBC_PATIENTS_N.eq(nbcPatients.getN()))
+                .where(NBC_TARGET.NBC_PATIENTS_N.eq(patients.getN()))
                 .fetch()
                 .stream()
-                .map(NbcTarget::buildFromRecord)
+                .map(Target::buildFromRecord)
                 .collect(toList());
     }
 
-    public NbcTarget findTargetById(Long n) {
+    public Target findTargetById(Long n) {
         Record record = context.select()
                 .from(NBC_TARGET)
                 .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
                 .where(NBC_TARGET.N.in(n))
                 .fetchOne();
-        return NbcTarget.buildFromRecord(record);
+        return Target.buildFromRecord(record);
     }
 }

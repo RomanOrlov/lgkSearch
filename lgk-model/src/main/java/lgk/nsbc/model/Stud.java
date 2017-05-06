@@ -13,16 +13,16 @@ import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcStud {
+public class Stud {
     private Long n;
-    private NbcPatients nbcPatients;
-    private NbcProc nbcProc;
+    private Patients patients;
+    private Proc proc;
     private Date studydatetime;
     private Long study_type;
     private Long nbc_patients_n;
     private Long nbc_procedures_n;
 
-    public static Optional<NbcStud> buildFromRecord(Record record) {
+    public static Optional<Stud> buildFromRecord(Record record) {
         return Optional.of(builder()
                 .n(record.get(NBC_STUD.N))
                 .nbc_patients_n(record.get(NBC_STUD.NBC_PATIENTS_N))

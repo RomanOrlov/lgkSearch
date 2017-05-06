@@ -12,8 +12,8 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.*;
 import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.spect.model.SpectDataManager;
-import lgk.nsbc.model.NbcPatients;
-import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.Target;
 import lombok.Getter;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +34,9 @@ import static lgk.nsbc.model.spect.ContourType.*;
 import static lgk.nsbc.model.spect.MainInfo.*;
 import static lgk.nsbc.model.spect.TargetType.*;
 
+/**
+ * Класс для грида для данных офект
+ */
 @SpringComponent
 @Scope("prototype")
 public class SpectGrid extends Grid<SpectGridData> {
@@ -58,7 +61,7 @@ public class SpectGrid extends Grid<SpectGridData> {
     @Getter
     private List<SpectGridData> allItems = new ArrayList<>();
 
-    private NativeSelect<NbcTarget> targets;
+    private NativeSelect<Target> targets;
 
     @PostConstruct
     public void init() {
@@ -89,7 +92,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .setCaption("Дата исследования")
                 .setHidable(true)
                 .setEditorBinding(getStudyDateBind());
-        Column<SpectGridData, NbcTarget> targetName = addColumn(SpectGridData::getTarget)
+        Column<SpectGridData, Target> targetName = addColumn(SpectGridData::getTarget)
                 .setCaption("Мишень")
                 .setHidable(true)
                 .setEditorBinding(getTargetBind());
@@ -262,7 +265,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .bind(SpectGridData::getStudyDate, SpectGridData::setStudyDate);
     }
 
-    private Binder.Binding<SpectGridData, NbcTarget> getTargetBind() {
+    private Binder.Binding<SpectGridData, Target> getTargetBind() {
         targets = new NativeSelect<>("Мишень");
         targets.setEmptySelectionAllowed(true);
         targets.setRequiredIndicatorVisible(true);
@@ -274,7 +277,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .getBinder()
                 .forField(targets)
                 .asRequired("Мишень должна быть выбрана")
-                .withNullRepresentation(NbcTarget.builder()
+                .withNullRepresentation(Target.builder()
                         .n(-1L)
                         .nbc_patients_n(-1L)
                         .targetName("Мишень не выбрана")
@@ -302,7 +305,7 @@ public class SpectGrid extends Grid<SpectGridData> {
     }
 
     private void setMeanInColumn(FooterCell footerCell, Function<? super SpectGridData, Double> getValue, List<SpectGridData> data) {
-        // TODO странная ошибка в DoubleStream при average()
+        // странная ошибка в DoubleStream при average() пришлось отказаться от этого метода
         List<Double> collect = data.stream()
                 .map(getValue::apply)
                 .filter(Objects::nonNull)
@@ -352,8 +355,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         return targetTypeHeader;
     }
 
-    public void addNewSpecDataRecord(NbcPatients nbcPatients) {
-        SpectGridData blankSpectGridData = spectDataManager.getBlankSpectGridData(nbcPatients);
+    public void addNewSpecDataRecord(Patients patients) {
+        SpectGridData blankSpectGridData = spectDataManager.getBlankSpectGridData(patients);
         allItems.add(0, blankSpectGridData);
         getDataProvider().refreshAll();
         select(blankSpectGridData);

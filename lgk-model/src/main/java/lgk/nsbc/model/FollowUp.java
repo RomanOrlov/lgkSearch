@@ -10,13 +10,13 @@ import static lgk.nsbc.generated.tables.NbcFollowup.NBC_FOLLOWUP;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcFollowUp {
+public class FollowUp {
     private Long n;
     private Long nbc_target_n;
     private Long nbc_stud_n;
     private Double volume;
 
-    public static NbcFollowUp buildFromRecord(Record record) {
+    public static FollowUp buildFromRecord(Record record) {
         return builder().n(record.get(NBC_FOLLOWUP.N))
                 .nbc_stud_n(record.get(NBC_FOLLOWUP.NBC_STUD_N))
                 .nbc_target_n(record.get(NBC_FOLLOWUP.NBC_TARGET_N))

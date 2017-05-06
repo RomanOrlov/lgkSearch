@@ -12,14 +12,14 @@ import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYP
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = {"n"})
-public class NbcTarget {
+public class Target {
     private Long n;
     private Long nbc_patients_n;
     private String targetName;
     private Long targetType;
     private String targetTypeText;
 
-    public static NbcTarget buildFromRecord(Record record) {
+    public static Target buildFromRecord(Record record) {
         return builder().n(record.get(NBC_TARGET.N))
                 .nbc_patients_n(record.get(NBC_TARGET.NBC_PATIENTS_N))
                 .targetName(record.get(NBC_TARGET.TARGETNAME))

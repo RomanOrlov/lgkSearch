@@ -7,6 +7,7 @@ import lgk.nsbc.spect.model.StudyRecords;
 import lgk.nsbc.spect.model.StudyTarget;
 import lgk.nsbc.spect.model.Target;
 import lgk.nsbc.spect.util.excel.ParserService;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,21 +24,15 @@ import static java.util.stream.Collectors.*;
 
 @Service
 @VaadinSessionScope
+@RequiredArgsConstructor
 public class DataMigrationService implements Serializable{
-    @Autowired
-    private ParserService parserService;
-    @Autowired
-    private BasPeopleDao basPeopleDao;
-    @Autowired
-    private NbcStudDao nbcStudDao;
-    @Autowired
-    private NbcFollowUpDao nbcFollowUpDao;
-    @Autowired
-    private NbcFlupSpectDataDao nbcFlupSpectDataDao;
-    @Autowired
-    private NbcStudInjDao nbcStudInjDao;
-    @Autowired
-    private PatientsDuplicatesResolver duplicatesResolver;
+    private final ParserService parserService;
+    private final PeopleDao peopleDao;
+    private final StudDao studDao;
+    private final FollowUpDao followUpDao;
+    private final FlupSpectDataDao flupSpectDataDao;
+    private final StudInjDao studInjDao;
+    private final PatientsDuplicatesResolver duplicatesResolver;
 
     public void findPatients(File tempFile) {
         try {
@@ -45,7 +40,7 @@ public class DataMigrationService implements Serializable{
             Map<String, TreeSet<StudyRecords>> records = mapByFullName(tempFile);
             // Пытаемся найти паицентов, присутствующих в записях.
             StringBuilder shortMessage = new StringBuilder();
-            Map<String, Optional<NbcPatients>> patients = parseNames(records.keySet(), shortMessage);
+            Map<String, Optional<Patients>> patients = parseNames(records.keySet(), shortMessage);
             persist(records, patients);
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,43 +52,43 @@ public class DataMigrationService implements Serializable{
      * Сохраняет процедуры у пациентов.
      */
     public void persist(Map<String, TreeSet<StudyRecords>> patientRecords,
-                        Map<String, Optional<NbcPatients>> patients) {
-        for (Map.Entry<String, Optional<NbcPatients>> patientEntry : patients.entrySet()) {
+                        Map<String, Optional<Patients>> patients) {
+        for (Map.Entry<String, Optional<Patients>> patientEntry : patients.entrySet()) {
             if (!patientEntry.getValue().isPresent()) continue;
-            NbcPatients patient = patientEntry.getValue().get();
+            Patients patient = patientEntry.getValue().get();
             TreeSet<StudyRecords> studyRecordsTreeSet = patientRecords.get(patientEntry.getKey());
             for (StudyRecords records : studyRecordsTreeSet) {
-                NbcStud nbcStud = studyFromRecord(records, patient);
+                Stud stud = studyFromRecord(records, patient);
                 // Запись о исследовании
-                if (!nbcStudDao.isSpectStudyExist(nbcStud.getNbc_patients_n(), nbcStud.getStudydatetime())) {
-                    nbcStudDao.createNbcStud(nbcStud);
+                if (!studDao.isSpectStudyExist(stud.getNbc_patients_n(), stud.getStudydatetime())) {
+                    studDao.createNbcStud(stud);
                 }
-                Optional<NbcStudInj> injOptional = nbcStudInjDao.findByStudy(nbcStud);
+                Optional<StudInj> injOptional = studInjDao.findByStudy(stud);
                 if (injOptional.isPresent()) {
-                    NbcStudInj nbcStudInj = injOptional.get();
-                    nbcStudInj.setInj_activity_bq(records.getDose());
-                    nbcStudInjDao.updateInj(nbcStudInj);
+                    StudInj studInj = injOptional.get();
+                    studInj.setInj_activity_bq(records.getDose());
+                    studInjDao.updateInj(studInj);
                 } else {
-                    NbcStudInj nbcStudInj = NbcStudInj.builder()
-                            .nbc_stud_n(nbcStud.getN())
+                    StudInj studInj = StudInj.builder()
+                            .nbc_stud_n(stud.getN())
                             .inj_activity_bq(records.getDose())
                             .build();
-                    nbcStudInjDao.insertStudInj(nbcStudInj);
+                    studInjDao.insertStudInj(studInj);
                 }
                 // Это все разные мишени, - разные записи в NbcFollowUp
                 List<StudyTarget> targets = records.getTargets();
-                List<NbcFollowUp> followUps = nbcFollowUpDao.findByStudy(nbcStud);
+                List<FollowUp> followUps = followUpDao.findByStudy(stud);
                 // Заносим в базу, только если данных нет
                 if (followUps.isEmpty()) {
                     for (StudyTarget target : targets) {
-                        NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
-                                .nbc_stud_n(nbcStud.getN())
+                        FollowUp followUp = FollowUp.builder()
+                                .nbc_stud_n(stud.getN())
                                 .build();
-                        List<NbcFlupSpectData> dataList = target.getTargets()
+                        List<FlupSpectData> dataList = target.getTargets()
                                 .stream()
                                 .map(this::fromTarget)
                                 .collect(toList());
-                        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, dataList);
+                        flupSpectDataDao.createSpectFollowUpData(followUp, dataList);
                     }
                 }
             }
@@ -106,8 +101,8 @@ public class DataMigrationService implements Serializable{
      * @param target
      * @return
      */
-    private NbcFlupSpectData fromTarget(Target target) {
-        return NbcFlupSpectData.builder()
+    private FlupSpectData fromTarget(Target target) {
+        return FlupSpectData.builder()
                 .contourType(target.getContourType())
                 .targetType(target.getTargetType())
                 .volume(target.getVolume())
@@ -117,46 +112,46 @@ public class DataMigrationService implements Serializable{
     }
 
 
-    private NbcStud studyFromRecord(StudyRecords studyRecords, NbcPatients patient) {
-        return NbcStud.builder()
+    private Stud studyFromRecord(StudyRecords studyRecords, Patients patient) {
+        return Stud.builder()
                 .nbc_patients_n(patient.getN())
                 .study_type(11L)
                 .studydatetime(studyRecords.getDate())
                 .build();
     }
 
-    private Map<String, Optional<NbcPatients>> parseNames(Set<String> names, StringBuilder shortMessage) {
-        Map<String, Optional<NbcPatients>> peoples = new TreeMap<>();
+    private Map<String, Optional<Patients>> parseNames(Set<String> names, StringBuilder shortMessage) {
+        Map<String, Optional<Patients>> optionalPeoples = new TreeMap<>();
         Set<String> surnames = names.stream()
                 .map(name -> name.trim().split(" ")[0])
                 .collect(toSet());
-        List<BasPeople> basPeoples = basPeopleDao.getPeoplesBySurname(surnames);
-        Map<String[], BasPeople> basPeopleMap = basPeoples.stream()
+        List<People> peoples = peopleDao.getPeoplesBySurname(surnames);
+        Map<String[], People> basPeopleMap = peoples.stream()
                 .collect(toMap(people -> new String[]{people.getSurname(), people.getName(), people.getPatronymic()}, identity()));
         for (String fullName : names) {
             String[] parsedName = fullName.trim().split(" ");
             if (parsedName.length == 3) {
                 // Нашли всех возможных дубликатов
-                List<BasPeople> man = basPeopleMap.entrySet().stream()
+                List<People> man = basPeopleMap.entrySet().stream()
                         .filter(entry -> Arrays.deepEquals(entry.getKey(), parsedName))
                         .map(Map.Entry::getValue)
                         .collect(toList());
                 if (man.isEmpty()) {
-                    peoples.put(fullName, Optional.empty());
+                    optionalPeoples.put(fullName, Optional.empty());
                     shortMessage.append(fullName)
                             .append("Не нашелся в базе\n");
                 } else {
                     // Находим нужного паицента
-                    Optional<NbcPatients> patient = duplicatesResolver.getPatient(man.get(0));
-                    peoples.put(fullName, patient);
+                    Optional<Patients> patient = duplicatesResolver.getPatient(man.get(0));
+                    optionalPeoples.put(fullName, patient);
                 }
             } else {
-                peoples.put(fullName, Optional.empty());
+                optionalPeoples.put(fullName, Optional.empty());
                 shortMessage.append(fullName)
                         .append("Имя не распозналось из Excel\n");
             }
         }
-        return peoples;
+        return optionalPeoples;
     }
 
     private Map<String, TreeSet<StudyRecords>> mapByFullName(File tempFile) throws IOException, InvalidFormatException {

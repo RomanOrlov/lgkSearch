@@ -13,7 +13,7 @@ import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcStudInj {
+public class StudInj {
     private Long n;
     private Long op_create;
     private Long nbc_stud_n;
@@ -23,7 +23,7 @@ public class NbcStudInj {
     private Date inj_begin;
     private Date inj_end;
 
-    public static Optional<NbcStudInj> buildFromRecord(Record record) {
+    public static Optional<StudInj> buildFromRecord(Record record) {
         if (record == null) return Optional.empty();
         return Optional.of(builder()
                 .n(record.get(NBC_STUD_INJ.N))

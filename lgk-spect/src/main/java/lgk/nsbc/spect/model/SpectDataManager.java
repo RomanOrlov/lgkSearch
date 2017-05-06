@@ -5,6 +5,7 @@ import lgk.nsbc.generated.tables.records.NbcFollowupRecord;
 import lgk.nsbc.generated.tables.records.NbcStudInjRecord;
 import lgk.nsbc.generated.tables.records.NbcStudRecord;
 import lgk.nsbc.model.*;
+import lgk.nsbc.model.Target;
 import lgk.nsbc.model.dao.*;
 import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
@@ -38,15 +39,15 @@ public class SpectDataManager {
     @Autowired
     private DSLContext context;
     @Autowired
-    private NbcTargetDao nbcTargetDao;
+    private TargetDao targetDao;
     @Autowired
-    private NbcFollowUpDao nbcFollowUpDao;
+    private FollowUpDao followUpDao;
     @Autowired
-    private NbcFlupSpectDataDao nbcFlupSpectDataDao;
+    private FlupSpectDataDao flupSpectDataDao;
     @Autowired
-    private NbcStudDao nbcStudDao;
+    private StudDao studDao;
     @Autowired
-    private NbcStudInjDao nbcStudInjDao;
+    private StudInjDao studInjDao;
 
     /**
      * Этот метод должен быть чертовски быстрым.
@@ -72,47 +73,47 @@ public class SpectDataManager {
                     .where(NBC_PATIENTS.N.in(patientsId))
                     .fetchAsync()
                     .toCompletableFuture();
-            Map<Long, NbcStud> study = studRecords.stream().map(NbcStud::buildFromRecord)
+            Map<Long, Stud> study = studRecords.stream().map(Stud::buildFromRecord)
                     .map(Optional::get)
-                    .collect(toMap(NbcStud::getN, identity()));
-            Map<Long, NbcFollowUp> followup = followUps.get()
+                    .collect(toMap(Stud::getN, identity()));
+            Map<Long, FollowUp> followup = followUps.get()
                     .stream()
-                    .map(NbcFollowUp::buildFromRecord)
-                    .collect(toMap(NbcFollowUp::getN, identity()));
+                    .map(FollowUp::buildFromRecord)
+                    .collect(toMap(FollowUp::getN, identity()));
             List<Long> targetsId = followup.values().stream()
-                    .map(NbcFollowUp::getNbc_target_n)
+                    .map(FollowUp::getNbc_target_n)
                     .collect(toList());
             CompletableFuture<Result<NbcFlupSpectDataRecord>> spectDataResult = context.fetchAsync(NBC_FLUP_SPECT_DATA, NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N.in(followup.keySet()))
                     .toCompletableFuture();
             CompletableFuture<Result<NbcStudInjRecord>> inj = context.fetchAsync(NBC_STUD_INJ, NBC_STUD_INJ.NBC_STUD_N.in(studId))
                     .toCompletableFuture();
-            Map<Long, NbcStudInj> injByStudyId = inj.get()
+            Map<Long, StudInj> injByStudyId = inj.get()
                     .stream()
-                    .map(NbcStudInj::buildFromRecord)
+                    .map(StudInj::buildFromRecord)
                     .map(Optional::get)
-                    .collect(toMap(NbcStudInj::getNbc_stud_n, identity()));
-            Map<Long, NbcPatients> patients = patientsRecords.get()
+                    .collect(toMap(StudInj::getNbc_stud_n, identity()));
+            Map<Long, Patients> patients = patientsRecords.get()
                     .stream()
                     .map(record -> {
-                        NbcPatients nbcPatients = NbcPatients.buildFromRecord(record);
-                        BasPeople basPeople = BasPeople.buildFromRecord(record);
-                        nbcPatients.setBasPeople(basPeople);
+                        Patients nbcPatients = Patients.buildFromRecord(record);
+                        People people = People.buildFromRecord(record);
+                        nbcPatients.setBasPeople(people);
                         return nbcPatients;
-                    }).collect(toMap(NbcPatients::getN, identity()));
+                    }).collect(toMap(Patients::getN, identity()));
             CompletableFuture<Result<Record>> targetsResult = context.select()
                     .from(NBC_TARGET)
                     .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
                     .where(NBC_TARGET.NBC_PATIENTS_N.in(patients.keySet()))
                     .fetchAsync()
                     .toCompletableFuture();
-            Map<Long, NbcTarget> targets = targetsResult.get().stream()
-                    .map(NbcTarget::buildFromRecord)
-                    .collect(toMap(NbcTarget::getN, identity()));
-            Map<Long, List<NbcFlupSpectData>> dataByFollowUp = spectDataResult.get()
+            Map<Long, Target> targets = targetsResult.get().stream()
+                    .map(Target::buildFromRecord)
+                    .collect(toMap(Target::getN, identity()));
+            Map<Long, List<FlupSpectData>> dataByFollowUp = spectDataResult.get()
                     .stream()
-                    .map(NbcFlupSpectData::buildFromRecord)
-                    .collect(toMap(NbcFlupSpectData::getNbc_followup_n, nbcFlupSpectData -> {
-                        List<NbcFlupSpectData> datas = new ArrayList<>();
+                    .map(FlupSpectData::buildFromRecord)
+                    .collect(toMap(FlupSpectData::getNbc_followup_n, nbcFlupSpectData -> {
+                        List<FlupSpectData> datas = new ArrayList<>();
                         datas.add(nbcFlupSpectData);
                         return datas;
                     }, (d1, d2) -> {
@@ -122,21 +123,21 @@ public class SpectDataManager {
             List<SpectGridData> gridData = followup.values()
                     .stream()
                     .map(nbcFollowUp -> {
-                        NbcStud nbcStud = study.get(nbcFollowUp.getNbc_stud_n());
-                        if (nbcStud == null) return Optional.empty();
-                        NbcPatients nbcPatients = patients.get(nbcStud.getNbc_patients_n());
+                        Stud stud = study.get(nbcFollowUp.getNbc_stud_n());
+                        if (stud == null) return Optional.empty();
+                        Patients nbcPatients = patients.get(stud.getNbc_patients_n());
                         if (nbcPatients == null) return Optional.empty();
-                        NbcTarget nbcTarget = targets.get(nbcFollowUp.getNbc_target_n());
-                        List<NbcFlupSpectData> datas = dataByFollowUp.get(nbcFollowUp.getN());
+                        Target target = targets.get(nbcFollowUp.getNbc_target_n());
+                        List<FlupSpectData> datas = dataByFollowUp.get(nbcFollowUp.getN());
                         if (datas == null) return Optional.empty();
-                        NbcStudInj nbcStudInj = injByStudyId.getOrDefault(nbcStud.getN(), NbcStudInj.builder().n(-1L)
-                                .nbc_stud_n(nbcStud.getN())
+                        StudInj studInj = injByStudyId.getOrDefault(stud.getN(), StudInj.builder().n(-1L)
+                                .nbc_stud_n(stud.getN())
                                 .build());
-                        List<NbcTarget> allPatientsTargets = targets.values()
+                        List<Target> allPatientsTargets = targets.values()
                                 .stream()
                                 .filter(target -> target.getNbc_patients_n().equals(nbcPatients.getN()))
                                 .collect(Collectors.toList());
-                        return Optional.of(new SpectGridDBData(nbcPatients, nbcStud, nbcFollowUp, nbcStudInj, nbcTarget, datas, allPatientsTargets).getSpectGridData());
+                        return Optional.of(new SpectGridDBData(nbcPatients, stud, nbcFollowUp, studInj, target, datas, allPatientsTargets).getSpectGridData());
                     })
                     .filter(Optional::isPresent)
                     .map(o -> (SpectGridData) (o.get()))
@@ -148,59 +149,59 @@ public class SpectDataManager {
         }
     }
 
-    public SpectGridData getBlankSpectGridData(NbcPatients nbcPatients) {
-        return new SpectGridDBData(nbcPatients, nbcTargetDao.getPatientsTargets(nbcPatients)).getSpectGridData();
+    public SpectGridData getBlankSpectGridData(Patients patients) {
+        return new SpectGridDBData(patients, targetDao.getPatientsTargets(patients)).getSpectGridData();
     }
 
     public void persistSpectData(SpectGridData spectGridData) {
         SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
         // study
-        NbcStud nbcStud = spectGridDBData.getNbcStud();
-        if (nbcStud.getN() == -1) {
-            nbcStud.setStudydatetime(DateUtils.asDate(spectGridData.getStudyDate()));
-            nbcStudDao.createNbcStud(nbcStud);
-        } else if (!spectGridData.getStudyDate().equals(DateUtils.asLocalDate(nbcStud.getStudydatetime()))) {
-            nbcStudDao.updateStudy(nbcStud);
+        Stud stud = spectGridDBData.getStud();
+        if (stud.getN() == -1) {
+            stud.setStudydatetime(DateUtils.asDate(spectGridData.getStudyDate()));
+            studDao.createNbcStud(stud);
+        } else if (!spectGridData.getStudyDate().equals(DateUtils.asLocalDate(stud.getStudydatetime()))) {
+            studDao.updateStudy(stud);
         }
         // inj
-        NbcStudInj nbcStudInj = spectGridDBData.getNbcStudInj();
-        if (nbcStudInj.getN() == -1) {
-            nbcStudInj.setInj_activity_bq(spectGridData.getDose());
-            nbcStudInj.setNbc_stud_n(nbcStud.getN());
-            nbcStudInjDao.insertStudInj(nbcStudInj);
-        } else if (!nbcStudInj.getInj_activity_bq().equals(spectGridData.getDose()) || !nbcStudInj.getNbc_stud_n().equals(nbcStud.getN())) {
-            nbcStudInj.setInj_activity_bq(spectGridData.getDose());
-            nbcStudInj.setNbc_stud_n(nbcStud.getN());
-            nbcStudInjDao.updateInj(nbcStudInj);
+        StudInj studInj = spectGridDBData.getStudInj();
+        if (studInj.getN() == -1) {
+            studInj.setInj_activity_bq(spectGridData.getDose());
+            studInj.setNbc_stud_n(stud.getN());
+            studInjDao.insertStudInj(studInj);
+        } else if (!studInj.getInj_activity_bq().equals(spectGridData.getDose()) || !studInj.getNbc_stud_n().equals(stud.getN())) {
+            studInj.setInj_activity_bq(spectGridData.getDose());
+            studInj.setNbc_stud_n(stud.getN());
+            studInjDao.updateInj(studInj);
         }
-        NbcFollowUp nbcFollowUp = NbcFollowUp.builder()
-                .nbc_stud_n(nbcStud.getN())
+        FollowUp followUp = FollowUp.builder()
+                .nbc_stud_n(stud.getN())
                 .nbc_target_n(spectGridData.getTarget().getN())
                 .build();
-        List<NbcFlupSpectData> data = createData(spectGridData);
-        nbcFlupSpectDataDao.createSpectFollowUpData(nbcFollowUp, data);
+        List<FlupSpectData> data = createData(spectGridData);
+        flupSpectDataDao.createSpectFollowUpData(followUp, data);
 
     }
 
     public void deleteSpectData(SpectGridData spectGridData) {
         SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
         // Нет данных.
-        if (spectGridDBData.getNbcFollowUp().getN() == -1) return;
+        if (spectGridDBData.getFollowUp().getN() == -1) return;
         context.transaction(configuration -> {
-            nbcFollowUpDao.deleteFollowUp(spectGridDBData.getNbcFollowUp());
-            nbcFlupSpectDataDao.deleteSpectData(spectGridDBData.getNbcFollowUp());
+            followUpDao.deleteFollowUp(spectGridDBData.getFollowUp());
+            flupSpectDataDao.deleteSpectData(spectGridDBData.getFollowUp());
         });
     }
 
-    private List<NbcFlupSpectData> createData(SpectGridData spectGridData) {
-        NbcFlupSpectData hyp = NbcFlupSpectData.builder()
+    private List<FlupSpectData> createData(SpectGridData spectGridData) {
+        FlupSpectData hyp = FlupSpectData.builder()
                 .targetType(TargetType.HYP)
                 .contourType(ContourType.SPHERE)
                 .volume(spectGridData.getHypVolume())
                 .early_phase(spectGridData.getHypMin30())
                 .late_phase(spectGridData.getHypMin60())
                 .build();
-        NbcFlupSpectData hizSphere = NbcFlupSpectData.builder()
+        FlupSpectData hizSphere = FlupSpectData.builder()
                 .targetType(TargetType.HIZ)
                 .contourType(ContourType.SPHERE)
                 .volume(spectGridData.getHizSphereVolume())
@@ -208,7 +209,7 @@ public class SpectDataManager {
                 .late_phase(spectGridData.getHizSphereMin60())
                 .build();
 
-        NbcFlupSpectData hizIsoline10 = NbcFlupSpectData.builder()
+        FlupSpectData hizIsoline10 = FlupSpectData.builder()
                 .targetType(TargetType.HIZ)
                 .contourType(ContourType.ISOLYNE10)
                 .volume(spectGridData.getHizIsoline10Volume())
@@ -216,7 +217,7 @@ public class SpectDataManager {
                 .late_phase(spectGridData.getHizIsoline10Min60())
                 .build();
 
-        NbcFlupSpectData hizIsoline25 = NbcFlupSpectData.builder()
+        FlupSpectData hizIsoline25 = FlupSpectData.builder()
                 .targetType(TargetType.HIZ)
                 .contourType(ContourType.ISOLYNE25)
                 .volume(spectGridData.getHizIsoline25Volume())
@@ -224,7 +225,7 @@ public class SpectDataManager {
                 .late_phase(spectGridData.getHizIsoline25Min60())
                 .build();
 
-        NbcFlupSpectData targetSphere = NbcFlupSpectData.builder()
+        FlupSpectData targetSphere = FlupSpectData.builder()
                 .targetType(TargetType.TARGET)
                 .contourType(ContourType.SPHERE)
                 .volume(spectGridData.getTargetSphereVolume())
@@ -232,7 +233,7 @@ public class SpectDataManager {
                 .late_phase(spectGridData.getTargetSphereMin60())
                 .build();
 
-        NbcFlupSpectData targetIsoline10 = NbcFlupSpectData.builder()
+        FlupSpectData targetIsoline10 = FlupSpectData.builder()
                 .targetType(TargetType.TARGET)
                 .contourType(ContourType.ISOLYNE10)
                 .volume(spectGridData.getTargetIsoline10Volume())
@@ -240,7 +241,7 @@ public class SpectDataManager {
                 .late_phase(spectGridData.getTargetIsoline10Min60())
                 .build();
 
-        NbcFlupSpectData targetIsoline25 = NbcFlupSpectData.builder()
+        FlupSpectData targetIsoline25 = FlupSpectData.builder()
                 .targetType(TargetType.TARGET)
                 .contourType(ContourType.ISOLYNE25)
                 .volume(spectGridData.getTargetIsoline25Volume())

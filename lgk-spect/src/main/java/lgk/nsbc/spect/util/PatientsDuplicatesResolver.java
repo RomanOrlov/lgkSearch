@@ -1,13 +1,15 @@
 package lgk.nsbc.spect.util;
 
-import lgk.nsbc.model.dao.NbcPatientsDao;
-import lgk.nsbc.model.dao.NbcProcDao;
-import lgk.nsbc.model.dao.NbcStudDao;
-import lgk.nsbc.model.dao.NbcTargetDao;
-import lgk.nsbc.model.BasPeople;
-import lgk.nsbc.model.NbcPatients;
+import lgk.nsbc.model.People;
+import lgk.nsbc.model.dao.PatientsDao;
+import lgk.nsbc.model.dao.ProcDao;
+import lgk.nsbc.model.dao.StudDao;
+import lgk.nsbc.model.dao.TargetDao;
+import lgk.nsbc.model.People;
+import lgk.nsbc.model.Patients;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,39 +31,36 @@ import static java.util.stream.Collectors.toMap;
  * В случае, если всё по нулям (несколько пустых пациентов) выбираем того, у которого N больше.
  */
 @Service
+@RequiredArgsConstructor
 public class PatientsDuplicatesResolver implements Serializable{
-    @Autowired
-    private NbcPatientsDao nbcPatientsDao;
-    @Autowired
-    private NbcStudDao nbcStudDao;
-    @Autowired
-    private NbcProcDao nbcProcDao;
-    @Autowired
-    private NbcTargetDao nbcTargetDao;
+    private final PatientsDao patientsDao;
+    private final StudDao studDao;
+    private final ProcDao procDao;
+    private final TargetDao targetDao;
 
-    public Optional<NbcPatients> getPatient(NbcPatients nbcPatients) {
-        BasPeople basPeople = nbcPatients.getBasPeople();
-        return getPatient(basPeople.getSurname(), basPeople.getName(), basPeople.getPatronymic());
+    public Optional<Patients> getPatient(Patients patients) {
+        People people = patients.getPeople();
+        return getPatient(people.getSurname(), people.getName(), people.getPatronymic());
     }
 
-    public Optional<NbcPatients> getPatient(BasPeople basPeople) {
-        return getPatient(basPeople.getSurname(), basPeople.getName(), basPeople.getPatronymic());
+    public Optional<Patients> getPatient(People people) {
+        return getPatient(people.getSurname(), people.getName(), people.getPatronymic());
     }
 
-    public Optional<NbcPatients> getPatient(String surname, String name, String patronymic) {
-        List<NbcPatients> nbcPatientsList = nbcPatientsDao.getPatientsByFullName(surname, name, patronymic);
-        if (nbcPatientsList.isEmpty()) return Optional.empty();
-        if (nbcPatientsList.size() == 1) return Optional.of(nbcPatientsList.get(0));
+    public Optional<Patients> getPatient(String surname, String name, String patronymic) {
+        List<Patients> patientsList = patientsDao.getPatientsByFullName(surname, name, patronymic);
+        if (patientsList.isEmpty()) return Optional.empty();
+        if (patientsList.size() == 1) return Optional.of(patientsList.get(0));
 
-        Map<NbcPatients, Boolean> map = nbcPatientsList.stream()
-                .collect(toMap(identity(), patients -> nbcStudDao.isPatientHasSpectStudy(patients)));
+        Map<Patients, Boolean> map = patientsList.stream()
+                .collect(toMap(identity(), studDao::isPatientHasSpectStudy));
         if (map.containsValue(true)) {
             long countOfTrue = map.values()
                     .stream()
                     .filter(Boolean::booleanValue)
                     .count();
             if (countOfTrue == 1) {
-                NbcPatients patients = map.keySet()
+                Patients patients = map.keySet()
                         .stream()
                         .filter(map::get)
                         .findFirst().orElseThrow(RuntimeException::new);
@@ -69,20 +68,20 @@ public class PatientsDuplicatesResolver implements Serializable{
             }
         }
 
-        List<PatientRecordsCount> counts = nbcPatientsList.stream()
+        List<PatientRecordsCount> counts = patientsList.stream()
                 .map(nbcPatients -> new PatientRecordsCount(nbcPatients,
-                        nbcProcDao.countProceduresForPatient(nbcPatients),
-                        nbcTargetDao.countTargetsForPatient(nbcPatients)))
+                        procDao.countProceduresForPatient(nbcPatients),
+                        targetDao.countTargetsForPatient(nbcPatients)))
                 .sorted()
                 .collect(Collectors.toList());
-        NbcPatients nbcPatients = counts.get(0).getNbcPatients();
-        return Optional.of(nbcPatients);
+        Patients patients = counts.get(0).getPatients();
+        return Optional.of(patients);
     }
 
     @Getter
     @AllArgsConstructor
     private static class PatientRecordsCount implements Comparable<PatientRecordsCount> {
-        private NbcPatients nbcPatients;
+        private Patients patients;
         private Integer targetsCount;
         private Integer proceduresCount;
 
@@ -94,7 +93,7 @@ public class PatientsDuplicatesResolver implements Serializable{
             i = proceduresCount.compareTo(o.getProceduresCount());
             if (i != 0)
                 return i;
-            return nbcPatients.getN().compareTo(o.getNbcPatients().getN());
+            return patients.getN().compareTo(this.getPatients().getN());
         }
     }
 }

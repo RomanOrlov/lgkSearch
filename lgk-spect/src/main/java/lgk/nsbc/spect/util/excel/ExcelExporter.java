@@ -5,7 +5,7 @@ import com.vaadin.server.FileDownloader;
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Notification;
-import lgk.nsbc.model.NbcTarget;
+import lgk.nsbc.model.Target;
 import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
 import lgk.nsbc.util.DateUtils;
@@ -199,7 +199,7 @@ public class ExcelExporter extends Button {
         workbook.write(outputStream);
     }
 
-    private void setCellValue(XSSFCell cell, NbcTarget value) {
+    private void setCellValue(XSSFCell cell, Target value) {
         if (value == null)
             cell.setCellType(CellType.BLANK);
         else

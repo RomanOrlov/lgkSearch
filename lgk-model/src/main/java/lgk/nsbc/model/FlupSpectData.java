@@ -13,7 +13,7 @@ import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NbcFlupSpectData {
+public class FlupSpectData {
     private Long n;
     private Long nbc_followup_n;
 
@@ -24,7 +24,7 @@ public class NbcFlupSpectData {
     private Double early_phase;
     private Double late_phase;
 
-    public static NbcFlupSpectData buildFromRecord(Record record) {
+    public static FlupSpectData buildFromRecord(Record record) {
         return builder()
                 .n(record.get(NBC_FLUP_SPECT_DATA.N))
                 .nbc_followup_n(record.get(NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N))

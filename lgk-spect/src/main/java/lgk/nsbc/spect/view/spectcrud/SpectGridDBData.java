@@ -14,21 +14,21 @@ import static lgk.nsbc.model.spect.TargetType.*;
  */
 @Getter
 public class SpectGridDBData {
-    private final NbcPatients nbcPatients;
-    private final NbcStud nbcStud;
-    private final NbcFollowUp nbcFollowUp;
-    private final NbcStudInj nbcStudInj;
-    private final NbcTarget nbcTarget;
-    private final List<NbcFlupSpectData> dataList;
-    private final Map<String, NbcFlupSpectData> dataMap;
-    private final Collection<NbcTarget> targets;
+    private final Patients patients;
+    private final Stud stud;
+    private final FollowUp followUp;
+    private final StudInj studInj;
+    private final Target target;
+    private final List<FlupSpectData> dataList;
+    private final Map<String, FlupSpectData> dataMap;
+    private final Collection<Target> targets;
 
-    public SpectGridDBData(NbcPatients nbcPatients, NbcStud nbcStud, NbcFollowUp nbcFollowUp, NbcStudInj nbcStudInj, NbcTarget nbcTarget, List<NbcFlupSpectData> dataList, Collection<NbcTarget> targets) {
-        this.nbcPatients = nbcPatients;
-        this.nbcStud = nbcStud;
-        this.nbcFollowUp = nbcFollowUp;
-        this.nbcStudInj = nbcStudInj;
-        this.nbcTarget = nbcTarget;
+    public SpectGridDBData(Patients patients, Stud stud, FollowUp followUp, StudInj studInj, Target target, List<FlupSpectData> dataList, Collection<Target> targets) {
+        this.patients = patients;
+        this.stud = stud;
+        this.followUp = followUp;
+        this.studInj = studInj;
+        this.target = target;
         this.dataList = dataList;
         this.targets = targets;
         dataMap = new HashMap<>();
@@ -39,24 +39,24 @@ public class SpectGridDBData {
         });
     }
 
-    public SpectGridDBData(NbcPatients nbcPatients, Collection<NbcTarget> targets) {
-        this.nbcPatients = nbcPatients;
+    public SpectGridDBData(Patients patients, Collection<Target> targets) {
+        this.patients = patients;
         this.targets = targets;
-        this.nbcStud = NbcStud.builder()
+        this.stud = Stud.builder()
                 .n(-1L)
-                .nbc_patients_n(nbcPatients.getN())
+                .nbc_patients_n(patients.getN())
                 .study_type(11L)
                 .build();
-        this.nbcFollowUp = NbcFollowUp.builder()
+        this.followUp = FollowUp.builder()
                 .n(-1L)
                 .build();
-        this.nbcTarget = NbcTarget.builder()
-                .nbc_patients_n(nbcPatients.getN())
+        this.target = Target.builder()
+                .nbc_patients_n(patients.getN())
                 .targetName("Мишень не")
                 .targetTypeText("выбрана")
                 .build();
         this.dataList = new ArrayList<>();
-        this.nbcStudInj = NbcStudInj.builder()
+        this.studInj = StudInj.builder()
                 .n(-1L)
                 .build();
         dataMap = new HashMap<>();
@@ -64,21 +64,21 @@ public class SpectGridDBData {
 
     public SpectGridData getSpectGridData() {
         SpectGridData spectGridData = new SpectGridData(this);
-        spectGridData.setName(nbcPatients.getBasPeople().getName());
-        spectGridData.setSurname(nbcPatients.getBasPeople().getSurname());
-        spectGridData.setPatronymic(nbcPatients.getBasPeople().getPatronymic());
-        spectGridData.setTarget(nbcTarget);
-        spectGridData.setCaseHistoryNum(String.valueOf(nbcPatients.getCase_history_num()));
-        spectGridData.setDose(nbcStudInj.getInj_activity_bq());
-        if (nbcStud != null && nbcStud.getStudydatetime() != null)
-            spectGridData.setStudyDate(DateUtils.asLocalDate(nbcStud.getStudydatetime()));
-        NbcFlupSpectData hyp = dataMap.get(HYP.toString() + SPHERE.toString());
-        NbcFlupSpectData hizSphere = dataMap.get(HIZ.toString() + SPHERE.toString());
-        NbcFlupSpectData hizIsoline10 = dataMap.get(HIZ.toString() + ISOLYNE10.toString());
-        NbcFlupSpectData hizIsoline25 = dataMap.get(HIZ.toString() + ISOLYNE25.toString());
-        NbcFlupSpectData targetSphere = dataMap.get(TARGET.toString() + SPHERE.toString());
-        NbcFlupSpectData targetIsoline10 = dataMap.get(TARGET.toString() + ISOLYNE10.toString());
-        NbcFlupSpectData targetIsoline25 = dataMap.get(TARGET.toString() + ISOLYNE25.toString());
+        spectGridData.setName(patients.getPeople().getName());
+        spectGridData.setSurname(patients.getPeople().getSurname());
+        spectGridData.setPatronymic(patients.getPeople().getPatronymic());
+        spectGridData.setTarget(target);
+        spectGridData.setCaseHistoryNum(String.valueOf(patients.getCase_history_num()));
+        spectGridData.setDose(studInj.getInj_activity_bq());
+        if (stud != null && stud.getStudydatetime() != null)
+            spectGridData.setStudyDate(DateUtils.asLocalDate(stud.getStudydatetime()));
+        FlupSpectData hyp = dataMap.get(HYP.toString() + SPHERE.toString());
+        FlupSpectData hizSphere = dataMap.get(HIZ.toString() + SPHERE.toString());
+        FlupSpectData hizIsoline10 = dataMap.get(HIZ.toString() + ISOLYNE10.toString());
+        FlupSpectData hizIsoline25 = dataMap.get(HIZ.toString() + ISOLYNE25.toString());
+        FlupSpectData targetSphere = dataMap.get(TARGET.toString() + SPHERE.toString());
+        FlupSpectData targetIsoline10 = dataMap.get(TARGET.toString() + ISOLYNE10.toString());
+        FlupSpectData targetIsoline25 = dataMap.get(TARGET.toString() + ISOLYNE25.toString());
         if (hyp != null) {
             spectGridData.setHypVolume(hyp.getVolume());
             spectGridData.setHypMin30(hyp.getEarly_phase());
