@@ -22,4 +22,9 @@ public class MutationTypes {
                 .description(record.get(NBC_MUTATION_TYPES.DESCRIPTION))
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
 }

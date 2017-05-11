@@ -20,4 +20,9 @@ public class DicYesNo {
                 .text(record.get(NBC_DIC_YES_NO.TEXT))
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
 }

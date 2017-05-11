@@ -22,4 +22,9 @@ public class Genes {
                 .description(record.get(NBC_GENES.DESCRIPTION))
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

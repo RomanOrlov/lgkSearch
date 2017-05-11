@@ -97,7 +97,7 @@ public class SpectDataManager {
                     .map(record -> {
                         Patients nbcPatients = Patients.buildFromRecord(record);
                         People people = People.buildFromRecord(record);
-                        nbcPatients.setBasPeople(people);
+                        nbcPatients.setPeople(people);
                         return nbcPatients;
                     }).collect(toMap(Patients::getN, identity()));
             CompletableFuture<Result<Record>> targetsResult = context.select()
@@ -135,7 +135,7 @@ public class SpectDataManager {
                                 .build());
                         List<Target> allPatientsTargets = targets.values()
                                 .stream()
-                                .filter(target -> target.getNbc_patients_n().equals(nbcPatients.getN()))
+                                .filter(t -> t.getNbc_patients_n().equals(nbcPatients.getN()))
                                 .collect(Collectors.toList());
                         return Optional.of(new SpectGridDBData(nbcPatients, stud, nbcFollowUp, studInj, target, datas, allPatientsTargets).getSpectGridData());
                     })

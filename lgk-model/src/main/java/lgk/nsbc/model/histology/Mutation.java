@@ -20,6 +20,11 @@ public class Mutation {
 
     public static Mutation buildFromRecord(Record record) {
         return builder().n(record.get(NBC_HISTOLOGY_1_MUTATION.N))
+                .histologyN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_HISTOLOGY_1_N))
+                .studyN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_STUD_N))
+                .mutationTypeN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_MUTATION_TYPES_N))
+                .geneN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_GENES_N))
+                .yesNoN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_DIC_YES_NO_N))
                 .build();
     }
 }

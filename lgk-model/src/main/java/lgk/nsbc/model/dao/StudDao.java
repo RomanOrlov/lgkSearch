@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 import static org.jooq.impl.DSL.val;
 
@@ -62,7 +63,7 @@ public class StudDao implements Serializable{
         return result.stream()
                 .map(Stud::buildFromRecord)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public Optional<Stud> findSpectStudyByDate(Patients patients, Date studyDate) {
@@ -76,6 +77,15 @@ public class StudDao implements Serializable{
     public Optional<Stud> findById(Long id) {
         NbcStudRecord nbcStudRecord = context.fetchOne(NBC_STUD, NBC_STUD.N.eq(id));
         return Stud.buildFromRecord(nbcStudRecord);
+    }
+
+    public List<Stud> findById(List<Long> studId) {
+        Result<NbcStudRecord> result = context.fetch(NBC_STUD, NBC_STUD.N.in(studId));
+        return result.stream()
+                .map(Stud::buildFromRecord)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
     }
 
     public void deleteStudy(Stud stud) {
