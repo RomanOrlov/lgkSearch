@@ -45,6 +45,8 @@ public class HistologyView extends VerticalLayout implements View {
     private Grid<HistologyBind> histologyGrid = new Grid<>("Список гистологий", histology);
 
     private Binder<HistologyBind> binder = new Binder<>();
+    private Boolean editiMode = false;
+    private HistologyBind selectedToEdit;
 
     @PostConstruct
     public void init() {
@@ -58,27 +60,9 @@ public class HistologyView extends VerticalLayout implements View {
         });
 
         Button showSelectedHistology = new Button("Просмотр");
-        showSelectedHistology.addClickListener(event -> {
-            if (histologyGrid.asSingleSelect().isEmpty()) {
-                Notification.show("Не выбрана гистология");
-                return;
-            }
-            HistologyBind selectedHistology = histologyGrid.asSingleSelect().getValue();
-            binder.readBean(selectedHistology);
-            mutations.clear();
-            if (selectedHistology.getMutationBinds()!=null)
-                mutations.addAll(selectedHistology.getMutationBinds());
-            mutationGrid.getDataProvider().refreshAll();
-        });
+        showSelectedHistology.addClickListener(event -> edit());
 
         Button addHistology = new Button("Добавить");
-        addHistology.addClickListener(event -> {
-            if (suggestionCombobox.isEmpty()) {
-                Notification.show("Не выбран пациент");
-                return;
-            }
-            cleanCurrentHistology();
-        });
 
         Button removeHistology = new Button("Удалить");
         removeHistology.addClickListener(event -> {
@@ -88,12 +72,15 @@ public class HistologyView extends VerticalLayout implements View {
             }
             ConfirmDialog.show(getUI(), "Удалить выбраную запись", "Вы уверены?", "Да", "Нет", dialog -> {
                 if (dialog.isConfirmed()) {
-
+                    HistologyBind value = histologyGrid.asSingleSelect().getValue();
+                    histologyManager.deleteHistology(value);
+                    histology.remove(value);
+                    histologyGrid.getDataProvider().refreshAll();
                 }
             });
         });
-        Button edit = new Button("Редактировать");
-        HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology, edit);
+
+        HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology);
         tools.setWidth("100%");
         tools.setExpandRatio(suggestionCombobox, 1.0f);
         Label patientsName = new Label();
@@ -109,10 +96,39 @@ public class HistologyView extends VerticalLayout implements View {
         histologyParams.setComponentAlignment(burdenkoVerification, Alignment.MIDDLE_CENTER);
         RichTextArea comment = new RichTextArea("Гистологическое заключение");
         comment.setWidth("100%");
-        comment.setLocale(Locale.getDefault());
+
         Button saveChanges = new Button("Сохранить изменения");
         saveChanges.addClickListener(event -> {
-            histologyManager.saveHistology();
+            if (editiMode) {
+                selectedToEdit.setMutationBinds(mutations);
+                histologyManager.updateHistology(selectedToEdit, suggestionCombobox.getValue());
+            } else {
+                HistologyBind histologyBind = binder.getBean();
+                histologyBind.setMutationBinds(mutations);
+                histologyManager.createNewHistology(histologyBind, suggestionCombobox.getValue());
+                histology.add(histologyBind);
+                editiMode = true; // Сразу после создания переключаемся в режим редактирования
+                selectedToEdit = histologyBind;
+            }
+            histologyGrid.getDataProvider().refreshAll();
+        });
+
+        addHistology.addClickListener(event -> {
+            if (suggestionCombobox.isEmpty()) {
+                Notification.show("Не выбран пациент");
+                return;
+            }
+            editiMode = false;
+            selectedToEdit = null;
+            // bind не работает для очистки полей!
+            histologyGrid.deselectAll();
+            cleanCurrentHistology();
+            dateField.clear();
+            ki67From.clear();
+            ki67To.clear();
+            comment.clear();
+            burdenkoVerification.clear();
+            binder.setBean(HistologyBind.builder().build());
         });
 
         binder.forField(dateField)
@@ -140,15 +156,30 @@ public class HistologyView extends VerticalLayout implements View {
         setComponentAlignment(saveChanges, Alignment.MIDDLE_CENTER);
     }
 
+    private void edit() {
+        if (histologyGrid.asSingleSelect().isEmpty()) {
+            Notification.show("Не выбрана гистология");
+            return;
+        }
+        editiMode = true;
+        HistologyBind selectedHistology = histologyGrid.asSingleSelect().getValue();
+        selectedToEdit = selectedHistology;
+        binder.readBean(selectedHistology);
+        mutations.clear();
+        if (selectedHistology.getMutationBinds() != null)
+            mutations.addAll(selectedHistology.getMutationBinds());
+        mutationGrid.getDataProvider().refreshAll();
+    }
+
     private void initHistologyGrid() {
         histologyGrid.setWidth("100%");
-        histologyGrid.setHeight("300px");
+        histologyGrid.setHeightByRows(3);
         histologyGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
         histologyGrid.addColumn(HistologyBind::getHistologyDate)
                 .setCaption("Дата");
         histologyGrid.addColumn(HistologyBind::getComment)
                 .setCaption("Комментарий");
-        histologyGrid.addColumn(histologyBind -> histologyBind.getBurdenkoVerification().equals(true) ? "Да" : "Нет")
+        histologyGrid.addColumn(histologyBind -> Objects.equals(histologyBind.getBurdenkoVerification(), true) ? "Да" : "Нет")
                 .setCaption("Верификация Бурденко");
     }
 
@@ -223,9 +254,10 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private void cleanCurrentHistology() {
-        binder.removeBean();
         mutations.clear();
         mutationGrid.getDataProvider().refreshAll();
+        binder.removeBean();
+        binder.setBean(null);
     }
 
     @Override

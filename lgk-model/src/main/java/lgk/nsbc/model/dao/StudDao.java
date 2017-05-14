@@ -34,7 +34,13 @@ public class StudDao implements Serializable{
                 .and(NBC_STUD.STUDY_TYPE.eq(11L)));
     }
 
-    // Должен быть в транзакции см управление транзакциями в джуке
+    public boolean isHistologyStudyExist(Long patientsId, Date studyDate) {
+        Timestamp timestamp = new Timestamp(studyDate.getTime());
+        return context.fetchExists(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patientsId)
+                .and(NBC_STUD.STUDYDATETIME.eq(timestamp))
+                .and(NBC_STUD.STUDY_TYPE.eq(8L)));
+    }
+
     public void createNbcStud(Stud stud) {
         Timestamp timestamp = new Timestamp(stud.getStudydatetime().getTime());
         Result<NbcStudRecord> result = context.insertInto(NBC_STUD)
@@ -66,11 +72,11 @@ public class StudDao implements Serializable{
                 .collect(toList());
     }
 
-    public Optional<Stud> findSpectStudyByDate(Patients patients, Date studyDate) {
+    public Optional<Stud> findStudyByDate(Patients patients, Date studyDate, Long studyType) {
         Timestamp timestamp = new Timestamp(studyDate.getTime());
         NbcStudRecord result = context.fetchOne(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patients.getN())
                 .and(NBC_STUD.STUDYDATETIME.eq(timestamp))
-                .and(NBC_STUD.STUDY_TYPE.eq(11L)));
+                .and(NBC_STUD.STUDY_TYPE.eq(studyType)));
         return Stud.buildFromRecord(result);
     }
 

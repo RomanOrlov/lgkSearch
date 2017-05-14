@@ -25,17 +25,17 @@
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-meta</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-codegen</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.2</version>
         </dependency>
     </dependencies>
     <build>
@@ -43,7 +43,7 @@
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.8.0</version>
+                <version>3.9.2</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.firebirdsql.jdbc</groupId>
@@ -67,7 +67,12 @@
                             <includes>.*</includes>
                             <!-- Exclude HIS tables and some views (x2 times lighter) -->
                             <excludes>
-                                    .*.HIS | .*_LST
+                                    .*.HIS
+                                | .*_LST
+                                | .*_DEL
+                                | .*_GET
+                                | .*_PUT
+                                | .*_LST_GO
                             </excludes>
                             <inputSchema/>
                         </database>

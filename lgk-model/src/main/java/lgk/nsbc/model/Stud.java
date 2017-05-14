@@ -23,6 +23,7 @@ public class Stud {
     private Long nbc_procedures_n;
 
     public static Optional<Stud> buildFromRecord(Record record) {
+        if (record == null) return Optional.empty();
         return Optional.of(builder()
                 .n(record.get(NBC_STUD.N))
                 .nbc_patients_n(record.get(NBC_STUD.NBC_PATIENTS_N))
