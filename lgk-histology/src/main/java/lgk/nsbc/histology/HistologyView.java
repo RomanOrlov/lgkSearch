@@ -99,7 +99,7 @@ public class HistologyView extends VerticalLayout implements View {
         tools.setWidth("100%");
         tools.setExpandRatio(suggestionCombobox, 1.0f);
         Label patientsName = new Label();
-        suggestionCombobox.addValueChangeListener(event -> patientsName.setValue(event.getValue().getCase_history_num() + " " + event.getValue().toString()));
+        suggestionCombobox.addValueChangeListener(event -> patientsName.setValue(event.getValue().toStringWithCaseHistory()));
 
         DateField dateField = new DateField("Дата гистологии");
         dateField.setTextFieldEnabled(false);
