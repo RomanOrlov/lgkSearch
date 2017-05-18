@@ -6,7 +6,6 @@ import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.histology.Histology;
 import org.jooq.DSLContext;
-import org.jooq.InsertResultStep;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static lgk.nsbc.generated.tables.NbcHistology_1.NBC_HISTOLOGY_1;
-import static org.jooq.impl.DSL.row;
 import static org.jooq.impl.DSL.val;
 
 @Service
@@ -94,10 +92,15 @@ public class HistologyDao implements Serializable {
     public void updateHistology(Histology histology) {
         // Обновляем так, чтобы не убить что то, заданное в основном интерфейсе
         context.update(NBC_HISTOLOGY_1)
+                .set(NBC_HISTOLOGY_1.NBC_STUD_N, histology.getNbcStudN())
                 .set(NBC_HISTOLOGY_1.COMMENTARY, histology.getCommentary())
                 .set(NBC_HISTOLOGY_1.KI67_FROM, histology.getKi67From())
                 .set(NBC_HISTOLOGY_1.KI67_TO, histology.getKi67To())
                 .where(NBC_HISTOLOGY_1.N.eq(histology.getN()))
                 .execute();
+    }
+
+    public boolean isExist(Long n) {
+        return context.fetchExists(NBC_HISTOLOGY_1, NBC_HISTOLOGY_1.N.eq(n));
     }
 }

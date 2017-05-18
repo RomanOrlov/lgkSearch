@@ -15,14 +15,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class StudDao implements Serializable{
+public class StudDao implements Serializable {
     private Logger logger = Logger.getLogger(StudDao.class.getName());
     @Autowired
     private DSLContext context;
@@ -42,7 +41,11 @@ public class StudDao implements Serializable{
     }
 
     public void createNbcStud(Stud stud) {
-        Timestamp timestamp = new Timestamp(stud.getStudydatetime().getTime());
+        Timestamp timestamp;
+        if (stud.getStudydatetime() != null)
+            timestamp = new Timestamp(stud.getStudydatetime().getTime());
+        else
+            timestamp = null;
         Result<NbcStudRecord> result = context.insertInto(NBC_STUD)
                 .columns(NBC_STUD.N,
                         NBC_STUD.OP_CREATE,
@@ -62,10 +65,8 @@ public class StudDao implements Serializable{
         stud.setN(generatedId);
     }
 
-    public List<Stud> findPatientsSpectStudy(Patients patients) {
-        Result<NbcStudRecord> result = context.fetch(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patients.getN())
-                .and(NBC_STUD.STUDY_TYPE.eq(11L)));
-
+    public List<Stud> findPatientsStuds(Patients patients) {
+        Result<NbcStudRecord> result = context.fetch(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patients.getN()));
         return result.stream()
                 .map(Stud::buildFromRecord)
                 .map(Optional::get)
@@ -106,7 +107,11 @@ public class StudDao implements Serializable{
     }
 
     public void updateStudy(Stud stud) {
-        Timestamp timestamp = new Timestamp(stud.getStudydatetime().getTime());
+        Timestamp timestamp;
+        if (stud.getStudydatetime() != null)
+            timestamp = new Timestamp(stud.getStudydatetime().getTime());
+        else
+            timestamp = null;
         context.update(NBC_STUD)
                 .set(NBC_STUD.STUDYDATETIME, timestamp)
                 .where(NBC_STUD.N.eq(stud.getN()))

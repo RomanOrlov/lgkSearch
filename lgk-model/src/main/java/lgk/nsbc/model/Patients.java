@@ -36,6 +36,6 @@ public class Patients {
 
     @Override
     public String toString() {
-        return case_history_num + " " + people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
+        return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
     }
 }

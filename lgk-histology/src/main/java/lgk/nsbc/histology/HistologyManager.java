@@ -7,6 +7,7 @@ import lgk.nsbc.model.dao.StudDao;
 import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
 import lgk.nsbc.model.dao.dictionary.GenesDao;
 import lgk.nsbc.model.dao.dictionary.MutationTypesDao;
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
@@ -41,6 +42,8 @@ public class HistologyManager {
     private HistologyDao histologyDao;
     @Autowired
     private MutationsDao mutationsDao;
+    @Autowired
+    private StudTypeDao studTypeDao;
 
     public List<HistologyBind> getHistology(Patients patients) {
         List<Histology> histologyList = histologyDao.findByPatient(patients);
@@ -126,7 +129,9 @@ public class HistologyManager {
     public void updateHistology(HistologyBind histologyBind, Patients patients) {
         Stud stud = getStud(histologyBind, patients);
         histologyBind.setStud(stud);
-        histologyDao.updateHistology(toHistology(histologyBind, stud));
+        Histology histology = toHistology(histologyBind, stud);
+        histology.setN(histologyBind.getHistology().getN());
+        histologyDao.updateHistology(histology);
         mutationsDao.deleteMutationsByHistology(histologyBind.getHistology());
         saveMutations(histologyBind, stud, histologyBind.getHistology());
     }
@@ -135,6 +140,7 @@ public class HistologyManager {
         Stud stud = getStud(histologyBind, patients);
         histologyBind.setStud(stud);
         Histology histology = toHistology(histologyBind, stud);
+        histology.setNbcPatientsN(patients.getN());
         histologyBind.setHistology(histology);
         histologyDao.saveHistology(histology);
         saveMutations(histologyBind, stud, histology);
@@ -176,5 +182,16 @@ public class HistologyManager {
         }
         studDao.createNbcStud(stud);
         return stud;
+    }
+
+    public List<StudBind> getPatientStudy(Patients patients) {
+        return studDao.findPatientsStuds(patients)
+                .stream()
+                .map(stud -> new StudBind(stud, studTypeDao.getStudTypeMap().get(stud.getStudy_type())))
+                .collect(toList());
+    }
+
+    public boolean checkHistologyExist(Long n) {
+        return histologyDao.isExist(n);
     }
 }

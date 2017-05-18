@@ -6,6 +6,7 @@ import lgk.nsbc.model.histology.Mutation;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,8 +21,8 @@ import java.util.Objects;
 public class HistologyBind {
     private Stud stud;
     private Histology histology;
-    private List<Mutation> mutations;
-    private List<MutationBind> mutationBinds;
+    private List<Mutation> mutations = new ArrayList<>();
+    private List<MutationBind> mutationBinds = new ArrayList<>();
 
     private LocalDate histologyDate;
     private Boolean burdenkoVerification;
