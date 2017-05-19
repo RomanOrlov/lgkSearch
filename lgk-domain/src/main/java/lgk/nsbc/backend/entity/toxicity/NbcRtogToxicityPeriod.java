@@ -1,11 +1,16 @@
 package lgk.nsbc.backend.entity.toxicity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_RTOG_TOXICITY_PERIOD")
 public class NbcRtogToxicityPeriod implements Serializable {
@@ -21,27 +26,4 @@ public class NbcRtogToxicityPeriod implements Serializable {
     @Column(name = "TEXT")
     private String text;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
 }

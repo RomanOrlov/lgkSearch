@@ -1,10 +1,14 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcOrganizations;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "NBC_STAFF")
 public class NbcStaff implements Serializable {
@@ -31,51 +35,4 @@ public class NbcStaff implements Serializable {
     @Column(name = "NOTES")
     private String notes;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public String getPost() {
-        return post;
-    }
-
-    public void setPost(String post) {
-        this.post = post;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public NbcOrganizations getNbcOrganizations() {
-        return nbcOrganizations;
-    }
-
-    public void setNbcOrganizations(NbcOrganizations nbcOrganizations) {
-        this.nbcOrganizations = nbcOrganizations;
-    }
-
-    public BasPeople getBasPeople() {
-        return basPeople;
-    }
-
-    public void setBasPeople(BasPeople basPeople) {
-        this.basPeople = basPeople;
-    }
 }

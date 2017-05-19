@@ -1,4 +1,7 @@
 package lgk.nsbc.model.dictionary;
 
-public class OncoDiagCon {
+import java.io.Serializable;
+
+public class OncoDiagCon implements Serializable {
+    private static final long serialVersionUID = 1L;
 }

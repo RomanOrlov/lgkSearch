@@ -5,16 +5,14 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "SAMPLE")
-public class Sample  implements Serializable {
+public class Sample implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

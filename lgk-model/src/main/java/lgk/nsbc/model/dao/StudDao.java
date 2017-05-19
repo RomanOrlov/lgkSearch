@@ -22,6 +22,7 @@ import static org.jooq.impl.DSL.val;
 
 @Service
 public class StudDao implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Logger logger = Logger.getLogger(StudDao.class.getName());
     @Autowired
     private DSLContext context;

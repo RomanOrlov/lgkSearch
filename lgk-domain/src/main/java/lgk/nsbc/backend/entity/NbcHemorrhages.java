@@ -1,8 +1,13 @@
 package lgk.nsbc.backend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_HEMORRHAGES_1")
 public class NbcHemorrhages implements Serializable {
@@ -19,27 +24,4 @@ public class NbcHemorrhages implements Serializable {
     @Column(name = "AMOUNT")
     private Integer amount; // Количество эпизодов
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
 }

@@ -16,7 +16,9 @@ import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class StudInjDao implements Serializable{
+public class StudInjDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

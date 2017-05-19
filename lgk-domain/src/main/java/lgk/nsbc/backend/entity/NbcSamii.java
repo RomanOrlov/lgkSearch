@@ -2,10 +2,14 @@ package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcSamiiGrade;
 import lgk.nsbc.backend.entity.target.NbcTarget;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_SAMII_1")
 public class NbcSamii implements Serializable {
@@ -27,35 +31,4 @@ public class NbcSamii implements Serializable {
     @JoinColumn(name = "GRADE")
     private NbcSamiiGrade nbcSamiiGrade;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
-
-    public NbcTarget getNbcTarget() {
-        return nbcTarget;
-    }
-
-    public void setNbcTarget(NbcTarget nbcTarget) {
-        this.nbcTarget = nbcTarget;
-    }
-
-    public NbcSamiiGrade getNbcSamiiGrade() {
-        return nbcSamiiGrade;
-    }
-
-    public void setNbcSamiiGrade(NbcSamiiGrade nbcSamiiGrade) {
-        this.nbcSamiiGrade = nbcSamiiGrade;
-    }
 }

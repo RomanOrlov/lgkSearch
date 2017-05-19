@@ -1,8 +1,13 @@
 package lgk.nsbc.backend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_RT_PARAMS")
 public class NbcRtParams implements Serializable {
@@ -24,44 +29,4 @@ public class NbcRtParams implements Serializable {
 
     @Column(name = "N_BEAMS")
     private Integer nBeams;
-
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Double getBeamOnTime() {
-        return beamOnTime;
-    }
-
-    public void setBeamOnTime(Double beamOnTime) {
-        this.beamOnTime = beamOnTime;
-    }
-
-    public Integer getNShots() {
-        return nShots;
-    }
-
-    public void setNShots(Integer nShots) {
-        this.nShots = nShots;
-    }
-
-    public Integer getNBeams() {
-        return nBeams;
-    }
-
-    public void setNBeams(Integer nBeams) {
-        this.nBeams = nBeams;
-    }
-
-    public NbcProc getNbcProc() {
-        return nbcProc;
-    }
-
-    public void setNbcProc(NbcProc nbcProc) {
-        this.nbcProc = nbcProc;
-    }
 }

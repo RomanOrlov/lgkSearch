@@ -3,6 +3,7 @@ package lgk.nsbc.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 
@@ -13,7 +14,9 @@ import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudInj {
+public class StudInj implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long op_create;
     private Long nbc_stud_n;

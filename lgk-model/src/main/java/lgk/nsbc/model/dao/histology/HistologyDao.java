@@ -19,6 +19,8 @@ import static org.jooq.impl.DSL.val;
 
 @Service
 public class HistologyDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

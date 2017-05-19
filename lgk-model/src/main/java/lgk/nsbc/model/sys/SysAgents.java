@@ -3,6 +3,8 @@ package lgk.nsbc.model.sys;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.SysAgents.SYS_AGENTS;
 
 @Getter
@@ -10,7 +12,9 @@ import static lgk.nsbc.generated.tables.SysAgents.SYS_AGENTS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SysAgents {
+public class SysAgents implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long op_create;
     private String name;

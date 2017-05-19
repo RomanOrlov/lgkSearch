@@ -3,6 +3,7 @@ package lgk.nsbc.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
@@ -12,8 +13,9 @@ import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Proc {
-    private Patients patients;
+public class Proc implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long proc_type;
     private Long nbc_stud_n;

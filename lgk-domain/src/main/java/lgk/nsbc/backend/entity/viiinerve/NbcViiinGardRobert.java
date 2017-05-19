@@ -1,14 +1,19 @@
 package lgk.nsbc.backend.entity.viiinerve;
 
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * Состояние слуха по шкале Гарднера-Робертсона
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_VIIIN_1_GARD_ROBERT")
 public class NbcViiinGardRobert implements Serializable {
@@ -27,35 +32,4 @@ public class NbcViiinGardRobert implements Serializable {
     @Column(name = "AMOUNT")
     private Integer amount;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
 }

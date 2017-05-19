@@ -6,13 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcPatientsDiagnosis.NBC_PATIENTS_DIAGNOSIS;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatientsDiagnosis {
+public class PatientsDiagnosis implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long upN;
     private String name;

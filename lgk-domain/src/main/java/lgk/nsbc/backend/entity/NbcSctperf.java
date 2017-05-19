@@ -1,8 +1,13 @@
 package lgk.nsbc.backend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_SCTPERF")
 public class NbcSctperf implements Serializable {
@@ -27,51 +32,4 @@ public class NbcSctperf implements Serializable {
     @Column(name = "PS")
     private Double ps;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Double getCbf() {
-        return cbf;
-    }
-
-    public void setCbf(Double cbf) {
-        this.cbf = cbf;
-    }
-
-    public Double getCbv() {
-        return cbv;
-    }
-
-    public void setCbv(Double cbv) {
-        this.cbv = cbv;
-    }
-
-    public Double getMtt() {
-        return mtt;
-    }
-
-    public void setMtt(Double mtt) {
-        this.mtt = mtt;
-    }
-
-    public Double getPs() {
-        return ps;
-    }
-
-    public void setPs(Double ps) {
-        this.ps = ps;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
 }

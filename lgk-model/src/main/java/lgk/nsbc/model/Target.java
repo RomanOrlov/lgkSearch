@@ -3,6 +3,8 @@ package lgk.nsbc.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
 import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYPE;
 
@@ -12,7 +14,9 @@ import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYP
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(of = {"n"})
-public class Target {
+public class Target implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long nbc_patients_n;
     private String targetName;
@@ -30,6 +34,6 @@ public class Target {
 
     @Override
     public String toString() {
-        return targetName+ " " + targetTypeText ;
+        return targetName + " " + targetTypeText;
     }
 }

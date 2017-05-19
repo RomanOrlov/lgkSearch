@@ -3,6 +3,8 @@ package lgk.nsbc.model.dictionary;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcOrganizations.NBC_ORGANIZATIONS;
 
 @Getter
@@ -10,7 +12,9 @@ import static lgk.nsbc.generated.tables.NbcOrganizations.NBC_ORGANIZATIONS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Organizations {
+public class Organizations implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private String name;
 

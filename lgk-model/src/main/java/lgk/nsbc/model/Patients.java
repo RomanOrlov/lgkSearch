@@ -3,6 +3,7 @@ package lgk.nsbc.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
@@ -12,7 +13,9 @@ import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Patients {
+public class Patients implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private People people;
     private Long n;
     private Integer case_history_num;
@@ -22,6 +25,7 @@ public class Patients {
 
     /**
      * Нужен для SuggestionCombobox
+     *
      * @return
      */
     public String getRepresentationName() {
@@ -45,10 +49,10 @@ public class Patients {
 
     public String toStringWithCaseHistory() {
         StringBuilder builder = new StringBuilder();
-        if (case_history_num !=null) {
+        if (case_history_num != null) {
             builder.append(case_history_num);
         }
-        if (case_history_date !=null) {
+        if (case_history_date != null) {
             String substring = Integer.toString(case_history_date.getYear()).substring(2);
             builder.append("/").append(substring);
         }

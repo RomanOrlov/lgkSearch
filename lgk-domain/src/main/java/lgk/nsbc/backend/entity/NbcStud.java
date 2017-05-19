@@ -1,12 +1,16 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcStudStudyType;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_STUD")
 public class NbcStud implements Serializable {
@@ -49,92 +53,4 @@ public class NbcStud implements Serializable {
 
     @Column(name = "DICOM_BIRTH_DATE")
     private String dicomBirthDate;
-
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Date getStudydatetime() {
-        return studydatetime;
-    }
-
-    public void setStudydatetime(Date studydatetime) {
-        this.studydatetime = studydatetime;
-    }
-
-    public Integer getNewTargets() {
-        return newTargets;
-    }
-
-    public void setNewTargets(Integer newTargets) {
-        this.newTargets = newTargets;
-    }
-
-    public String getDicomStudyId() {
-        return dicomStudyId;
-    }
-
-    public void setDicomStudyId(String dicomStudyId) {
-        this.dicomStudyId = dicomStudyId;
-    }
-
-    public String getDicomStudyDate() {
-        return dicomStudyDate;
-    }
-
-    public void setDicomStudyDate(String dicomStudyDate) {
-        this.dicomStudyDate = dicomStudyDate;
-    }
-
-    public String getDicomSeriesNum() {
-        return dicomSeriesNum;
-    }
-
-    public void setDicomSeriesNum(String dicomSeriesNum) {
-        this.dicomSeriesNum = dicomSeriesNum;
-    }
-
-    public String getDicomPatientName() {
-        return dicomPatientName;
-    }
-
-    public void setDicomPatientName(String dicomPatientName) {
-        this.dicomPatientName = dicomPatientName;
-    }
-
-    public String getDicomBirthDate() {
-        return dicomBirthDate;
-    }
-
-    public void setDicomBirthDate(String dicomBirthDate) {
-        this.dicomBirthDate = dicomBirthDate;
-    }
-
-    public NbcPatients getNbcPatient() {
-        return nbcPatient;
-    }
-
-    public void setNbcPatient(NbcPatients nbcPatient) {
-        this.nbcPatient = nbcPatient;
-    }
-
-    public NbcStudStudyType getNbcStudStudyType() {
-        return nbcStudStudyType;
-    }
-
-    public void setNbcStudStudyType(NbcStudStudyType nbcStudStudyType) {
-        this.nbcStudStudyType = nbcStudStudyType;
-    }
-
-    public List<NbcProc> getNbcProcedures() {
-        return nbcProcedures;
-    }
-
-    public void setNbcProcedures(List<NbcProc> nbcProcedures) {
-        this.nbcProcedures = nbcProcedures;
-    }
 }

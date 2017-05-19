@@ -3,6 +3,7 @@ package lgk.nsbc.model.sys;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.SysSessions.SYS_SESSIONS;
@@ -12,7 +13,9 @@ import static lgk.nsbc.generated.tables.SysSessions.SYS_SESSIONS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SysSessions {
+public class SysSessions implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private String sid;
     private Long agent_n;

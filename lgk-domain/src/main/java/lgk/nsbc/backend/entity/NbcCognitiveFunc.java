@@ -1,10 +1,14 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcCognitiveFuncGds;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_COGNITIVE_FUNC")
 public class NbcCognitiveFunc implements Serializable {
@@ -28,43 +32,4 @@ public class NbcCognitiveFunc implements Serializable {
     @JoinColumn(name = "GDS")
     private NbcCognitiveFuncGds nbcCognitiveFuncGds;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Integer getMmse() {
-        return mmse;
-    }
-
-    public void setMmse(Integer mmse) {
-        this.mmse = mmse;
-    }
-
-    public Integer getMoca() {
-        return moca;
-    }
-
-    public void setMoca(Integer moca) {
-        this.moca = moca;
-    }
-
-    public NbcCognitiveFuncGds getNbcCognitiveFuncGds() {
-        return nbcCognitiveFuncGds;
-    }
-
-    public void setNbcCognitiveFuncGds(NbcCognitiveFuncGds nbcCognitiveFuncGds) {
-        this.nbcCognitiveFuncGds = nbcCognitiveFuncGds;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
 }

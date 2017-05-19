@@ -2,10 +2,14 @@ package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcDicDynamic;
 import lgk.nsbc.backend.entity.dictionary.NbcSpeechDisfuncGrade;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_SPEECH_DISFUNC_1")
 public class NbcSpeechDisfunc implements Serializable {
@@ -27,36 +31,5 @@ public class NbcSpeechDisfunc implements Serializable {
     @JoinColumn(name = "DYNAMIC")
     private NbcDicDynamic nbcDicDynamic;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
-
-    public NbcDicDynamic getNbcDicDynamic() {
-        return nbcDicDynamic;
-    }
-
-    public void setNbcDicDynamic(NbcDicDynamic nbcDicDynamic) {
-        this.nbcDicDynamic = nbcDicDynamic;
-    }
-
-    public NbcSpeechDisfuncGrade getNbcSymptomatologyGrade() {
-        return nbcSymptomatologyGrade;
-    }
-
-    public void setNbcSymptomatologyGrade(NbcSpeechDisfuncGrade nbcSymptomatologyGrade) {
-        this.nbcSymptomatologyGrade = nbcSymptomatologyGrade;
-    }
 }
 

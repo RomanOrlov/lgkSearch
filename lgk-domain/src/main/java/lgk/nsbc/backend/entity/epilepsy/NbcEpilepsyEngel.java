@@ -1,11 +1,16 @@
 package lgk.nsbc.backend.entity.epilepsy;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_EPILEPSY_1_ENGEL")
 public class NbcEpilepsyEngel implements Serializable {
@@ -24,35 +29,4 @@ public class NbcEpilepsyEngel implements Serializable {
     @Column(name = "AMOUNT")
     private Integer amount;
 
-    public Long getN() {
-        return n;
-    }
-
-    public void setN(Long n) {
-        this.n = n;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
 }

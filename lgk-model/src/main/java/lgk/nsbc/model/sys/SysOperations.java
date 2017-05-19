@@ -3,6 +3,7 @@ package lgk.nsbc.model.sys;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.SysOperations.SYS_OPERATIONS;
@@ -12,7 +13,9 @@ import static lgk.nsbc.generated.tables.SysOperations.SYS_OPERATIONS;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SysOperations {
+public class SysOperations implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long session_n;
     private String command_name;

@@ -1,7 +1,12 @@
 package lgk.nsbc.model.dictionary;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jooq.Record;
+
+import java.io.Serializable;
 
 import static lgk.nsbc.generated.tables.NbcDicYesNo.NBC_DIC_YES_NO;
 
@@ -9,7 +14,9 @@ import static lgk.nsbc.generated.tables.NbcDicYesNo.NBC_DIC_YES_NO;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DicYesNo {
+public class DicYesNo implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private String name;
     private String text;

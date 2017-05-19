@@ -1,12 +1,12 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.Genes;
-import lombok.Getter;
+import lgk.nsbc.model.dictionary.Gene;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -15,19 +15,24 @@ import static java.util.stream.Collectors.toMap;
 import static lgk.nsbc.generated.tables.NbcGenes.NBC_GENES;
 
 @Service
-public class GenesDao {
+public class GenesDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 
-    @Getter
-    private Map<Long, Genes> genes;
+    private static Map<Long, Gene> genes;
 
     @PostConstruct
     void init() {
         genes = Collections.unmodifiableMap(context.fetch(NBC_GENES)
                 .stream()
-                .map(Genes::buildFromRecord)
-                .collect(toMap(Genes::getN, identity()))
+                .map(Gene::buildFromRecord)
+                .collect(toMap(Gene::getN, identity()))
         );
+    }
+
+    public static Map<Long, Gene> getGenes() {
+        return genes;
     }
 }

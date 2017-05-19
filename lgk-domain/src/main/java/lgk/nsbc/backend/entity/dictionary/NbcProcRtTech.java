@@ -3,11 +3,11 @@ package lgk.nsbc.backend.entity.dictionary;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * Техника радиотерапии (IMRT - модуляция интенсивности, статические конформные поля и т.д.)

@@ -1,8 +1,8 @@
 package lgk.nsbc.histology;
 
 import lgk.nsbc.model.dictionary.DicYesNo;
-import lgk.nsbc.model.dictionary.Genes;
-import lgk.nsbc.model.dictionary.MutationTypes;
+import lgk.nsbc.model.dictionary.Gene;
+import lgk.nsbc.model.dictionary.MutationType;
 import lombok.*;
 
 @Getter
@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MutationBind {
-    private Genes genes;
-    private MutationTypes mutationTypes;
+    private Gene gene;
+    private MutationType mutationType;
     private DicYesNo dicYesNo;
 }

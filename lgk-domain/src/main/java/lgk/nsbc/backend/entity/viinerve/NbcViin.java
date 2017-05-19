@@ -3,10 +3,14 @@ package lgk.nsbc.backend.entity.viinerve;
 import lgk.nsbc.backend.entity.NbcCrNrvLesions;
 import lgk.nsbc.backend.entity.NbcStud;
 import lgk.nsbc.backend.entity.dictionary.NbcDicDynamic;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_VIIN_1")
 public class NbcViin implements Serializable {
@@ -45,75 +49,4 @@ public class NbcViin implements Serializable {
     @JoinColumn(name = "TIC_DYNAMIC")
     private NbcDicDynamic ticDynamic;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Character getCentralParesis() {
-        return centralParesis;
-    }
-
-    public void setCentralParesis(Character centralParesis) {
-        this.centralParesis = centralParesis;
-    }
-
-    public Character getPerefericalParesis() {
-        return perefericalParesis;
-    }
-
-    public void setPerefericalParesis(Character perefericalParesis) {
-        this.perefericalParesis = perefericalParesis;
-    }
-
-    public Character getTicPresence() {
-        return ticPresence;
-    }
-
-    public void setTicPresence(Character ticPresence) {
-        this.ticPresence = ticPresence;
-    }
-
-    public NbcViinHouseBrackm getNbcViinHouseBrackm() {
-        return nbcViinHouseBrackm;
-    }
-
-    public void setNbcViinHouseBrackm(NbcViinHouseBrackm nbcViinHouseBrackm) {
-        this.nbcViinHouseBrackm = nbcViinHouseBrackm;
-    }
-
-    public NbcCrNrvLesions getNbcCrNrvLesions() {
-        return nbcCrNrvLesions;
-    }
-
-    public void setNbcCrNrvLesions(NbcCrNrvLesions nbcCrNrvLesions) {
-        this.nbcCrNrvLesions = nbcCrNrvLesions;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
-
-    public NbcViinTic getNbcViinTic() {
-        return nbcViinTic;
-    }
-
-    public void setNbcViinTic(NbcViinTic nbcViinTic) {
-        this.nbcViinTic = nbcViinTic;
-    }
-
-    public NbcDicDynamic getTicDynamic() {
-        return ticDynamic;
-    }
-
-    public void setTicDynamic(NbcDicDynamic ticDynamic) {
-        this.ticDynamic = ticDynamic;
-    }
 }

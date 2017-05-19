@@ -16,6 +16,8 @@ import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYP
 
 @Service
 public class TargetDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

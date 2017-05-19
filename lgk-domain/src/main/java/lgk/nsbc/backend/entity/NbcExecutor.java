@@ -1,10 +1,14 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcExecutorRoles;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_EXECUTOR")
 public class NbcExecutor implements Serializable {
@@ -25,35 +29,4 @@ public class NbcExecutor implements Serializable {
     @Column(name = "CONFIRMATION")
     private Character confirmation;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Character getConfirmation() {
-        return confirmation;
-    }
-
-    public void setConfirmation(Character confirmation) {
-        this.confirmation = confirmation;
-    }
-
-    public NbcStaff getNbcStaff() {
-        return nbcStaff;
-    }
-
-    public void setNbcStaff(NbcStaff nbcStaff) {
-        this.nbcStaff = nbcStaff;
-    }
-
-    public NbcExecutorRoles getNbcExecutorRoles() {
-        return nbcExecutorRoles;
-    }
-
-    public void setNbcExecutorRoles(NbcExecutorRoles nbcExecutorRoles) {
-        this.nbcExecutorRoles = nbcExecutorRoles;
-    }
 }

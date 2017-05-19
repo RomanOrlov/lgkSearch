@@ -2,8 +2,8 @@ package lgk.nsbc.backend.entity.histology;
 
 import lgk.nsbc.backend.entity.NbcPatients;
 import lgk.nsbc.backend.entity.NbcStud;
-import lgk.nsbc.backend.entity.target.NbcTarget;
 import lgk.nsbc.backend.entity.dictionary.NbcPatientsDiagnosis;
+import lgk.nsbc.backend.entity.target.NbcTarget;
 import lombok.Getter;
 import lombok.Setter;
 

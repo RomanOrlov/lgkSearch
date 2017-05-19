@@ -51,12 +51,4 @@ public class NbcDvh implements Serializable {
     @Column(name = "BIN_SIZE")
     private Double binSize; // Размер ячейки в Гр
 
-    public Integer getNBins() {
-        return nBins;
-    }
-
-    public void setNBins(Integer nBins) {
-        this.nBins = nBins;
-    }
-
 }

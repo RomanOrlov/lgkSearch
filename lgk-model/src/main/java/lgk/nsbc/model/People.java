@@ -3,6 +3,7 @@ package lgk.nsbc.model;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
@@ -13,7 +14,9 @@ import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 @AllArgsConstructor
 @Builder
 @ToString(of = {"n", "surname", "name", "patronymic"})
-public class People {
+public class People implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private String name;
     private String surname;

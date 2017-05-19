@@ -10,7 +10,9 @@ import java.io.Serializable;
 import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
 
 @Service
-public class ProcDao implements Serializable{
+public class ProcDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

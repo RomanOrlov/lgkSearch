@@ -80,8 +80,8 @@ public class HistologyManager {
     private MutationBind toMutationBind(Mutation mutation) {
         return MutationBind.builder()
                 .genes(genesDao.getGenes().get(mutation.getGeneN()))
-                .dicYesNo(dicYesNoDao.getDicYesNo().get(mutation.getYesNoN()))
-                .mutationTypes(mutationTypesDao.getMutationTypes().get(mutation.getMutationTypeN()))
+                .dicYesNo(dicYesNoDao.getDicYesNo().get(mutation.getDicYesNo()))
+                .mutationTypes(mutationTypesDao.getMutationTypes().get(mutation.getMutationType()))
                 .build();
     }
 
@@ -89,9 +89,9 @@ public class HistologyManager {
         return Mutation.builder()
                 .histologyN(histology.getN())
                 .studyN(stud.getN())
-                .yesNoN(mutationBind.getDicYesNo().getN())
-                .geneN(mutationBind.getGenes().getN())
-                .mutationTypeN(mutationBind.getMutationTypes().getN())
+                .yesNoN(mutationBind.getYesNo().getN())
+                .geneN(mutationBind.getGene().getN())
+                .mutationTypeN(mutationBind.getMutationType().getN())
                 .build();
     }
 
@@ -156,7 +156,7 @@ public class HistologyManager {
     private void saveMutations(HistologyBind histologyBind, Stud stud, Histology histology) {
         List<Mutation> mutations = histologyBind.getMutationBinds()
                 .stream()
-                .filter(mutationBind -> mutationBind.getGenes() != null)
+                .filter(mutationBind -> mutationBind.getGene() != null)
                 .map(mutationBind -> toMutation(mutationBind, histology, stud))
                 .collect(toList());
         histologyBind.setMutations(mutations);

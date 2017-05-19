@@ -1,6 +1,8 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcDicDynamic;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -8,6 +10,8 @@ import java.io.Serializable;
 /**
  * Гидроцефалия
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_HYDROCEFALUS_1")
 public class NbcHydrocefalus implements Serializable {
@@ -28,35 +32,4 @@ public class NbcHydrocefalus implements Serializable {
     @Column(name = "LESSION_PRESENCE")
     private Character lessionPresence;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public Character getLessionPresence() {
-        return lessionPresence;
-    }
-
-    public void setLessionPresence(Character lessionPresence) {
-        this.lessionPresence = lessionPresence;
-    }
-
-    public NbcDicDynamic getNbcDicDynamic() {
-        return nbcDicDynamic;
-    }
-
-    public void setNbcDicDynamic(NbcDicDynamic nbcDicDynamic) {
-        this.nbcDicDynamic = nbcDicDynamic;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
 }

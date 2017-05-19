@@ -1,7 +1,12 @@
 package lgk.nsbc.model.dictionary;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jooq.Record;
+
+import java.io.Serializable;
 
 import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
 
@@ -9,13 +14,15 @@ import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MutationTypes {
+public class MutationType implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private String name;
     private String text;
     private String description;
 
-    public static MutationTypes buildFromRecord(Record record) {
+    public static MutationType buildFromRecord(Record record) {
         return builder().n(record.get(NBC_MUTATION_TYPES.N))
                 .name(record.get(NBC_MUTATION_TYPES.NAME))
                 .text(record.get(NBC_MUTATION_TYPES.TEXT))

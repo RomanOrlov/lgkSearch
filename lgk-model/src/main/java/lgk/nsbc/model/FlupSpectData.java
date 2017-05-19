@@ -6,6 +6,8 @@ import lgk.nsbc.model.spect.TargetType;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 
 @Getter
@@ -13,7 +15,9 @@ import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FlupSpectData {
+public class FlupSpectData implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long nbc_followup_n;
 

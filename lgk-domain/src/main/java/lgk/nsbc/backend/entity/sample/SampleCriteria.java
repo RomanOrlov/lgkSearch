@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Getter
 @Entity
 @Table(name = "SAMPLE_CRITERIA")
-public class SampleCriteria  implements Serializable {
+public class SampleCriteria implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

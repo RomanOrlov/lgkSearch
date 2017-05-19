@@ -3,7 +3,6 @@ package lgk.nsbc.model.dao;
 import lgk.nsbc.generated.Sequences;
 import lgk.nsbc.generated.tables.records.NbcFollowupRecord;
 import lgk.nsbc.model.FollowUp;
-import lgk.nsbc.model.FollowUp;
 import lgk.nsbc.model.Stud;
 import org.jooq.DSLContext;
 import org.jooq.Result;
@@ -19,7 +18,9 @@ import static lgk.nsbc.generated.tables.NbcFollowup.NBC_FOLLOWUP;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class FollowUpDao implements Serializable{
+public class FollowUpDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

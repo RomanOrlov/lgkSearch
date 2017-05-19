@@ -3,7 +3,6 @@ package lgk.nsbc.model.dao;
 import lgk.nsbc.generated.tables.records.NbcFlupSpectDataRecord;
 import lgk.nsbc.model.FlupSpectData;
 import lgk.nsbc.model.FollowUp;
-import lgk.nsbc.model.FollowUp;
 import org.jooq.DSLContext;
 import org.jooq.InsertValuesStep7;
 import org.jooq.Result;
@@ -19,7 +18,9 @@ import static lgk.nsbc.generated.tables.NbcFlupSpectData.NBC_FLUP_SPECT_DATA;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class FlupSpectDataDao implements Serializable{
+public class FlupSpectDataDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
     @Autowired

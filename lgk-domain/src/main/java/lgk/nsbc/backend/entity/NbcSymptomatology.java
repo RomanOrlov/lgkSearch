@@ -3,11 +3,15 @@ package lgk.nsbc.backend.entity;
 import lgk.nsbc.backend.entity.dictionary.NbcDicDynamic;
 import lgk.nsbc.backend.entity.dictionary.NbcSymptomatologyGrade;
 import lgk.nsbc.backend.entity.dictionary.NbcSymptomatologyName;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "NBC_SYMPTOMATOLOGY_1")
 public class NbcSymptomatology implements Serializable {
@@ -32,44 +36,4 @@ public class NbcSymptomatology implements Serializable {
     @OneToOne
     @JoinColumn(name = "DYNAMIC")
     private NbcDicDynamic nbcDicDynamic;
-
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public NbcSymptomatologyName getNbcSymptomatologyName() {
-        return nbcSymptomatologyName;
-    }
-
-    public void setNbcSymptomatologyName(NbcSymptomatologyName nbcSymptomatologyName) {
-        this.nbcSymptomatologyName = nbcSymptomatologyName;
-    }
-
-    public NbcSymptomatologyGrade getNbcSymptomatologyGrade() {
-        return nbcSymptomatologyGrade;
-    }
-
-    public void setNbcSymptomatologyGrade(NbcSymptomatologyGrade nbcSymptomatologyGrade) {
-        this.nbcSymptomatologyGrade = nbcSymptomatologyGrade;
-    }
-
-    public NbcDicDynamic getNbcDicDynamic() {
-        return nbcDicDynamic;
-    }
-
-    public void setNbcDicDynamic(NbcDicDynamic nbcDicDynamic) {
-        this.nbcDicDynamic = nbcDicDynamic;
-    }
-
-    public List<NbcStud> getNbcStudies() {
-        return nbcStudies;
-    }
-
-    public void setNbcStudies(List<NbcStud> nbcStudies) {
-        this.nbcStudies = nbcStudies;
-    }
 }

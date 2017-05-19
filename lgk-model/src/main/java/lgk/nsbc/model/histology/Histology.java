@@ -3,6 +3,8 @@ package lgk.nsbc.model.histology;
 import lombok.*;
 import org.jooq.Record;
 
+import java.io.Serializable;
+
 import static lgk.nsbc.generated.tables.NbcHistology_1.NBC_HISTOLOGY_1;
 
 @Getter
@@ -10,7 +12,9 @@ import static lgk.nsbc.generated.tables.NbcHistology_1.NBC_HISTOLOGY_1;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Histology {
+public class Histology implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long n;
     private Long nbcStudN;
     private Long diagVerif;

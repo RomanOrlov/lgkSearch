@@ -1,8 +1,8 @@
 package lgk.nsbc.model.dao;
 
 import lgk.nsbc.generated.tables.records.NbcPatientsRecord;
-import lgk.nsbc.model.People;
 import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.People;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -23,7 +23,9 @@ import static lgk.nsbc.model.Patients.buildFromRecord;
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class PatientsDao implements Serializable{
+public class PatientsDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

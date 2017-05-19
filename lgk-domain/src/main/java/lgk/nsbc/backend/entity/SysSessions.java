@@ -1,9 +1,14 @@
 package lgk.nsbc.backend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "SYS_SESSIONS")
 public class SysSessions implements Serializable {
@@ -29,38 +34,6 @@ public class SysSessions implements Serializable {
     @Column(name = "OPENED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date opened;
-
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public String getSid() {
-        return sid;
-    }
-
-    public void setSid(String sid) {
-        this.sid = sid;
-    }
-
-    public Date getOpened() {
-        return opened;
-    }
-
-    public void setOpened(Date opened) {
-        this.opened = opened;
-    }
-
-    public SysAgents getSysAgents() {
-        return sysAgents;
-    }
-
-    public void setSysAgents(SysAgents sysAgents) {
-        this.sysAgents = sysAgents;
-    }
 
     @Override
     public String toString() {

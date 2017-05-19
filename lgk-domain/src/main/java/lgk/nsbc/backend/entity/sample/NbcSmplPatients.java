@@ -3,15 +3,12 @@ package lgk.nsbc.backend.entity.sample;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
-import java.math.BigInteger;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import java.io.Serializable;
+import java.math.BigInteger;
 
 @Setter
 @Getter
