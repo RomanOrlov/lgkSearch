@@ -1,6 +1,6 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.Organizations;
+import lgk.nsbc.model.dictionary.Organization;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,18 +21,18 @@ public class OrganizationsDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, Organizations> organizationsMap;
+    private static Map<Long, Organization> organizationsMap;
 
     @PostConstruct
     void init() {
         organizationsMap = Collections.unmodifiableMap(context.fetch(NBC_ORGANIZATIONS)
                 .stream()
-                .map(Organizations::buildFromRecord)
-                .collect(toMap(Organizations::getN, identity()))
+                .map(Organization::buildFromRecord)
+                .collect(toMap(Organization::getN, identity()))
         );
     }
 
-    public static Map<Long, Organizations> getOrganizationsMap() {
+    public static Map<Long, Organization> getOrganizationsMap() {
         return organizationsMap;
     }
 }

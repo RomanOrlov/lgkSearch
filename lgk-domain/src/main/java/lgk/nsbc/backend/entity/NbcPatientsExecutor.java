@@ -1,8 +1,13 @@
 package lgk.nsbc.backend.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_PATIENTS_EXECUTOR")
 public class NbcPatientsExecutor implements Serializable {
@@ -20,27 +25,4 @@ public class NbcPatientsExecutor implements Serializable {
     @JoinColumn(name = "NBC_EXECUTOR_N")
     private NbcExecutor nbcExecutor;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public NbcPatients getNbcPatients() {
-        return nbcPatients;
-    }
-
-    public void setNbcPatients(NbcPatients nbcPatients) {
-        this.nbcPatients = nbcPatients;
-    }
-
-    public NbcExecutor getNbcExecutor() {
-        return nbcExecutor;
-    }
-
-    public void setNbcExecutor(NbcExecutor nbcExecutor) {
-        this.nbcExecutor = nbcExecutor;
-    }
 }

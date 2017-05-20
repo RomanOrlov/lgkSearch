@@ -1,6 +1,6 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.MutationType;
+import lgk.nsbc.model.dictionary.ProcTimeApprox;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,27 +12,27 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
+import static lgk.nsbc.generated.tables.NbcProcTimeApprox.NBC_PROC_TIME_APPROX;
 
 @Service
-public class MutationTypesDao implements Serializable {
+public class ProcTimeApproxDao implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, MutationType> mutationTypes;
+    private static Map<Long, ProcTimeApprox> procTimeApproxMap;
 
     @PostConstruct
     void init() {
-        mutationTypes = Collections.unmodifiableMap(context.fetch(NBC_MUTATION_TYPES)
+        procTimeApproxMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_TIME_APPROX)
                 .stream()
-                .map(MutationType::buildFromRecord)
-                .collect(toMap(MutationType::getN, identity()))
+                .map(ProcTimeApprox::buildFromRecord)
+                .collect(toMap(ProcTimeApprox::getN, identity()))
         );
     }
 
-    public static Map<Long, MutationType> getMutationTypes() {
-        return mutationTypes;
+    public static Map<Long, ProcTimeApprox> getProcTimeApproxMap() {
+        return procTimeApproxMap;
     }
 }

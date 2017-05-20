@@ -1,17 +1,16 @@
 package lgk.nsbc.model.dao.histology;
 
 import lgk.nsbc.generated.Sequences;
-import lgk.nsbc.generated.tables.NbcHistology_1Mutation;
 import lgk.nsbc.generated.tables.records.NbcHistology_1MutationRecord;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
 import org.jooq.DSLContext;
-import org.jooq.InsertValuesStep6;
 import org.jooq.InsertValuesStep7;
 import org.jooq.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,7 +21,9 @@ import static lgk.nsbc.generated.tables.NbcHistology_1Mutation.NBC_HISTOLOGY_1_M
 import static org.jooq.impl.DSL.val;
 
 @Service
-public class MutationsDao {
+public class MutationsDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 
@@ -67,9 +68,9 @@ public class MutationsDao {
                     Sequences.SYS_OPERATION_N.nextval(),
                     val(mutation.getHistologyN()),
                     val(mutation.getStudyN()),
-                    val(mutation.getYesNoN()),
-                    val(mutation.getGeneN()),
-                    val(mutation.getMutationTypeN()));
+                    val(mutation.getDicYesNo() == null ? null : mutation.getDicYesNo().getN()),
+                    val(mutation.getGene() == null ? null : mutation.getGene().getN()),
+                    val(mutation.getMutationType() == null ? null : mutation.getMutationType().getN()));
         }
         columns.execute();
     }

@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
 
 @Service
-public class PeopleDao implements Serializable{
+public class PeopleDao implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Autowired
     private DSLContext context;
 

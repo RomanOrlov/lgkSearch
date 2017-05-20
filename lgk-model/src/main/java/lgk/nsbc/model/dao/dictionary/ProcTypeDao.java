@@ -1,6 +1,6 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.MutationType;
+import lgk.nsbc.model.dictionary.ProcType;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,27 +12,27 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
+import static lgk.nsbc.generated.tables.NbcProcProcType.NBC_PROC_PROC_TYPE;
 
 @Service
-public class MutationTypesDao implements Serializable {
+public class ProcTypeDao implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, MutationType> mutationTypes;
+    private static Map<Long, ProcType> procTypeMap;
 
     @PostConstruct
     void init() {
-        mutationTypes = Collections.unmodifiableMap(context.fetch(NBC_MUTATION_TYPES)
+        procTypeMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_PROC_TYPE)
                 .stream()
-                .map(MutationType::buildFromRecord)
-                .collect(toMap(MutationType::getN, identity()))
+                .map(ProcType::buildFromRecord)
+                .collect(toMap(ProcType::getN, identity()))
         );
     }
 
-    public static Map<Long, MutationType> getMutationTypes() {
-        return mutationTypes;
+    public static Map<Long, ProcType> getProcTypeMap() {
+        return procTypeMap;
     }
 }

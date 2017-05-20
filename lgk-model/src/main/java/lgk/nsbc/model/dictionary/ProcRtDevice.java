@@ -8,28 +8,28 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcStudStudyType.NBC_STUD_STUDY_TYPE;
+import static lgk.nsbc.generated.tables.NbcProcRtDevice.NBC_PROC_RT_DEVICE;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudType implements Serializable {
+public class ProcRtDevice implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long n;
     private String name;
     private String text;
 
-    public static StudType buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_STUD_STUDY_TYPE.N))
-                .name(record.get(NBC_STUD_STUDY_TYPE.NAME))
-                .text(record.get(NBC_STUD_STUDY_TYPE.TEXT))
+    public static ProcRtDevice buildFromRecord(Record record) {
+        return builder().n(record.get(NBC_PROC_RT_DEVICE.N))
+                .name(record.get(NBC_PROC_RT_DEVICE.NAME))
+                .text(record.get(NBC_PROC_RT_DEVICE.TEXT))
                 .build();
     }
 
     @Override
     public String toString() {
-        return name;
+        return text;
     }
 }

@@ -1,14 +1,19 @@
 package lgk.nsbc.backend.entity.vnerve;
 
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * Онемение
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_VN_1_HYPOSTESY")
 public class NbcVnHypostesy implements Serializable {
@@ -24,27 +29,4 @@ public class NbcVnHypostesy implements Serializable {
     @Column(name = "TEXT")
     private String text;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
 }

@@ -1,10 +1,14 @@
 package lgk.nsbc.backend.entity;
 
 import lgk.nsbc.backend.entity.dictionary.NbcKarnofskyGrade;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.Serializable;
 import javax.persistence.*;
+import java.io.Serializable;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "NBC_KARNOFSKY_1")
 public class NbcKarnofsky implements Serializable {
@@ -22,27 +26,4 @@ public class NbcKarnofsky implements Serializable {
     @JoinColumn(name = "GRADE")
     private NbcKarnofskyGrade nbcKarnofskyGrade;
 
-    public Integer getN() {
-        return n;
-    }
-
-    public void setN(Integer n) {
-        this.n = n;
-    }
-
-    public NbcStud getNbcStud() {
-        return nbcStud;
-    }
-
-    public void setNbcStud(NbcStud nbcStud) {
-        this.nbcStud = nbcStud;
-    }
-
-    public NbcKarnofskyGrade getNbcKarnofskyGrade() {
-        return nbcKarnofskyGrade;
-    }
-
-    public void setNbcKarnofskyGrade(NbcKarnofskyGrade nbcKarnofskyGrade) {
-        this.nbcKarnofskyGrade = nbcKarnofskyGrade;
-    }
 }

@@ -119,7 +119,7 @@ public class HistologyView extends VerticalLayout implements View {
                 return;
             }
             if (mutations.stream()
-                    .map(MutationBind::getGenes)
+                    .map(MutationBind::getGene)
                     .distinct()
                     .count() != mutations.size()) {
                 Notification.show("Выбранные мутации должны быть разными");
@@ -235,25 +235,25 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private AbstractOrderedLayout initMutationGrid() {
-        mutationGrid.addColumn(MutationBind::getGenes)
+        mutationGrid.addColumn(MutationBind::getGene)
                 .setCaption("Ген")
                 .setEditorBinding(getEditorBind(mutationGrid,
                         new NativeSelect<>("Ген", genesDao.getGenes().values()),
-                        MutationBind::getGenes,
+                        MutationBind::getGene,
                         MutationBind::setGenes)
                 );
-        mutationGrid.addColumn(MutationBind::getMutationTypes)
+        mutationGrid.addColumn(MutationBind::getMutationType)
                 .setCaption("Тип мутации")
                 .setEditorBinding(getEditorBind(mutationGrid,
                         new NativeSelect<>("Тип мутации", mutationTypesDao.getMutationTypes().values()),
-                        MutationBind::getMutationTypes,
+                        MutationBind::getMutationType,
                         MutationBind::setMutationTypes)
                 );
-        mutationGrid.addColumn(MutationBind::getDicYesNo)
+        mutationGrid.addColumn(MutationBind::getYesNo)
                 .setCaption("Наличие")
                 .setEditorBinding(getEditorBind(mutationGrid,
                         new NativeSelect<>("Наличие", dicYesNoDao.getDicYesNo().values()),
-                        MutationBind::getDicYesNo,
+                        MutationBind::getYesNo,
                         MutationBind::setDicYesNo)
                 );
         mutationGrid.setHeightByRows(3);

@@ -3,11 +3,11 @@ package lgk.nsbc.backend.entity.dvh;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * Достоверность данных
