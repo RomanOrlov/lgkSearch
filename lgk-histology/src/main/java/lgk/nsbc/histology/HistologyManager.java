@@ -152,6 +152,6 @@ public class HistologyManager {
     }
 
     public Collection<? extends Proc> getPatientsProc(Patients patients) {
-        return procDao.findPatientsProc(patients);
+        return procDao.findPatientProc(patients);
     }
 }

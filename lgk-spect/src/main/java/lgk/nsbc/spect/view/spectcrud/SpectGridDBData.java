@@ -52,7 +52,7 @@ public class SpectGridDBData {
                 .n(-1L)
                 .build();
         this.target = Target.builder()
-                .nbc_patients_n(patients.getN())
+                .nbcPatientsN(patients.getN())
                 .targetName("Мишень не")
                 .targetTypeText("выбрана")
                 .build();
@@ -69,7 +69,7 @@ public class SpectGridDBData {
         spectGridData.setSurname(patients.getPeople().getSurname());
         spectGridData.setPatronymic(patients.getPeople().getPatronymic());
         spectGridData.setTarget(target);
-        spectGridData.setCaseHistoryNum(String.valueOf(patients.getCase_history_num()));
+        spectGridData.setCaseHistoryNum(String.valueOf(patients.getCaseHistoryNum()));
         spectGridData.setDose(studInj.getInj_activity_bq());
         if (stud != null && stud.getStudydatetime() != null)
             spectGridData.setStudyDate(DateUtils.asLocalDate(stud.getStudydatetime()));

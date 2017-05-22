@@ -1,14 +1,14 @@
 package lgk.nsbc.model;
 
+import lgk.nsbc.model.dictionary.Organization;
 import lombok.*;
 import org.jooq.Record;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
+import static lgk.nsbc.model.dao.dictionary.OrganizationsDao.getOrganizationsMap;
 
 @Getter
 @Setter
@@ -20,27 +20,18 @@ public class Patients implements Serializable {
 
     private People people;
     private Long n;
-    private Integer case_history_num;
-    private Date case_history_date;
+    private Integer caseHistoryNum;
+    private Date caseHistoryDate;
     private Long diagnosis;
-    private Long nbc_organizations_n;
-
-    /**
-     * Нужен для SuggestionCombobox
-     *
-     * @return
-     */
-    public String getRepresentationName() {
-        return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
-    }
+    private Organization organization;
 
     public static Patients buildFromRecord(Record record) {
         return builder()
                 .n(record.get(NBC_PATIENTS.N))
-                .case_history_num(record.get(NBC_PATIENTS.CASE_HISTORY_NUM))
-                .case_history_date(record.get(NBC_PATIENTS.CASE_HISTORY_DATE))
+                .caseHistoryNum(record.get(NBC_PATIENTS.CASE_HISTORY_NUM))
+                .caseHistoryDate(record.get(NBC_PATIENTS.CASE_HISTORY_DATE))
                 .diagnosis(record.get(NBC_PATIENTS.DIAGNOSIS))
-                .nbc_organizations_n(record.get(NBC_PATIENTS.NBC_ORGANIZATIONS_N))
+                .organization(getOrganizationsMap().get(record.get(NBC_PATIENTS.NBC_ORGANIZATIONS_N)))
                 .build();
     }
 
@@ -49,16 +40,22 @@ public class Patients implements Serializable {
         return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
     }
 
-    public String toStringWithCaseHistory() {
+    public String getCaseHistoryNumber() {
         StringBuilder builder = new StringBuilder();
-        if (case_history_num != null) {
-            builder.append(case_history_num);
+        if (caseHistoryNum != null) {
+            builder.append(caseHistoryNum);
         }
-        if (case_history_date != null) {
-            String substring = case_history_date.toString().substring(2,4);
+        if (caseHistoryDate != null) {
+            String substring = caseHistoryDate.toString().substring(2, 4);
             builder.append("/").append(substring);
         }
-        builder.append(" ")
+        return builder.toString();
+    }
+
+    public String toStringWithCaseHistory() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getCaseHistoryNumber())
+                .append(" ")
                 .append(toString());
         return builder.toString();
     }

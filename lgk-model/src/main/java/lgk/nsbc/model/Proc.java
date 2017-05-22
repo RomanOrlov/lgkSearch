@@ -55,4 +55,9 @@ public class Proc implements Serializable {
                 .organization(getOrganizationsMap().get(record.get(NBC_PROC.NBC_ORGANIZATIONS_N)))
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return n + " " + patientN + " " + procType + " " + procBeginTime + " " + procEndTime;
+    }
 }

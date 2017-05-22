@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
@@ -20,8 +19,16 @@ public class ProcDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    public List<Proc> findPatientsProc(Patients patients) {
+    public List<Proc> findPatientProc(Patients patients) {
         return context.fetch(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.eq(patients.getN()))
+                .stream()
+                .map(Proc::buildFromRecord)
+                .collect(toList());
+    }
+
+    public List<Proc> findPatientsProcedures(List<Long> patientsId, Long procedureType) {
+        return context.fetch(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.in(patientsId)
+                .and(NBC_PROC.PROC_TYPE.eq(procedureType)))
                 .stream()
                 .map(Proc::buildFromRecord)
                 .collect(toList());

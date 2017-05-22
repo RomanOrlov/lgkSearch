@@ -29,13 +29,6 @@ public class PatientsDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    public Optional<Patients> getPatientByBasPeople(People people) {
-        Result<NbcPatientsRecord> records = context.fetch(NBC_PATIENTS, NBC_PATIENTS.BAS_PEOPLE_N.eq(people.getN()));
-        if (records.isEmpty()) return Optional.empty();
-        if (records.size() != 1) throw new RuntimeException("One patient must have only one people");
-        return Optional.of(buildFromRecord(records.get(0)));
-    }
-
     public List<Patients> getPatientsWithSurnameLike(String surname) {
         Result<Record> records = context.select()
                 .from(NBC_PATIENTS)
@@ -64,6 +57,15 @@ public class PatientsDao implements Serializable {
                 .where(BAS_PEOPLE.SURNAME.equalIgnoreCase(surname)
                         .and(BAS_PEOPLE.NAME.equalIgnoreCase(name))
                         .and(BAS_PEOPLE.PATRONYMIC.equalIgnoreCase(patronymic)))
+                .fetch();
+        return getNbcPatientsAndBasPeople(records);
+    }
+
+    public List<Patients> findPatientsWithIdIn(List<Long> patientsId) {
+        Result<Record> records = context.select()
+                .from(NBC_PATIENTS)
+                .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
+                .where(NBC_PATIENTS.N.in(patientsId))
                 .fetch();
         return getNbcPatientsAndBasPeople(records);
     }

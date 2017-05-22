@@ -135,7 +135,7 @@ public class SpectDataManager {
                                 .build());
                         List<Target> allPatientsTargets = targets.values()
                                 .stream()
-                                .filter(t -> t.getNbc_patients_n().equals(nbcPatients.getN()))
+                                .filter(t -> t.getNbcPatientsN().equals(nbcPatients.getN()))
                                 .collect(Collectors.toList());
                         return Optional.of(new SpectGridDBData(nbcPatients, stud, nbcFollowUp, studInj, target, datas, allPatientsTargets).getSpectGridData());
                     })

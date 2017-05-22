@@ -14,6 +14,7 @@ import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Target;
+import lgk.nsbc.util.components.GridHeaderFilter;
 import lombok.Getter;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static lgk.nsbc.model.spect.ContourType.*;
@@ -56,7 +56,7 @@ public class SpectGrid extends Grid<SpectGridData> {
     @Autowired
     private DSLContext context;
 
-    private DecimalFormat doubleFormat = new DecimalFormat("###0.00");
+    private static final DecimalFormat doubleFormat = new DecimalFormat("###0.00");
 
     @Getter
     private List<SpectGridData> allItems = new ArrayList<>();
@@ -204,7 +204,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         // Наведение красоты
         structureTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName,doseColumn );
         contourTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName, doseColumn);
-        ColumnsFilterUtil.addTextFilter(filterHeader, surnameColumn, dataProvider);
+        GridHeaderFilter.addTextFilter(filterHeader.getCell(surnameColumn), dataProvider, SpectGridData::getSurname);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
         dataProvider.addDataProviderListener(event -> {
@@ -279,7 +279,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .asRequired("Мишень должна быть выбрана")
                 .withNullRepresentation(Target.builder()
                         .n(-1L)
-                        .nbc_patients_n(-1L)
+                        .nbcPatientsN(-1L)
                         .targetName("Мишень не выбрана")
                         .targetType(-1L)
                         .build())
@@ -299,7 +299,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 bean.setTarget(targets.getValue());
                 spectDataManager.deleteSpectData(bean);
                 spectDataManager.persistSpectData(bean);
-                refreashAllData();
+                refreshAllData();
             });
         });
     }
@@ -363,7 +363,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         Notification.show("Дважды кликните для редактирования", Notification.Type.TRAY_NOTIFICATION);
     }
 
-    public void refreashAllData() {
+    public void refreshAllData() {
         allItems.clear();
         allItems.addAll(spectDataManager.findAllData());
         getDataProvider().refreshAll();

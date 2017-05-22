@@ -1,4 +1,4 @@
-package lgk.nsbc.spect.view;
+package lgk.nsbc.spect.view.spectcrud;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -8,8 +8,6 @@ import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.spect.util.DataMigrationService;
 import lgk.nsbc.spect.util.excel.ExcelExporter;
-import lgk.nsbc.spect.view.spectcrud.HidingGridColumsSelect;
-import lgk.nsbc.spect.view.spectcrud.SpectGrid;
 import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +63,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
             }
             spectGrid.addNewSpecDataRecord(combobox.getValue());
         });
-        readAllRecords.addClickListener(event -> spectGrid.refreashAllData());
+        readAllRecords.addClickListener(event -> spectGrid.refreshAllData());
         deleteRecord.addClickListener(clickEvent -> {
             if (spectGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Ничего не выбрано для удаления");
