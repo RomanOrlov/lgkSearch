@@ -18,7 +18,8 @@ import static lgk.nsbc.model.dao.dictionary.MutationTypesDao.getMutationTypes;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Mutation implements Serializable {
+@EqualsAndHashCode(of = {"gene"})
+public class Mutation implements Serializable, Comparable<Mutation> {
     private static final long serialVersionUID = 1L;
 
     private Long n;
@@ -36,5 +37,12 @@ public class Mutation implements Serializable {
                 .gene(getGenes().get(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_GENES_N)))
                 .dicYesNo(DicYesNoDao.getDicYesNo().get(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_DIC_YES_NO_N)))
                 .build();
+    }
+
+    @Override
+    public int compareTo(Mutation o) {
+        if (gene == null || o.getGene() == null)
+            return 0;
+        return gene.getName().compareTo(o.getGene().getName());
     }
 }

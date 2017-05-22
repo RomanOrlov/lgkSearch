@@ -1,5 +1,7 @@
 package lgk.nsbc.model;
 
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
+import lgk.nsbc.model.dictionary.StudType;
 import lombok.*;
 import org.jooq.Record;
 
@@ -21,7 +23,7 @@ public class Stud implements Serializable {
     private Patients patients;
     private Proc proc;
     private Date studydatetime;
-    private Long study_type;
+    private StudType studType;
     private Long nbc_patients_n;
     private Long nbc_procedures_n;
 
@@ -31,7 +33,7 @@ public class Stud implements Serializable {
                 .n(record.get(NBC_STUD.N))
                 .nbc_patients_n(record.get(NBC_STUD.NBC_PATIENTS_N))
                 .nbc_procedures_n(record.get(NBC_STUD.NBC_PROCEDURES_N))
-                .study_type(record.get(NBC_STUD.STUDY_TYPE))
+                .studType(StudTypeDao.getStudTypeMap().get(record.get(NBC_STUD.STUDY_TYPE)))
                 .studydatetime(record.get(NBC_STUD.STUDYDATETIME))
                 .build());
     }

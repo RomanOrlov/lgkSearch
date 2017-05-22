@@ -1,13 +1,10 @@
 package lgk.nsbc.histology;
 
 import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
-import lgk.nsbc.model.dao.PatientsDao;
+import lgk.nsbc.model.dao.ProcDao;
 import lgk.nsbc.model.dao.StudDao;
-import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
-import lgk.nsbc.model.dao.dictionary.GenesDao;
-import lgk.nsbc.model.dao.dictionary.MutationTypesDao;
-import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
@@ -16,45 +13,26 @@ import lgk.nsbc.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
+import static lgk.nsbc.model.dao.dictionary.StudTypeDao.getStudTypeMap;
 
 @Service
 public class HistologyManager {
     @Autowired
-    private PatientsDao patientsDao;
-    @Autowired
     private StudDao studDao;
-    @Autowired
-    private GenesDao genesDao;
-    @Autowired
-    private DicYesNoDao dicYesNoDao;
-    @Autowired
-    private MutationTypesDao mutationTypesDao;
     @Autowired
     private HistologyDao histologyDao;
     @Autowired
     private MutationsDao mutationsDao;
     @Autowired
-    private StudTypeDao studTypeDao;
+    private ProcDao procDao;
 
     public List<HistologyBind> getHistology(Patients patients) {
         List<Histology> histologyList = histologyDao.findByPatient(patients);
         Map<Long, List<Mutation>> mutationsMap = mutationsDao.findMutationsByHistologyList(histologyList);
-        Map<Long, List<MutationBind>> mutationsBindMap = mutationsMap.entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, list -> list.getValue()
-                        .stream()
-                        .map(this::toMutationBind)
-                        .collect(toList()))
-                );
         List<Long> studId = histologyList.stream()
                 .map(Histology::getNbcStudN)
                 .filter(Objects::nonNull)
@@ -67,32 +45,19 @@ public class HistologyManager {
                 .collect(toList());
         histologyBindList.forEach(histologyBind -> {
             Histology histology = histologyBind.getHistology();
-            histologyBind.setMutations(mutationsMap.get(histology.getN()));
-            histologyBind.setMutationBinds(mutationsBindMap.get(histology.getN()));
+            Set<Mutation> mutationsTemplate = HistologyBind.getMutationsTemplate();
+            List<Mutation> mutations = mutationsMap.get(histology.getN());
+            if (mutations != null) {
+                mutationsTemplate.removeAll(mutations);
+                mutationsTemplate.addAll(mutations);
+            }
+            histologyBind.setMutations(mutationsTemplate);
             Stud stud = studMap.get(histology.getNbcStudN());
             histologyBind.setStud(stud);
             if (stud != null && stud.getStudydatetime() != null)
                 histologyBind.setHistologyDate(DateUtils.asLocalDate(stud.getStudydatetime()));
         });
         return histologyBindList;
-    }
-
-    private MutationBind toMutationBind(Mutation mutation) {
-        return MutationBind.builder()
-                .genes(genesDao.getGenes().get(mutation.getGeneN()))
-                .dicYesNo(dicYesNoDao.getDicYesNo().get(mutation.getDicYesNo()))
-                .mutationTypes(mutationTypesDao.getMutationTypes().get(mutation.getMutationType()))
-                .build();
-    }
-
-    private Mutation toMutation(MutationBind mutationBind, Histology histology, Stud stud) {
-        return Mutation.builder()
-                .histologyN(histology.getN())
-                .studyN(stud.getN())
-                .yesNoN(mutationBind.getYesNo().getN())
-                .geneN(mutationBind.getGene().getN())
-                .mutationTypeN(mutationBind.getMutationType().getN())
-                .build();
     }
 
     private HistologyBind toHistologyBind(Histology histology) {
@@ -146,27 +111,21 @@ public class HistologyManager {
         saveMutations(histologyBind, stud, histology);
     }
 
-    /**
-     * Стратегия сохранения и обновления мутация одна, - пересоздаем.
-     *
-     * @param histologyBind
-     * @param stud
-     * @param histology
-     */
     private void saveMutations(HistologyBind histologyBind, Stud stud, Histology histology) {
-        List<Mutation> mutations = histologyBind.getMutationBinds()
+        Set<Mutation> mutations = histologyBind.getMutations()
                 .stream()
-                .filter(mutationBind -> mutationBind.getGene() != null)
-                .map(mutationBind -> toMutation(mutationBind, histology, stud))
-                .collect(toList());
-        histologyBind.setMutations(mutations);
+                .filter(mutation -> mutation.getMutationType() != null && mutation.getDicYesNo() != null)
+                .peek(mutation -> mutation.setStudyN(stud.getN()))
+                .peek(mutation -> mutation.setHistologyN(histology.getN()))
+                .sorted()
+                .collect(toSet());
         mutationsDao.saveMutations(mutations);
     }
 
     private Stud getStud(HistologyBind histologyBind, Patients patients) {
         Stud stud = Stud.builder()
                 .nbc_patients_n(patients.getN())
-                .study_type(8L)
+                .studType(getStudTypeMap().get(8L))
                 .studydatetime(DateUtils.asDate(histologyBind.getHistologyDate()))
                 .build();
         if (histologyBind.getStud() != null && histologyBind.getStud().getN() != null) {
@@ -184,14 +143,15 @@ public class HistologyManager {
         return stud;
     }
 
-    public List<StudBind> getPatientStudy(Patients patients) {
-        return studDao.findPatientsStuds(patients)
-                .stream()
-                .map(stud -> new StudBind(stud, studTypeDao.getStudTypeMap().get(stud.getStudy_type())))
-                .collect(toList());
+    public List<Stud> getPatientStudy(Patients patients) {
+        return studDao.findPatientsStuds(patients);
     }
 
     public boolean checkHistologyExist(Long n) {
         return histologyDao.isExist(n);
+    }
+
+    public Collection<? extends Proc> getPatientsProc(Patients patients) {
+        return procDao.findPatientsProc(patients);
     }
 }

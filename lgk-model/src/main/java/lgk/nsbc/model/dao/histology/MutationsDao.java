@@ -54,7 +54,7 @@ public class MutationsDao implements Serializable {
                 .execute();
     }
 
-    public void saveMutations(List<Mutation> mutations) {
+    public void saveMutations(Collection<Mutation> mutations) {
         InsertValuesStep7<NbcHistology_1MutationRecord, Long, Long, Long, Long, Long, Long, Long> columns = context.insertInto(NBC_HISTOLOGY_1_MUTATION)
                 .columns(NBC_HISTOLOGY_1_MUTATION.N,
                         NBC_HISTOLOGY_1_MUTATION.OP_CREATE,

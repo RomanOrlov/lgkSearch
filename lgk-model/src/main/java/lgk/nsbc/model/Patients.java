@@ -4,6 +4,8 @@ import lombok.*;
 import org.jooq.Record;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
@@ -53,7 +55,7 @@ public class Patients implements Serializable {
             builder.append(case_history_num);
         }
         if (case_history_date != null) {
-            String substring = Integer.toString(case_history_date.getYear()).substring(2);
+            String substring = case_history_date.toString().substring(2,4);
             builder.append("/").append(substring);
         }
         builder.append(" ")

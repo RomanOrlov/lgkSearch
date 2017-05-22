@@ -3,8 +3,8 @@ package lgk.nsbc.histology;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.converter.StringToDoubleConverter;
+import com.vaadin.data.provider.GridSortOrder;
 import com.vaadin.data.validator.DoubleRangeValidator;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Setter;
@@ -12,10 +12,13 @@ import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.Proc;
+import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
-import lgk.nsbc.model.dao.dictionary.GenesDao;
 import lgk.nsbc.model.dao.dictionary.MutationTypesDao;
+import lgk.nsbc.model.dictionary.Gene;
+import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @VaadinSessionScope
@@ -34,26 +34,23 @@ public class HistologyView extends VerticalLayout implements View {
     @Autowired
     private PatientsDao patientsDao;
     @Autowired
-    private GenesDao genesDao;
-    @Autowired
-    private DicYesNoDao dicYesNoDao;
-    @Autowired
-    private MutationTypesDao mutationTypesDao;
-    @Autowired
     private HistologyManager histologyManager;
 
     private SuggestionCombobox suggestionCombobox;
-    private List<MutationBind> mutations = new ArrayList<>();
-    private Grid<MutationBind> mutationGrid = new Grid<>("Мутации", mutations);
+    private Set<Mutation> mutations = new TreeSet<>();
+    private Grid<Mutation> mutationGrid = new Grid<>("Мутации", mutations);
 
     private List<HistologyBind> histology = new ArrayList<>();
     private Grid<HistologyBind> histologyGrid = new Grid<>("Список гистологий", histology);
 
-    private List<StudBind> studBindList = new ArrayList<>();
-    private Grid<StudBind> studBindGrid = new Grid<>("Исследования пациента", studBindList);
+    private List<Stud> studList = new ArrayList<>();
+    private Grid<Stud> studGrid = new Grid<>("Исследования пациента", studList);
+
+    private List<Proc> procList = new ArrayList<>();
+    private Grid<Proc> procGrid = new Grid<>("Процедуры", procList);
 
     private Binder<HistologyBind> binder = new Binder<>();
-    private Boolean editiMode = false;
+    private Boolean editMode = false;
     private HistologyBind selectedToEdit;
 
     private void refreshHistology(Patients patients) {
@@ -71,7 +68,7 @@ public class HistologyView extends VerticalLayout implements View {
             Patients patients = event.getValue();
             refreshHistology(patients);
             refreshStudy(patients);
-            binder.setBean(HistologyBind.builder().build());
+            binder.setBean(HistologyBind.builder().build()); // Пустая
         });
 
         Button showSelectedHistology = new Button("Просмотр");
@@ -118,32 +115,25 @@ public class HistologyView extends VerticalLayout implements View {
                 Notification.show("Закончите радактирование мутаций");
                 return;
             }
-            if (mutations.stream()
-                    .map(MutationBind::getGene)
-                    .distinct()
-                    .count() != mutations.size()) {
-                Notification.show("Выбранные мутации должны быть разными");
-                return;
-            }
             if (!binder.writeBeanIfValid(binder.getBean())) {
                 binder.validate();
                 return;
             }
             // Доп. проверяем, а не удалили ли мы запись, которую редактируем
-            if (editiMode && histologyManager.checkHistologyExist(selectedToEdit.getHistology().getN())) {
+            if (editMode && histologyManager.checkHistologyExist(selectedToEdit.getHistology().getN())) {
                 HistologyBind bean = binder.getBean();
                 bean.setHistology(selectedToEdit.getHistology());
-                bean.setMutationBinds(new ArrayList<>(mutations));
+                bean.setMutations(new TreeSet<>(mutations));
                 histology.remove(selectedToEdit);
                 histology.add(bean);
                 histologyManager.updateHistology(bean, suggestionCombobox.getValue());
                 selectedToEdit = bean; // Все еще в режиме редактирования
             } else {
                 HistologyBind histologyBind = binder.getBean();
-                histologyBind.setMutationBinds(mutations);
+                histologyBind.setMutations(new TreeSet<>(mutations));
                 histologyManager.createNewHistology(histologyBind, suggestionCombobox.getValue());
                 histology.add(histologyBind);
-                editiMode = true; // Сразу после создания переключаемся в режим редактирования
+                editMode = true; // Сразу после создания переключаемся в режим редактирования
                 selectedToEdit = histologyBind;
             }
             refreshStudy(suggestionCombobox.getValue());
@@ -155,7 +145,7 @@ public class HistologyView extends VerticalLayout implements View {
                 Notification.show("Не выбран пациент");
                 return;
             }
-            editiMode = false;
+            editMode = false;
             selectedToEdit = null;
             // bind не работает для очистки полей!
             histologyGrid.deselectAll();
@@ -165,7 +155,7 @@ public class HistologyView extends VerticalLayout implements View {
             ki67To.clear();
             comment.clear();
             burdenkoVerification.clear();
-            binder.setBean(HistologyBind.builder().build());
+            binder.setBean(new HistologyBind());
         });
 
         dateField.setRequiredIndicatorVisible(true);
@@ -191,18 +181,31 @@ public class HistologyView extends VerticalLayout implements View {
         saveChanges.setStyleName(ValoTheme.BUTTON_PRIMARY);
         initHistologyGrid();
         initStudGrid();
-        HorizontalLayout grids = new HorizontalLayout(histologyGrid, studBindGrid);
+        initProcGrid();
+        HorizontalLayout grids = new HorizontalLayout(histologyGrid, studGrid, procGrid);
         grids.setWidth("100%");
         grids.setExpandRatio(histologyGrid, 1.0f);
-        AbstractOrderedLayout mutationGrid = initMutationGrid();
+        initMutationGrid();
         addComponents(tools, patientsName, grids, histologyParams, comment, mutationGrid, saveChanges);
         setComponentAlignment(saveChanges, Alignment.MIDDLE_CENTER);
+        mutations.addAll(HistologyBind.getMutationsTemplate());
+        mutationGrid.getDataProvider().refreshAll();
     }
 
     private void refreshStudy(Patients patients) {
-        studBindList.clear();
-        studBindList.addAll(histologyManager.getPatientStudy(patients));
-        studBindGrid.getDataProvider().refreshAll();
+        studList.clear();
+        studList.addAll(histologyManager.getPatientStudy(patients));
+        studGrid.getDataProvider().refreshAll();
+        procList.clear();
+        procList.addAll(histologyManager.getPatientsProc(patients));
+        procGrid.getDataProvider().refreshAll();
+    }
+
+    private void refreshMutations(HistologyBind histologyBind) {
+        mutations.clear();
+        if (histologyBind.getMutations() != null)
+            mutations.addAll(histologyBind.getMutations());
+        mutationGrid.getDataProvider().refreshAll();
     }
 
     private void edit() {
@@ -210,14 +213,23 @@ public class HistologyView extends VerticalLayout implements View {
             Notification.show("Не выбрана гистология");
             return;
         }
-        editiMode = true;
+        if (mutationGrid.getEditor().isOpen()) {
+            mutationGrid.getEditor().cancel();
+        }
+        editMode = true;
         HistologyBind selectedHistology = histologyGrid.asSingleSelect().getValue();
         selectedToEdit = selectedHistology;
         binder.readBean(selectedHistology);
-        mutations.clear();
-        if (selectedHistology.getMutationBinds() != null)
-            mutations.addAll(selectedToEdit.getMutationBinds());
-        mutationGrid.getDataProvider().refreshAll();
+        refreshMutations(selectedToEdit);
+    }
+
+    private void initProcGrid() {
+        procGrid.addColumn(Proc::getProcType)
+                .setCaption("Тип");
+        procGrid.addColumn(proc -> DateUtils.asLocalDate(proc.getProcBeginTime()))
+                .setCaption("Дата");
+        procGrid.setHeightByRows(3);
+        procGrid.setWidth("300px");
     }
 
     private void initHistologyGrid() {
@@ -230,73 +242,47 @@ public class HistologyView extends VerticalLayout implements View {
                 .setCaption("Комментарий");
         histologyGrid.addColumn(histologyBind -> Objects.equals(histologyBind.getBurdenkoVerification(), true) ? "Да" : "Нет")
                 .setCaption("Верификация Бурденко");
-        histologyGrid.addColumn(histologyBind -> histologyBind.getMutations() == null ? 0 : histologyBind.getMutations().size())
-                .setCaption("Количество мутаций");
     }
 
-    private AbstractOrderedLayout initMutationGrid() {
-        mutationGrid.addColumn(MutationBind::getGene)
-                .setCaption("Ген")
-                .setEditorBinding(getEditorBind(mutationGrid,
-                        new NativeSelect<>("Ген", genesDao.getGenes().values()),
-                        MutationBind::getGene,
-                        MutationBind::setGenes)
-                );
-        mutationGrid.addColumn(MutationBind::getMutationType)
+    private void initMutationGrid() {
+        Grid.Column<Mutation, Gene> geneColumn = mutationGrid.addColumn(Mutation::getGene)
+                .setCaption("Ген");
+        mutationGrid.addColumn(Mutation::getMutationType)
                 .setCaption("Тип мутации")
                 .setEditorBinding(getEditorBind(mutationGrid,
-                        new NativeSelect<>("Тип мутации", mutationTypesDao.getMutationTypes().values()),
-                        MutationBind::getMutationType,
-                        MutationBind::setMutationTypes)
+                        new NativeSelect<>("Тип мутации", MutationTypesDao.getMutationTypes().values()),
+                        Mutation::getMutationType,
+                        Mutation::setMutationType)
                 );
-        mutationGrid.addColumn(MutationBind::getYesNo)
+        mutationGrid.addColumn(Mutation::getDicYesNo)
                 .setCaption("Наличие")
                 .setEditorBinding(getEditorBind(mutationGrid,
-                        new NativeSelect<>("Наличие", dicYesNoDao.getDicYesNo().values()),
-                        MutationBind::getYesNo,
-                        MutationBind::setDicYesNo)
+                        new NativeSelect<>("Наличие", DicYesNoDao.getDicYesNo().values()),
+                        Mutation::getDicYesNo,
+                        Mutation::setDicYesNo)
                 );
-        mutationGrid.setHeightByRows(3);
+        mutationGrid.setSortOrder(GridSortOrder.asc(geneColumn));
+        mutationGrid.setHeightByRows(6);
         mutationGrid.getEditor().setEnabled(true);
-        mutationGrid.setSelectionMode(Grid.SelectionMode.MULTI);
-        mutationGrid.setWidth("700px");
-
-        Button addMutation = new Button();
-        addMutation.setStyleName(ValoTheme.BUTTON_PRIMARY);
-        addMutation.setIcon(VaadinIcons.PLUS);
-        addMutation.addClickListener(clickEvent -> {
-            mutations.add(0, new MutationBind());
+        mutationGrid.getEditor().addSaveListener(event -> {
+            mutationGrid.getDataProvider().refreshItem(event.getBean());
             mutationGrid.getDataProvider().refreshAll();
+
         });
-
-        Button removeMutation = new Button();
-        removeMutation.setStyleName(ValoTheme.BUTTON_PRIMARY);
-        removeMutation.setIcon(VaadinIcons.MINUS);
-        removeMutation.addClickListener(clickEvent -> {
-            Set<MutationBind> selected = mutationGrid.getSelectedItems();
-            mutations.removeAll(selected);
-            mutationGrid.getDataProvider().refreshAll();
-        });
-
-        VerticalLayout mutationButtons = new VerticalLayout();
-        mutationButtons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        mutationButtons.addComponents(addMutation, removeMutation);
-        //mutationButtons.setSizeFull();
-
-        HorizontalLayout mutation = new HorizontalLayout(mutationButtons, mutationGrid);
-        mutation.setExpandRatio(mutationGrid, 1.0f);
-        return mutation;
+        mutationGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        mutationGrid.setWidth("100%");
     }
 
     private void initStudGrid() {
-        studBindGrid.setHeightByRows(3);
-        studBindGrid.addColumn(studBind -> DateUtils.asLocalDate(studBind.getStud().getStudydatetime()))
-                .setCaption("Дата исследования");
-        studBindGrid.addColumn(StudBind::getStudType)
-                .setCaption("Тип исследования");
+        studGrid.setHeightByRows(3);
+        studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudydatetime()))
+                .setCaption("Дата");
+        studGrid.addColumn(Stud::getStudType)
+                .setCaption("Тип");
+        studGrid.setWidth("300px");
     }
 
-    private <T> Binder.Binding<MutationBind, T> getEditorBind(Grid<MutationBind> mutationGrid, NativeSelect<T> editSelect, ValueProvider<MutationBind, T> getter, Setter<MutationBind, T> setter) {
+    private <T> Binder.Binding<Mutation, T> getEditorBind(Grid<Mutation> mutationGrid, NativeSelect<T> editSelect, ValueProvider<Mutation, T> getter, Setter<Mutation, T> setter) {
         editSelect.setEmptySelectionAllowed(true);
         return mutationGrid.getEditor()
                 .getBinder()
@@ -307,8 +293,10 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private void clearAll() {
-        studBindList.clear();
-        studBindGrid.getDataProvider().refreshAll();
+        studList.clear();
+        studGrid.getDataProvider().refreshAll();
+        procList.clear();
+        procGrid.getDataProvider().refreshAll();
         histology.clear();
         histologyGrid.getDataProvider().refreshAll();
         cleanCurrentHistology();
@@ -316,9 +304,9 @@ public class HistologyView extends VerticalLayout implements View {
 
     private void cleanCurrentHistology() {
         mutations.clear();
+        Set<Mutation> mutationsTemplate = HistologyBind.getMutationsTemplate();
+        mutations.addAll(mutationsTemplate);
         mutationGrid.getDataProvider().refreshAll();
-        binder.removeBean();
-        binder.setBean(null);
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.io.Serializable;
 
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class OncoDiagCon implements Serializable {
     private static final long serialVersionUID = 1L;

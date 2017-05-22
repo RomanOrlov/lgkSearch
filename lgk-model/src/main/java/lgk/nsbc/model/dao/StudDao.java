@@ -58,7 +58,7 @@ public class StudDao implements Serializable {
                         Sequences.SYS_OPERATION_N.nextval(),
                         val(timestamp),
                         val(stud.getNbc_patients_n()),
-                        val(stud.getStudy_type())
+                        val(stud.getStudType().getN())
                 )
                 .returning(NBC_STUD.N)
                 .fetch();
@@ -76,10 +76,12 @@ public class StudDao implements Serializable {
 
     public Optional<Stud> findStudyByDate(Patients patients, Date studyDate, Long studyType) {
         Timestamp timestamp = new Timestamp(studyDate.getTime());
-        NbcStudRecord result = context.fetchOne(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patients.getN())
+        Result<NbcStudRecord> result = context.fetch(NBC_STUD, NBC_STUD.NBC_PATIENTS_N.eq(patients.getN())
                 .and(NBC_STUD.STUDYDATETIME.eq(timestamp))
                 .and(NBC_STUD.STUDY_TYPE.eq(studyType)));
-        return Stud.buildFromRecord(result);
+        if (result.isEmpty())
+            return Optional.empty();
+        return Stud.buildFromRecord(result.get(0));
     }
 
     public Optional<Stud> findById(Long id) {

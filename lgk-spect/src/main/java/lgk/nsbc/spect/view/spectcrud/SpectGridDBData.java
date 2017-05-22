@@ -1,6 +1,7 @@
 package lgk.nsbc.spect.view.spectcrud;
 
 import lgk.nsbc.model.*;
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.util.DateUtils;
 import lombok.Getter;
 
@@ -45,7 +46,7 @@ public class SpectGridDBData {
         this.stud = Stud.builder()
                 .n(-1L)
                 .nbc_patients_n(patients.getN())
-                .study_type(11L)
+                .studType(StudTypeDao.getStudTypeMap().get(11L))
                 .build();
         this.followUp = FollowUp.builder()
                 .n(-1L)

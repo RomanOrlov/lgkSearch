@@ -34,6 +34,6 @@ public class MainSpectView extends UI {
         navigator.addView(MAIN_VIEW, spectCRUDView);
         navigator.addView(HISTOLOGY_VIEW, histologyView);
         //navigator.navigateTo(LOGIN);
-        navigator.navigateTo(MAIN_VIEW);
+        navigator.navigateTo(HISTOLOGY_VIEW);
     }
 }

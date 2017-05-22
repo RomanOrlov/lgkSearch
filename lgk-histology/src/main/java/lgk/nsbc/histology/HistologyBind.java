@@ -1,14 +1,20 @@
 package lgk.nsbc.histology;
 
 import lgk.nsbc.model.Stud;
+import lgk.nsbc.model.dao.dictionary.GenesDao;
+import lgk.nsbc.model.dictionary.Gene;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Основная информация по гистологии
@@ -21,8 +27,7 @@ import java.util.Objects;
 public class HistologyBind {
     private Stud stud;
     private Histology histology;
-    private List<Mutation> mutations = new ArrayList<>();
-    private List<MutationBind> mutationBinds = new ArrayList<>();
+    private Set<Mutation> mutations = new TreeSet<>();
 
     private LocalDate histologyDate;
     private Boolean burdenkoVerification;
@@ -37,5 +42,16 @@ public class HistologyBind {
     public static String getStringBurdenkoVerification(Boolean burdenkoVerification) {
         if (burdenkoVerification == null) return null;
         return burdenkoVerification ? "Y" : "N";
+    }
+
+    public static Set<Mutation> getMutationsTemplate() {
+        Map<Long, Gene> genes = GenesDao.getGenes();
+        return genes.values()
+                .stream()
+                .map(gene -> Mutation.builder()
+                        .gene(gene)
+                        .build())
+                .sorted()
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

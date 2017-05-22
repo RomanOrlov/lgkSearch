@@ -3,6 +3,7 @@ package lgk.nsbc.spect.util;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import lgk.nsbc.model.dao.*;
 import lgk.nsbc.model.*;
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.spect.model.StudyRecords;
 import lgk.nsbc.spect.model.StudyTarget;
 import lgk.nsbc.spect.model.Target;
@@ -115,7 +116,7 @@ public class DataMigrationService implements Serializable{
     private Stud studyFromRecord(StudyRecords studyRecords, Patients patient) {
         return Stud.builder()
                 .nbc_patients_n(patient.getN())
-                .study_type(11L)
+                .studType(StudTypeDao.getStudTypeMap().get(11L))
                 .studydatetime(studyRecords.getDate())
                 .build();
     }
