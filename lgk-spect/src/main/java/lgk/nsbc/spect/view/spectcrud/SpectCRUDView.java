@@ -7,7 +7,7 @@ import com.vaadin.ui.*;
 import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.spect.util.DataMigrationService;
-import lgk.nsbc.spect.util.excel.ExcelExporter;
+import lgk.nsbc.spect.util.excel.SpectDataExcelExporter;
 import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         Button newRecord = new Button("Добавить");
         Button readAllRecords = new Button("Все записи");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new ExcelExporter(spectGrid, "Экспорт в Excel");
+        Button exportToExcel = new SpectDataExcelExporter(spectGrid, "Экспорт в Excel");
         newRecord.addClickListener(clickEvent -> {
             if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран пациент");

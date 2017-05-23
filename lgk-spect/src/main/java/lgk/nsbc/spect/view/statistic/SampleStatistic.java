@@ -13,6 +13,7 @@ import com.vaadin.ui.components.grid.FooterRow;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.model.dao.PatientsDao;
+import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
 import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.util.components.GridHeaderFilter;
 import lgk.nsbc.util.components.SuggestionCombobox;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,16 +41,17 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     @Autowired
     private PatientsDao patientsDao;
 
+    private List<SampleBind> sampleBinds = new ArrayList<>();
+    private ListDataProvider<SampleBind> dataProvider = new ListDataProvider<>(sampleBinds);
+    private Grid<SampleBind> sampleGrid = new Grid<>("Выборка ОФЕКТ", dataProvider);
+
     private Button refresh = new Button("Обновить");
-    private Button statisticToExcel = new Button("Данные в Excel");
+    private Button statisticToExcel = new StatisticExcelExporter(sampleGrid, "Данные в Excel");
     private Button addToSample = new Button("Добавить в выборку");
     private Button removeFromSample = new Button("Удалить из выборки");
     private static final DecimalFormat ageFormat = new DecimalFormat("##0");
     private static final DecimalFormat inFormat = new DecimalFormat("##0.00");
 
-    private List<SampleBind> sampleBinds = new ArrayList<>();
-    private ListDataProvider<SampleBind> dataProvider = new ListDataProvider<>(sampleBinds);
-    private Grid<SampleBind> sampleGrid = new Grid<>("Выборка ОФЕКТ", dataProvider);
 
     private SuggestionCombobox combobox;
 
@@ -88,6 +91,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             sampleGrid.select(simpleBind);
         });
         removeFromSample.addClickListener(clickEvent -> {
+            List<SampleBind> collect = dataProvider.fetch(new Query<>())
+                    .collect(Collectors.toList());
             if (sampleGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Не выбран пациент из выборки");
                 return;
@@ -105,6 +110,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     }
 
     private void initSampleGrid() {
+        sampleGrid.setColumnReorderingAllowed(true);
         sampleGrid.getEditor().setEnabled(true);
         sampleGrid.getEditor().addSaveListener(editorSaveEvent -> {
             SampleBind bean = editorSaveEvent.getBean();
@@ -117,7 +123,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setHidable(true);
         sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getN())
                 .setCaption("id Пациента")
-                .setHidable(true);
+                .setHidable(true)
+                .setHidden(true);
         Grid.Column<SampleBind, String> gender = sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getPeople().getSex())
                 .setCaption("Пол")
                 .setHidable(true)

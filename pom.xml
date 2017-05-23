@@ -49,6 +49,13 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
+	<developers>
+		<developer>
+			<name>Roman Orlov</name>
+			<email>asindor@gmail.com</email>
+		</developer>
+	</developers>
+
 	<properties>
 		<vaadin.version>8.1.0.alpha8</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
@@ -62,6 +69,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.vaadin.addons</groupId>
+			<artifactId>vaadin-sliderpanel</artifactId>
+			<version>2.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.firebirdsql.jdbc</groupId>
 			<artifactId>jaybird-jdk18</artifactId>
@@ -98,8 +110,6 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!--VAADIN-->
-		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-compatibility-server -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-compatibility-server</artifactId>
@@ -203,6 +213,7 @@
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.6.1</version>
 			</plugin>
+
 		</plugins>
 	</build>
 </project>

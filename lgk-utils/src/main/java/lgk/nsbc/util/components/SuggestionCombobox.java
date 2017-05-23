@@ -27,6 +27,7 @@ public class SuggestionCombobox extends ComboBox<Patients> {
         setCaption("Поиск пациента");
         setWidth("100%");
         setEmptySelectionAllowed(false);
+
     }
 
     private boolean isInputValid(String value) {

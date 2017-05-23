@@ -48,15 +48,15 @@ public class GridHeaderFilter {
     }
 
     public static <T> void addDoubleFilter(HeaderCell cell,
-                                            ListDataProvider<T> dataProvider,
-                                            ValueProvider<T, Double> valueProvider) {
+                                           ListDataProvider<T> dataProvider,
+                                           ValueProvider<T, Double> valueProvider) {
         TextField from = getColumnNumberFilterField(true);
         TextField to = getColumnNumberFilterField(false);
         HorizontalLayout fromTo = new HorizontalLayout(from, to);
         cell.setComponent(fromTo);
         HasValue.ValueChangeListener<String> listener = event -> {
-            String fromString = from.getValue() == null ? "" : from.getValue().trim();
-            String toString = to.getValue() == null ? "" : to.getValue().trim();
+            String fromString = from.getValue() == null ? "" : from.getValue().trim().replace(".", ",");
+            String toString = to.getValue() == null ? "" : to.getValue().trim().replace(".", ",");
             if (fromString.matches(doubleRegex) && fromString.matches(doubleRegex)) {
                 Double fromDouble = fromString.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(fromString);
                 Double toDouble = toString.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(toString);
@@ -69,9 +69,9 @@ public class GridHeaderFilter {
     }
 
     public static <T, V> void addListSelectFilter(HeaderCell cell,
-                                                   ListDataProvider<T> dataProvider,
-                                                   ValueProvider<T, V> valueProvider,
-                                                   Collection<V> options) {
+                                                  ListDataProvider<T> dataProvider,
+                                                  ValueProvider<T, V> valueProvider,
+                                                  Collection<V> options) {
         ComboBox<V> listSelect = getComboboxFilterField(options);
         cell.setComponent(listSelect);
         listSelect.addValueChangeListener(event -> {

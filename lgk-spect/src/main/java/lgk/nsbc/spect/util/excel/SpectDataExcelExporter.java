@@ -1,16 +1,11 @@
 package lgk.nsbc.spect.util.excel;
 
-import com.vaadin.server.Extension;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.StreamResource;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Notification;
 import lgk.nsbc.model.Target;
 import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
-import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.spect.view.spectcrud.SpectGrid;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
+import lgk.nsbc.util.DateUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -18,8 +13,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -27,28 +20,17 @@ import java.util.stream.IntStream;
 
 import static lgk.nsbc.model.spect.MainInfo.*;
 
-/**
- * Экспорт данных в excel в том же виде, в каком они представлены
- * в интерфейсе
- */
-public class ExcelExporter extends Button {
+public class SpectDataExcelExporter extends ExcelExportButton {
     private final SpectGrid grid;
-    private Extension currrentExtension;
 
-    public ExcelExporter(SpectGrid grid, String caption) {
+    public SpectDataExcelExporter(SpectGrid grid, String caption) {
         super(caption);
         this.grid = grid;
-        StreamResource myResource = createResource();
-        FileDownloader fileDownloader = new FileDownloader(myResource);
-        fileDownloader.extend(this);
-        addClickListener(event -> {
-            fileDownloader.setFileDownloadResource(createResource());
-        });
-
     }
 
 
-    public void exportToExcel(OutputStream outputStream) throws IOException {
+    @Override
+    protected void exportToExcel(OutputStream outputStream) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Экспорт данных");
         XSSFRow structureHeader = sheet.createRow(0);
@@ -212,26 +194,4 @@ public class ExcelExporter extends Button {
         else
             cell.setCellValue(value);
     }
-
-    private void setCellValue(XSSFCell cell, String value) {
-        if (value == null)
-            cell.setCellType(CellType.BLANK);
-        else
-            cell.setCellValue(value);
-    }
-
-    private StreamResource createResource() {
-        return new StreamResource((StreamResource.StreamSource) () -> {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1_000_000);
-            try {
-                exportToExcel(byteArrayOutputStream);
-                return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            } catch (IOException e) {
-                Notification.show("Невозможно загрузить excel file");
-                e.printStackTrace();
-                return null;
-            }
-        }, "export.xlsx");
-    }
-
 }
