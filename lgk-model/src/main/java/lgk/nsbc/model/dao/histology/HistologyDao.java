@@ -31,6 +31,13 @@ public class HistologyDao implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public List<Histology> findByPatientsId(List<Long> patientsId) {
+        return context.fetch(NBC_HISTOLOGY_1, NBC_HISTOLOGY_1.NBC_PATIENTS_N.in(patientsId))
+                .stream()
+                .map(Histology::buildFromRecord)
+                .collect(Collectors.toList());
+    }
+
     public List<Histology> findByStudy(Stud stud) {
         Result<NbcHistology_1Record> result = context.fetch(NBC_HISTOLOGY_1, NBC_HISTOLOGY_1.NBC_STUD_N.eq(stud.getN()));
         return result.stream()

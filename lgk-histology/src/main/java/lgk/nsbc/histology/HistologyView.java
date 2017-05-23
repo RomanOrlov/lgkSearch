@@ -160,7 +160,6 @@ public class HistologyView extends VerticalLayout implements View {
 
         dateField.setRequiredIndicatorVisible(true);
         binder.forField(dateField)
-                .asRequired("Укажите дату гистологии")
                 .bind(HistologyBind::getHistologyDate, HistologyBind::setHistologyDate);
         binder.forField(burdenkoVerification)
                 .bind(HistologyBind::getBurdenkoVerification, HistologyBind::setBurdenkoVerification);
@@ -236,6 +235,10 @@ public class HistologyView extends VerticalLayout implements View {
         histologyGrid.setWidth("100%");
         histologyGrid.setHeightByRows(3);
         histologyGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        histologyGrid.addColumn(histologyBind -> histologyBind.getHistology().getN())
+                .setCaption("Внутренний Id")
+                .setHidable(true)
+                .setHidden(true);
         histologyGrid.addColumn(HistologyBind::getHistologyDate)
                 .setCaption("Дата");
         histologyGrid.addColumn(HistologyBind::getComment)
@@ -265,6 +268,8 @@ public class HistologyView extends VerticalLayout implements View {
         mutationGrid.setHeightByRows(6);
         mutationGrid.getEditor().setEnabled(true);
         mutationGrid.getEditor().addSaveListener(event -> {
+            mutations.remove(event.getBean());
+            mutations.add(event.getBean());
             mutationGrid.getDataProvider().refreshItem(event.getBean());
             mutationGrid.getDataProvider().refreshAll();
 

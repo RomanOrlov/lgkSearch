@@ -24,4 +24,10 @@ public class SamplePatientsDao implements Serializable {
                 .map(SamplePatients::buildFromRecord)
                 .collect(Collectors.toList());
     }
+
+    public void updateSamplePatient(SamplePatients samplePatients) {
+        context.update(NBC_SMPL_PATIENTS)
+                .set(NBC_SMPL_PATIENTS.INCLUSION, samplePatients.getInclusion())
+                .where(NBC_SMPL_PATIENTS.N.eq(samplePatients.getN()));
+    }
 }
