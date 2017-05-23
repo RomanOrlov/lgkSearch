@@ -27,45 +27,39 @@ public class FlupSpectDataDao implements Serializable {
     private FollowUpDao followUpDao;
 
     public void createSpectFollowUpData(FollowUp followUp, List<FlupSpectData> spectDatas) {
-        context.transaction(configuration -> {
-            followUpDao.createFollowUp(followUp);
-            spectDatas.forEach(data -> data.setNbc_followup_n(followUp.getN()));
-            persistSpectData(spectDatas);
-        });
+        followUpDao.createFollowUp(followUp);
+        spectDatas.forEach(data -> data.setNbc_followup_n(followUp.getN()));
+        persistSpectData(spectDatas);
     }
 
     public void persistSpectData(List<FlupSpectData> spectDatas) {
-        context.transaction(configuration -> {
-            InsertValuesStep7<NbcFlupSpectDataRecord, Long, Long, Long, Long, Double, Double, Double> insertStep = context.insertInto(NBC_FLUP_SPECT_DATA)
-                    .columns(NBC_FLUP_SPECT_DATA.N,
-                            NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N,
-                            NBC_FLUP_SPECT_DATA.NBC_TARGET_TARGET_TYPE_N,
-                            NBC_FLUP_SPECT_DATA.NBC_FLUP_SPECT_CONTOURTYPE_N,
-                            NBC_FLUP_SPECT_DATA.VOLUME,
-                            NBC_FLUP_SPECT_DATA.EARLY_PHASE,
-                            NBC_FLUP_SPECT_DATA.LATE_PHASE);
-            for (FlupSpectData data : spectDatas) {
-                insertStep = insertStep.values(
-                        NBC_FLUP_SPECT_DATA_N.nextval(),
-                        val(data.getNbc_followup_n()),
-                        val(data.getTargetType().getDictionaryId()),
-                        val(data.getContourType().getDictionaryId()),
-                        val(data.getVolume()),
-                        val(data.getEarly_phase()),
-                        val(data.getLate_phase())
-                );
-            }
-            insertStep.execute();
-        });
+        InsertValuesStep7<NbcFlupSpectDataRecord, Long, Long, Long, Long, Double, Double, Double> insertStep = context.insertInto(NBC_FLUP_SPECT_DATA)
+                .columns(NBC_FLUP_SPECT_DATA.N,
+                        NBC_FLUP_SPECT_DATA.NBC_FOLLOWUP_N,
+                        NBC_FLUP_SPECT_DATA.NBC_TARGET_TARGET_TYPE_N,
+                        NBC_FLUP_SPECT_DATA.NBC_FLUP_SPECT_CONTOURTYPE_N,
+                        NBC_FLUP_SPECT_DATA.VOLUME,
+                        NBC_FLUP_SPECT_DATA.EARLY_PHASE,
+                        NBC_FLUP_SPECT_DATA.LATE_PHASE);
+        for (FlupSpectData data : spectDatas) {
+            insertStep = insertStep.values(
+                    NBC_FLUP_SPECT_DATA_N.nextval(),
+                    val(data.getNbc_followup_n()),
+                    val(data.getTargetType().getDictionaryId()),
+                    val(data.getContourType().getDictionaryId()),
+                    val(data.getVolume()),
+                    val(data.getEarly_phase()),
+                    val(data.getLate_phase())
+            );
+        }
+        insertStep.execute();
     }
 
     public void updateSpectData(List<FlupSpectData> spectDatas) {
-        context.transaction(configuration -> {
-            List<NbcFlupSpectDataRecord> records = spectDatas.stream()
-                    .map(FlupSpectData::getRecord)
-                    .collect(toList());
-            context.batchUpdate(records).execute();
-        });
+        List<NbcFlupSpectDataRecord> records = spectDatas.stream()
+                .map(FlupSpectData::getRecord)
+                .collect(toList());
+        context.batchUpdate(records).execute();
     }
 
     public List<FlupSpectData> findByNbcFollowup(FollowUp followUp) {

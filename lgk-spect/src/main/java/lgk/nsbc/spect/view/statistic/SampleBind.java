@@ -31,7 +31,6 @@ public class SampleBind implements Serializable {
     private DicYesNo idh1;
     private DicYesNo idh2;
     private DicYesNo mgmt;
-    private Histology histology;
     private Integer ageAtSurgery;
 
     public Double getSpect1InEarly() {
@@ -69,7 +68,6 @@ public class SampleBind implements Serializable {
     }
 
     public Integer getAgeAtSurgery() {
-        if (surgeryProc == null && radioProc == null && spect1 == null) return null;
         if (ageAtSurgery != null) return ageAtSurgery;
         LocalDate birthday = DateUtils.asLocalDate(patients.getPeople().getBirthday());
         LocalDate secondDate = getClosestDate();

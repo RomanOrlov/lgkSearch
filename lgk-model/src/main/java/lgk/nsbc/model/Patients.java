@@ -37,6 +37,10 @@ public class Patients implements Serializable {
 
     @Override
     public String toString() {
+        return toStringWithCaseHistory();
+    }
+
+    public String getFullName() {
         return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
     }
 
@@ -53,10 +57,6 @@ public class Patients implements Serializable {
     }
 
     public String toStringWithCaseHistory() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(getCaseHistoryNumber())
-                .append(" ")
-                .append(toString());
-        return builder.toString();
+        return getFullName() + " " + getCaseHistoryNumber();
     }
 }

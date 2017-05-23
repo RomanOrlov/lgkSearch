@@ -74,4 +74,9 @@ public class SpectGridData {
         if (inEarly == null || inLate == null) return null;
         return inEarly - inLate;
     }
+
+    @Override
+    public String toString() {
+        return surname + " " + name + " " + patronymic;
+    }
 }

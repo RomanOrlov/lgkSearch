@@ -1,16 +1,11 @@
 package lgk.nsbc.spect.util;
 
-import lgk.nsbc.model.People;
-import lgk.nsbc.model.dao.PatientsDao;
-import lgk.nsbc.model.dao.ProcDao;
-import lgk.nsbc.model.dao.StudDao;
-import lgk.nsbc.model.dao.TargetDao;
-import lgk.nsbc.model.People;
 import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.People;
+import lgk.nsbc.model.dao.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -25,18 +20,21 @@ import static java.util.stream.Collectors.toMap;
 /**
  * Класс, который пытается определить из списка пациентов с одинаковы именами нужного.
  * 1. Проверяем не один ли пациент с таким полным именем.
- * 2. Проверяем есть ли запись о исследовании в NBC_STUD с Типом процедуры ОФЕКТ.
- * 3. Проверяем количество процедур у пациента.
+ * 2. Проверяем, включен ли пациент с таким id в выборку ОФЕКТ
+ * 3. Проверяем есть ли запись о исследовании в NBC_STUD с Типом процедуры ОФЕКТ.
+ * 4. Проверяем количество процедур у пациента.
  * Выбираем того, у которого больше всего процедур и мишеней (сначала мишеней, потом процедур)
  * В случае, если всё по нулям (несколько пустых пациентов) выбираем того, у которого N больше.
  */
 @Service
 @RequiredArgsConstructor
-public class PatientsDuplicatesResolver implements Serializable{
+public class PatientsDuplicatesResolver implements Serializable {
     private final PatientsDao patientsDao;
     private final StudDao studDao;
     private final ProcDao procDao;
     private final TargetDao targetDao;
+    private final SamplePatientsDao samplePatientsDao;
+
 
     public Optional<Patients> getPatient(Patients patients) {
         People people = patients.getPeople();
@@ -52,6 +50,12 @@ public class PatientsDuplicatesResolver implements Serializable{
         if (patientsList.isEmpty()) return Optional.empty();
         if (patientsList.size() == 1) return Optional.of(patientsList.get(0));
 
+        List<Patients> patientFromSample = patientsList.stream()
+                .filter(patients -> samplePatientsDao.isSpectSampleContainsPatient(patients.getN()))
+                .collect(Collectors.toList());
+        if (patientFromSample.size() == 1) {
+            return Optional.of(patientFromSample.get(0));
+        }
         Map<Patients, Boolean> map = patientsList.stream()
                 .collect(toMap(identity(), studDao::isPatientHasSpectStudy));
         if (map.containsValue(true)) {

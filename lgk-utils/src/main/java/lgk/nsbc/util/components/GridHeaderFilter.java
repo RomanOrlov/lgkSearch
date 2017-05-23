@@ -98,6 +98,7 @@ public class GridHeaderFilter {
 
     private static <T> ComboBox<T> getComboboxFilterField(Collection<T> options) {
         ComboBox<T> comboBox = new ComboBox<>();
+        comboBox.setPlaceholder("Фильтр");
         comboBox.setItems(options);
         comboBox.setWidth("100%");
         comboBox.setEmptySelectionAllowed(true);

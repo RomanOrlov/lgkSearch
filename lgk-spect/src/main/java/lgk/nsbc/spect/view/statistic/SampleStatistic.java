@@ -7,18 +7,18 @@ import com.vaadin.data.provider.Query;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.FooterCell;
 import com.vaadin.ui.components.grid.FooterRow;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.NumberRenderer;
+import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.util.components.GridHeaderFilter;
+import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -36,9 +36,13 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     private static final long serialVersionUID = 1L;
     @Autowired
     private SampleManager sampleManager;
+    @Autowired
+    private PatientsDao patientsDao;
 
     private Button refresh = new Button("Обновить");
     private Button statisticToExcel = new Button("Данные в Excel");
+    private Button addToSample = new Button("Добавить в выборку");
+    private Button removeFromSample = new Button("Удалить из выборки");
     private static final DecimalFormat ageFormat = new DecimalFormat("##0");
     private static final DecimalFormat inFormat = new DecimalFormat("##0.00");
 
@@ -46,13 +50,22 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     private ListDataProvider<SampleBind> dataProvider = new ListDataProvider<>(sampleBinds);
     private Grid<SampleBind> sampleGrid = new Grid<>("Выборка ОФЕКТ", dataProvider);
 
+    private SuggestionCombobox combobox;
+
     @PostConstruct
     public void init() {
         setSizeFull();
         initSampleGrid();
         initButtons();
-        HorizontalLayout buttons = new HorizontalLayout(refresh, statisticToExcel);
+
+        combobox = new SuggestionCombobox(patientsDao::getPatientsWithDifferentNames);
+        combobox.addValueChangeListener(valueChangeEvent -> combobox.setCaption("Выбран пациент: " + combobox.getValue().toString()));
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        buttons.addComponents(combobox, refresh, addToSample, removeFromSample, statisticToExcel);
+        buttons.setComponentAlignment(combobox, Alignment.TOP_CENTER);
         buttons.setWidth("100%");
+        buttons.setExpandRatio(combobox, 1.0f);
         addComponents(buttons, sampleGrid);
         setExpandRatio(sampleGrid, 1.0f);
     }
@@ -64,11 +77,42 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             sampleBinds.addAll(spectSample);
             sampleGrid.getDataProvider().refreshAll();
         });
+        addToSample.addClickListener(clickEvent -> {
+            if (!combobox.getSelectedItem().isPresent()) {
+                Notification.show("Не выбран пациент");
+                return;
+            }
+            SampleBind simpleBind = sampleManager.getTamplateSimpleBind(combobox.getValue());
+            sampleBinds.add(simpleBind);
+            dataProvider.refreshAll();
+            sampleGrid.select(simpleBind);
+        });
+        removeFromSample.addClickListener(clickEvent -> {
+            if (sampleGrid.asSingleSelect().isEmpty()) {
+                Notification.show("Не выбран пациент из выборки");
+                return;
+            }
+            ConfirmDialog.show(getUI(), "Удалить выбраную запись", "Вы уверены?", "Да", "Нет", dialog -> {
+                if (dialog.isConfirmed()) {
+                    SampleBind value = sampleGrid.asSingleSelect().getValue();
+                    sampleManager.removeSamplePatient(value);
+                    sampleGrid.deselectAll();
+                    sampleBinds.remove(value);
+                    dataProvider.refreshAll();
+                }
+            });
+        });
     }
 
     private void initSampleGrid() {
+        sampleGrid.getEditor().setEnabled(true);
+        sampleGrid.getEditor().addSaveListener(editorSaveEvent -> {
+            SampleBind bean = editorSaveEvent.getBean();
+            dataProvider.refreshItem(bean);
+            sampleManager.updateSamplePatient(bean);
+        });
         // ФИО
-        Grid.Column<SampleBind, String> name = sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().toString())
+        Grid.Column<SampleBind, String> name = sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getFullName())
                 .setCaption("ФИО")
                 .setHidable(true);
         sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getN())
@@ -82,10 +126,17 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("Номер истории болезни")
                 .setHidable(true)
                 .setHidden(true);
+        NativeSelect<String> inclusionEdit = new NativeSelect<>();
+        inclusionEdit.setItems(Arrays.asList("Да", "Нет", "Неизвестно"));
+        inclusionEdit.setEmptySelectionAllowed(true);
+
         Grid.Column<SampleBind, String> includedColumn = sampleGrid.addColumn(SampleBind::getInclusionRepresentation)
                 .setCaption("Включен")
                 .setHidable(true)
-                .setHidden(true);
+                //.setHidden(true)
+                .setEditorComponent(inclusionEdit, SampleBind::setInclusionRepresentation)
+                .setEditable(true);
+
         sampleGrid.addColumn(sampleBind -> sampleBind.getSamplePatients().getComment())
                 .setCaption("Комментарий")
                 .setHidable(true)
@@ -152,21 +203,24 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
         sampleGrid.setSizeFull();
         sampleGrid.setFrozenColumnCount(1);
-        sampleGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        sampleGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
         // Заполняем маленькую статистику
         FooterRow footerRow = sampleGrid.appendFooterRow();
         sampleGrid.getDataProvider().addDataProviderListener(event -> {
-            List<SampleBind> data = event.getSource()
+            List<SampleBind> allData = event.getSource()
                     .fetch(new Query<>())
                     .collect(toList());
-            footerRow.getCell(name).setText("Всего: " + data.size());
-            footerRow.getCell(gender).setText(getGenderStats(data));
-            footerRow.getCell(includedColumn).setText(getIncludedStats(data));
+            List<SampleBind> includedData = allData.stream()
+                    .filter(sampleBind -> "Y".equals(sampleBind.getSamplePatients().getInclusion()))
+                    .collect(toList());
+            footerRow.getCell(name).setText("Всего: " + allData.size());
+            footerRow.getCell(gender).setText(getGenderStats(includedData));
+            footerRow.getCell(includedColumn).setText(getIncludedStats(includedData));
 
-            meanColumn(footerRow.getCell(fullYearsAtSurgery), data, sampleBind -> sampleBind.getAgeAtSurgery().doubleValue());
-            meanColumn(footerRow.getCell(spect1InEarly), data, SampleBind::getSpect1InEarly);
-            meanColumn(footerRow.getCell(spect1InLate), data, SampleBind::getSpect1InLate);
-            meanColumn(footerRow.getCell(spect1InOut), data, SampleBind::getSpect1InOut);
+            meanColumn(footerRow.getCell(fullYearsAtSurgery), includedData, sampleBind -> sampleBind.getAgeAtSurgery().doubleValue());
+            meanColumn(footerRow.getCell(spect1InEarly), includedData, SampleBind::getSpect1InEarly);
+            meanColumn(footerRow.getCell(spect1InLate), includedData, SampleBind::getSpect1InLate);
+            meanColumn(footerRow.getCell(spect1InOut), includedData, SampleBind::getSpect1InOut);
         });
         // Настраиваем фильттрацию
         HeaderRow filterHeader = sampleGrid.prependHeaderRow();
@@ -190,7 +244,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
     private String getGenderStats(List<SampleBind> data) {
         String format = "М - %d(%.1f%%)  Ж - %d(%.1f%%)";
-        if (data.isEmpty()) return String.format(format, 0, 0d, 0d, 0);
+        if (data.isEmpty()) return String.format(format, 0, 0d, 0, 0d);
         long malesCount = data.stream()
                 .map(sampleBind -> sampleBind.getPatients().getPeople().getSex())
                 .filter(s -> s.equals("М"))

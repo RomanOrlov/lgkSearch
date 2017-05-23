@@ -49,7 +49,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
         Label patientName = new Label();
-        combobox = new SuggestionCombobox(patientsDao::getPatientsWithDifferetNames);
+        combobox = new SuggestionCombobox(patientsDao::getPatientsWithDifferentNames);
         combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue("Выбран пациент: " + combobox.getValue().toString()));
 
         Button newRecord = new Button("Добавить");

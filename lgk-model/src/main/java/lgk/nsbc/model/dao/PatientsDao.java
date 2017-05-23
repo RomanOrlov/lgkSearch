@@ -38,7 +38,7 @@ public class PatientsDao implements Serializable {
         return getNbcPatientsAndBasPeople(records);
     }
 
-    public List<Patients> getPatientsWithDifferetNames(String surname) {
+    public List<Patients> getPatientsWithDifferentNames(String surname) {
         List<Patients> patientsWithSurnameLike = getPatientsWithSurnameLike(surname);
         Map<String, Patients> uniquePatients = patientsWithSurnameLike.stream().collect(toMap(
                 patient -> {

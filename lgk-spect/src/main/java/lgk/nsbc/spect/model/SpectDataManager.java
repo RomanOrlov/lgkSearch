@@ -9,9 +9,9 @@ import lgk.nsbc.model.Target;
 import lgk.nsbc.model.dao.*;
 import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
-import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.spect.view.spectcrud.SpectGridDBData;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
+import lgk.nsbc.util.DateUtils;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -176,7 +176,7 @@ public class SpectDataManager {
         }
         FollowUp followUp = FollowUp.builder()
                 .nbc_stud_n(stud.getN())
-                .nbc_target_n(spectGridData.getTarget().getN())
+                .nbc_target_n(spectGridData.getTarget() == null ? null : spectGridData.getTarget().getN())
                 .build();
         List<FlupSpectData> data = createData(spectGridData);
         flupSpectDataDao.createSpectFollowUpData(followUp, data);
@@ -187,10 +187,8 @@ public class SpectDataManager {
         SpectGridDBData spectGridDBData = spectGridData.getSpectGridDBData();
         // Нет данных.
         if (spectGridDBData.getFollowUp().getN() == -1) return;
-        context.transaction(configuration -> {
-            followUpDao.deleteFollowUp(spectGridDBData.getFollowUp());
-            flupSpectDataDao.deleteSpectData(spectGridDBData.getFollowUp());
-        });
+        followUpDao.deleteFollowUp(spectGridDBData.getFollowUp());
+        flupSpectDataDao.deleteSpectData(spectGridDBData.getFollowUp());
     }
 
     private List<FlupSpectData> createData(SpectGridData spectGridData) {

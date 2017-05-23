@@ -32,13 +32,13 @@ public class Sample implements Serializable {
     @Column(name = "searchTarget")
     private String searchTarget;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sample", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sampleId", cascade = CascadeType.ALL)
     private Set<SampleData> sampleDataList = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sample", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sampleId", cascade = CascadeType.ALL)
     private Set<SampleCriteria> sampleCriteriaList = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sample", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "sampleId", cascade = CascadeType.ALL)
     private Set<SampleDisplayedInfo> sampleDisplayedInfoList = new HashSet<>();
 
     @Override

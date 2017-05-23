@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface SearchPresenter {
-    /* CRUD sample*/
+    /* CRUD sampleId*/
     void createNewSample(String name, String comment);
 
     void handleLookUpSample();

@@ -11,9 +11,9 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.*;
 import com.vaadin.ui.renderers.NumberRenderer;
-import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Target;
+import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.util.components.GridHeaderFilter;
 import lombok.Getter;
 import org.jooq.DSLContext;
@@ -73,17 +73,9 @@ public class SpectGrid extends Grid<SpectGridData> {
         setSelectionMode(SelectionMode.SINGLE);
 
         // By default all columns is NOT hidable
-        Column<SpectGridData, String> surnameColumn = addColumn(SpectGridData::getSurname)
-                .setCaption("Фамилия")
+        Column<SpectGridData, String> surnameColumn = addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().getFullName())
+                .setCaption("ФИО")
                 .setHidable(true);
-        Column<SpectGridData, String> nameColumn = addColumn(SpectGridData::getName)
-                .setCaption("Имя")
-                .setHidable(true)
-                .setHidden(true);
-        Column<SpectGridData, String> patronymicColumn = addColumn(SpectGridData::getPatronymic)
-                .setCaption("Отчество")
-                .setHidable(true)
-                .setHidden(true);
         Column<SpectGridData, String> caseHistoryNum = addColumn(SpectGridData::getCaseHistoryNum)
                 .setCaption("Номер истории")
                 .setHidable(true)
@@ -100,6 +92,9 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .setCaption("Доза")
                 .setHidable(true)
                 .setEditorBinding(getDoubleBind(SpectGridData::getDose, SpectGridData::setDose));
+
+        addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().getN())
+                .setCaption("Id пациента");
 
         Column<SpectGridData, Double> hizSphereVolume = addColumn(SpectGridData::getHizSphereVolume)
                 .setCaption(VOLUME.getName())
@@ -202,8 +197,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         HeaderRow contourTypeHeader = configureContourHeaderRow();
         HeaderRow structureTypeHeader = configureStructureHeaderRow();
         // Наведение красоты
-        structureTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName,doseColumn );
-        contourTypeHeader.join(nameColumn, patronymicColumn, caseHistoryNum, studyDate, targetName, doseColumn);
+        structureTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
+        contourTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
         GridHeaderFilter.addTextFilter(filterHeader.getCell(surnameColumn), dataProvider, SpectGridData::getSurname);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
@@ -276,14 +271,12 @@ public class SpectGrid extends Grid<SpectGridData> {
         return getEditor()
                 .getBinder()
                 .forField(targets)
-                .asRequired("Мишень должна быть выбрана")
                 .withNullRepresentation(Target.builder()
                         .n(-1L)
                         .nbcPatientsN(-1L)
                         .targetName("Мишень не выбрана")
                         .targetType(-1L)
                         .build())
-                .withValidator(target -> target != null && target.getN() != -1, "Мишень должна быть выбрана")
                 .bind(SpectGridData::getTarget, SpectGridData::setTarget);
     }
 
@@ -299,26 +292,18 @@ public class SpectGrid extends Grid<SpectGridData> {
                 bean.setTarget(targets.getValue());
                 spectDataManager.deleteSpectData(bean);
                 spectDataManager.persistSpectData(bean);
-                refreshAllData();
+                getDataProvider().refreshItem(bean);
             });
         });
     }
 
     private void setMeanInColumn(FooterCell footerCell, Function<? super SpectGridData, Double> getValue, List<SpectGridData> data) {
-        // странная ошибка в DoubleStream при average() пришлось отказаться от этого метода
-        List<Double> collect = data.stream()
+        double average = data.stream()
                 .map(getValue::apply)
                 .filter(Objects::nonNull)
-                .collect(toList());
-        Double meanValue;
-        if (collect.isEmpty())
-            meanValue = 0.d;
-        else {
-            meanValue = collect.stream()
-                    .mapToDouble(value -> value)
-                    .average().orElse(0.d);
-        }
-        footerCell.setText(doubleFormat.format(meanValue));
+                .mapToDouble(d -> d)
+                .average().orElse(0.d);
+        footerCell.setText(doubleFormat.format(average));
     }
 
     private HeaderRow configureContourHeaderRow() {
