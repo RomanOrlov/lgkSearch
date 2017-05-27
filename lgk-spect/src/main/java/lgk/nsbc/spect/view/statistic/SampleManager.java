@@ -96,6 +96,7 @@ public class SampleManager implements Serializable {
                             .spect3(spectGridData.size() > 2 ? spectGridData.get(2) : null)
                             .build();
                 })
+                //.filter(sampleBind -> "Y".equals(sampleBind.getSamplePatients().getInclusion()))
                 .collect(toList());
     }
 

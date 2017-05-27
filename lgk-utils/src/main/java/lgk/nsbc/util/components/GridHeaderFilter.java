@@ -3,23 +3,25 @@ package lgk.nsbc.util.components;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
+import com.vaadin.icons.VaadinIcons;
+import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderCell;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 public class GridHeaderFilter {
-    private static final String doubleRegex = "[-+]?[0-9]*,?[0-9]+([eE][-+]?[0-9]+)?";
+    private static final String doubleRegex = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
     private static final String integerRegex = "(?<=\\s|^)\\d+(?=\\s|$)";
 
     public static <T> void addTextFilter(HeaderCell cell,
                                          ListDataProvider<T> dataProvider,
                                          ValueProvider<T, String> valueProvider) {
         TextField filterField = getColumnTextFilterField();
-        cell.setComponent(filterField);
+        HorizontalLayout components = wrapWithClearButton(filterField);
+        cell.setComponent(components);
         filterField.addValueChangeListener(event -> {
             String enteredValue = event.getValue();
             dataProvider.setFilter(valueProvider, text -> text != null && text.contains(enteredValue));
@@ -31,8 +33,10 @@ public class GridHeaderFilter {
                                             ValueProvider<T, Integer> valueProvider) {
         TextField from = getColumnNumberFilterField(true);
         TextField to = getColumnNumberFilterField(false);
-        HorizontalLayout fromTo = new HorizontalLayout(from, to);
-        cell.setComponent(fromTo);
+        HorizontalLayout components = wrapWithClearButton(from, to);
+        cell.setComponent(components);
+        //HorizontalLayout fromTo = new HorizontalLayout(from, to);
+        //cell.setComponent(fromTo);
         HasValue.ValueChangeListener<String> listener = event -> {
             String fromString = from.getValue() == null ? "" : from.getValue().trim();
             String toString = to.getValue() == null ? "" : to.getValue().trim();
@@ -52,11 +56,13 @@ public class GridHeaderFilter {
                                            ValueProvider<T, Double> valueProvider) {
         TextField from = getColumnNumberFilterField(true);
         TextField to = getColumnNumberFilterField(false);
-        HorizontalLayout fromTo = new HorizontalLayout(from, to);
-        cell.setComponent(fromTo);
+        HorizontalLayout components = wrapWithClearButton(from, to);
+        cell.setComponent(components);
+        //HorizontalLayout fromTo = new HorizontalLayout(from, to);
+        //cell.setComponent(fromTo);
         HasValue.ValueChangeListener<String> listener = event -> {
-            String fromString = from.getValue() == null ? "" : from.getValue().trim().replace(".", ",");
-            String toString = to.getValue() == null ? "" : to.getValue().trim().replace(".", ",");
+            String fromString = from.getValue() == null ? "" : from.getValue().trim();
+            String toString = to.getValue() == null ? "" : to.getValue().trim();
             if (fromString.matches(doubleRegex) && fromString.matches(doubleRegex)) {
                 Double fromDouble = fromString.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(fromString);
                 Double toDouble = toString.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(toString);
@@ -78,6 +84,50 @@ public class GridHeaderFilter {
             V value = event.getValue();
             dataProvider.setFilter(valueProvider, v -> value == null || v == null || value.equals(v));
         });
+    }
+
+    public static <T, V> void addRadioButtonFilter(HeaderCell cell,
+                                                  ListDataProvider<T> dataProvider,
+                                                  ValueProvider<T, V> valueProvider,
+                                                  Collection<V> options) {
+        RadioButtonGroup<V> radioButtonFilterField = getRadioButtonFilterField(options);
+        HorizontalLayout components = wrapWithClearButton(radioButtonFilterField);
+        cell.setComponent(components);
+        radioButtonFilterField.addValueChangeListener(event -> {
+            V value = event.getValue();
+            dataProvider.setFilter(valueProvider, v -> value == null || v == null || value.equals(v));
+        });
+    }
+
+    public static <T, V> void addCheckBoxFilter(HeaderCell cell,
+                                                ListDataProvider<T> dataProvider,
+                                                ValueProvider<T, V> valueProvider,
+                                                V option) {
+        CheckBox checkBox = getCheckBoxFilterField();
+        cell.setComponent(checkBox);
+        checkBox.addValueChangeListener(valueChangeEvent -> dataProvider.setFilter(valueProvider, v -> !valueChangeEvent.getValue() || Objects.equals(v, option)));
+    }
+
+    private static HorizontalLayout wrapWithClearButton(AbstractField... abstractField) {
+        Button clear = getClearButton();
+        clear.addClickListener(clickEvent -> Arrays.asList(abstractField).forEach(HasValue::clear));
+        HorizontalLayout components = new HorizontalLayout(abstractField);
+        components.addComponent(clear);
+        return components;
+    }
+
+    private static HorizontalLayout wrapWithClearButton(RadioButtonGroup radioButtonGroup) {
+        Button clear = getClearButton();
+        clear.addClickListener(clickEvent -> radioButtonGroup.clear());
+        HorizontalLayout components = new HorizontalLayout(radioButtonGroup, clear);
+        return components;
+    }
+
+    private static Button getClearButton() {
+        Button clear = new Button();
+        clear.setStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        clear.setIcon(VaadinIcons.CLOSE_SMALL);
+        return clear;
     }
 
     private static TextField getColumnTextFilterField() {
@@ -104,5 +154,17 @@ public class GridHeaderFilter {
         comboBox.setEmptySelectionAllowed(true);
         comboBox.addStyleName(ValoTheme.COMBOBOX_TINY);
         return comboBox;
+    }
+
+    private static CheckBox getCheckBoxFilterField() {
+        CheckBox checkBox = new CheckBox();
+        checkBox.setStyleName(ValoTheme.CHECKBOX_SMALL);
+        return checkBox;
+    }
+
+    private static <T> RadioButtonGroup<T> getRadioButtonFilterField(Collection<T> options) {
+        RadioButtonGroup<T> radioButtonGroup = new RadioButtonGroup<T>();
+        radioButtonGroup.setItems(options);
+        return radioButtonGroup;
     }
 }

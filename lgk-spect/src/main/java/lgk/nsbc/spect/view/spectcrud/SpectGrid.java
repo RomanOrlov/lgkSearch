@@ -73,7 +73,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         setSelectionMode(SelectionMode.SINGLE);
 
         // By default all columns is NOT hidable
-        Column<SpectGridData, String> surnameColumn = addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().getFullName())
+        Column<SpectGridData, String> fullNameColumn = addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().getFullName())
                 .setCaption("ФИО")
                 .setHidable(true);
         Column<SpectGridData, String> caseHistoryNum = addColumn(SpectGridData::getCaseHistoryNum)
@@ -199,14 +199,14 @@ public class SpectGrid extends Grid<SpectGridData> {
         // Наведение красоты
         structureTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
         contourTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
-        GridHeaderFilter.addTextFilter(filterHeader.getCell(surnameColumn), dataProvider, SpectGridData::getSurname);
+        GridHeaderFilter.addTextFilter(filterHeader.getCell(fullNameColumn), dataProvider, SpectGridData::getSurname);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
         dataProvider.addDataProviderListener(event -> {
             List<SpectGridData> data = event.getSource()
                     .fetch(new Query<>())
                     .collect(toList());
-            footerRow.getCell(surnameColumn).setText("Всего " + Integer.toString(data.size()));
+            footerRow.getCell(fullNameColumn).setText("Всего " + Integer.toString(data.size()));
             setMeanInColumn(footerRow.getCell(inEarly), SpectGridData::getInEarly, data);
             setMeanInColumn(footerRow.getCell(inLate), SpectGridData::getInLate, data);
             setMeanInColumn(footerRow.getCell(inOut), SpectGridData::getInOut, data);
@@ -222,7 +222,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         dataProvider.refreshAll();
         configureEditor();
         setFrozenColumnCount(1);
-        setSortOrder(new GridSortOrderBuilder<SpectGridData>().thenAsc(surnameColumn).thenAsc(studyDate));
+        setSortOrder(new GridSortOrderBuilder<SpectGridData>().thenAsc(fullNameColumn).thenAsc(studyDate));
 
     }
 
@@ -342,9 +342,10 @@ public class SpectGrid extends Grid<SpectGridData> {
 
     public void addNewSpecDataRecord(Patients patients) {
         SpectGridData blankSpectGridData = spectDataManager.getBlankSpectGridData(patients);
-        allItems.add(0, blankSpectGridData);
+        allItems.add(blankSpectGridData);
         getDataProvider().refreshAll();
         select(blankSpectGridData);
+        scrollTo(allItems.indexOf(blankSpectGridData));
         Notification.show("Дважды кликните для редактирования", Notification.Type.TRAY_NOTIFICATION);
     }
 

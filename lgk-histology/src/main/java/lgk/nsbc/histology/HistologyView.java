@@ -61,7 +61,7 @@ public class HistologyView extends VerticalLayout implements View {
 
     @PostConstruct
     public void init() {
-        suggestionCombobox = new SuggestionCombobox(patientsDao::getPatientsWithSurnameLike);
+        suggestionCombobox = new SuggestionCombobox(patientsDao::getPatientsWithFullNameLike);
         suggestionCombobox.focus();
         suggestionCombobox.addValueChangeListener(event -> {
             clearAll();

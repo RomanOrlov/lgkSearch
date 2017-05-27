@@ -32,13 +32,13 @@ public class SpectCRUDView extends VerticalLayout implements View {
     @Autowired
     private DataMigrationService dataMigrationService;
     @Autowired
-    private PatientsDao patientsDao;
-    @Autowired
     private SpectGrid spectGrid;
     @Autowired
     private SpectDataManager spectDataManager;
-
+    @Autowired
     private SuggestionCombobox combobox;
+
+    private Button readAllRecords;
 
     @PostConstruct
     private void init() {
@@ -48,14 +48,10 @@ public class SpectCRUDView extends VerticalLayout implements View {
         Upload upload = new Upload("Upload file", new ExcelFileReceiver());
         upload.addFinishedListener((Upload.FinishedListener) event -> dataMigrationService.findPatients(tempFile));
 
-        Label patientName = new Label();
-        combobox = new SuggestionCombobox(patientsDao::getPatientsWithDifferentNames);
-        combobox.addValueChangeListener(valueChangeEvent -> patientName.setValue("Выбран пациент: " + combobox.getValue().toString()));
-
         Button newRecord = new Button("Добавить");
-        Button readAllRecords = new Button("Все записи");
+        readAllRecords = new Button("Все записи");
         Button deleteRecord = new Button("Удалить");
-        Button exportToExcel = new SpectDataExcelExporter(spectGrid, "Экспорт в Excel");
+        HorizontalLayout exportToExcel = new SpectDataExcelExporter(spectGrid, "Экспорт в Excel");
         newRecord.addClickListener(clickEvent -> {
             if (!combobox.getSelectedItem().isPresent()) {
                 Notification.show("Не выбран пациент");
@@ -88,7 +84,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 
-        addComponents(combobox, patientName, instruments, spectGrid);
+        addComponents(combobox, instruments, spectGrid);
         setExpandRatio(spectGrid, 1.0f);
 
         // По дефолту что то будет скрыто (Например изолинии, которые не нужны)
@@ -101,7 +97,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
+        readAllRecords.click();
     }
 
     private class ExcelFileReceiver implements Upload.Receiver {

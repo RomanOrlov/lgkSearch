@@ -46,6 +46,10 @@ public class Patients implements Serializable {
 
     public String getCaseHistoryNumber() {
         StringBuilder builder = new StringBuilder();
+        if (organization != null && organization.getSign() != null) {
+            builder.append(organization.getSign())
+                    .append(" ");
+        }
         if (caseHistoryNum != null) {
             builder.append(caseHistoryNum);
         }

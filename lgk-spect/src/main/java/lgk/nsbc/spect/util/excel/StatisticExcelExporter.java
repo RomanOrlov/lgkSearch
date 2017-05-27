@@ -1,6 +1,7 @@
 package lgk.nsbc.spect.util.excel;
 
 import com.vaadin.data.provider.Query;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Grid;
 import lgk.nsbc.spect.view.statistic.SampleBind;
 import org.apache.poi.ss.usermodel.CellType;
@@ -16,12 +17,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.stream.Collectors.toList;
+
 public class StatisticExcelExporter extends ExcelExportButton {
     private final Grid<SampleBind> grid;
+    private final CheckBox selectAll = new CheckBox("Все столбцы");
 
     public StatisticExcelExporter(Grid<SampleBind> grid, String caption) {
         super(caption);
         this.grid = grid;
+        addComponent(selectAll);
     }
 
     @Override
@@ -32,11 +37,11 @@ public class StatisticExcelExporter extends ExcelExportButton {
         // Будут выбраны только те, которые прошли фильтры
         List<SampleBind> filteredData = grid.getDataProvider()
                 .fetch(new Query<>())
-                .collect(Collectors.toList());
+                .collect(toList());
         List<Grid.Column<SampleBind, ?>> visibleColumn = grid.getColumns()
                 .stream()
-                .filter(column -> !column.isHidden())
-                .collect(Collectors.toList());
+                .filter(column -> selectAll.getValue() || !column.isHidden())
+                .collect(toList());
         header.getLastCellNum();
         for (Grid.Column<SampleBind, ?> column : visibleColumn) {
             short lastCellNum = header.getLastCellNum();

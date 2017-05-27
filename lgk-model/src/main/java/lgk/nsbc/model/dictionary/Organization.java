@@ -16,11 +16,13 @@ public class Organization implements Serializable {
 
     private Long n;
     private String name;
+    private String sign;
 
     public static Organization buildFromRecord(Record record) {
         return builder()
                 .n(record.get(NBC_ORGANIZATIONS.N))
                 .name(record.get(NBC_ORGANIZATIONS.NAME))
+                .sign(record.get(NBC_ORGANIZATIONS.SIGN))
                 .build();
     }
 
