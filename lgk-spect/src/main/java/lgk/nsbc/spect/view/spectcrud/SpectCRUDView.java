@@ -23,6 +23,7 @@ import java.util.Set;
 
 import static lgk.nsbc.model.spect.ContourType.ISOLYNE10;
 import static lgk.nsbc.model.spect.ContourType.ISOLYNE25;
+import static lgk.nsbc.model.spect.ContourType.ISOLYNE50;
 
 @Service
 @VaadinSessionScope
@@ -91,6 +92,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
         Set<String> invisibleColumns = new HashSet<>();
         invisibleColumns.add(ISOLYNE10.getName());
         invisibleColumns.add(ISOLYNE25.getName());
+        invisibleColumns.add(ISOLYNE50.getName());
         twinColSelect.setValue(invisibleColumns);
         combobox.focus();
     }

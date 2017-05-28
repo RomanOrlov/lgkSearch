@@ -223,6 +223,14 @@ public class SpectDataManager {
                 .latePhase(spectGridData.getHizIsoline25Min60())
                 .build();
 
+        FlupSpectData hizIsoline50 = FlupSpectData.builder()
+                .targetType(TargetType.HIZ)
+                .contourType(ContourType.ISOLYNE50)
+                .volume(spectGridData.getHizIsoline50Volume())
+                .earlyPhase(spectGridData.getHizIsoline50Min30())
+                .latePhase(spectGridData.getHizIsoline50Min60())
+                .build();
+
         FlupSpectData targetSphere = FlupSpectData.builder()
                 .targetType(TargetType.TARGET)
                 .contourType(ContourType.SPHERE)
@@ -246,6 +254,14 @@ public class SpectDataManager {
                 .earlyPhase(spectGridData.getTargetIsoline25Min30())
                 .latePhase(spectGridData.getTargetIsoline25Min60())
                 .build();
-        return Arrays.asList(hyp, hizSphere, hizIsoline10, hizIsoline25, targetSphere, targetIsoline10, targetIsoline25);
+
+        FlupSpectData targetIsoline50 = FlupSpectData.builder()
+                .targetType(TargetType.TARGET)
+                .contourType(ContourType.ISOLYNE50)
+                .volume(spectGridData.getTargetIsoline50Volume())
+                .earlyPhase(spectGridData.getTargetIsoline50Min30())
+                .latePhase(spectGridData.getTargetIsoline50Min60())
+                .build();
+        return Arrays.asList(hyp, hizSphere, hizIsoline10, hizIsoline25, hizIsoline50, targetSphere, targetIsoline10, targetIsoline25, targetIsoline50);
     }
 }

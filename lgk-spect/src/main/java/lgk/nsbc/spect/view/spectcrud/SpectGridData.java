@@ -39,6 +39,10 @@ public class SpectGridData {
     private Double hizIsoline25Volume;
     private Double hizIsoline25Min30;
     private Double hizIsoline25Min60;
+    //Изолиния 50
+    private Double hizIsoline50Volume;
+    private Double hizIsoline50Min30;
+    private Double hizIsoline50Min60;
 
     // Опухоль
     //Сфера
@@ -53,6 +57,10 @@ public class SpectGridData {
     private Double targetIsoline25Volume;
     private Double targetIsoline25Min30;
     private Double targetIsoline25Min60;
+    //Изолиния 50
+    private Double targetIsoline50Volume;
+    private Double targetIsoline50Min30;
+    private Double targetIsoline50Min60;
 
     public SpectGridData(SpectGridDBData spectGridDBData) {
         this.spectGridDBData = spectGridDBData;

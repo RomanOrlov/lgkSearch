@@ -6,7 +6,10 @@ import java.util.Set;
 import static java.util.stream.Collectors.toSet;
 
 public enum ContourType {
-    SPHERE("Сфера", 0L), ISOLYNE10("Изолиния 10", 1L), ISOLYNE25("Изолиния 25", 2L);
+    SPHERE("Сфера", 0L),
+    ISOLYNE10("Изолиния 10", 1L),
+    ISOLYNE25("Изолиния 25", 2L),
+    ISOLYNE50("Изолиния 50", 3L);
 
     private final String name;
     private final Long dictionaryId;

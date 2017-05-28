@@ -48,6 +48,9 @@ public class HidingGridColumsSelect extends TwinColSelect<String> {
                 case "Изолиния 25":
                     spectGrid.isoline25Columns.forEach(column -> column.setHidden(true));
                     break;
+                case "Изолиния 50":
+                    spectGrid.isoline50Columns.forEach(column -> column.setHidden(true));
+                    break;
                 case "Хороидальное сплетение":
                     spectGrid.hizColumns.forEach(column -> column.setHidden(true));
                     break;

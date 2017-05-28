@@ -77,9 +77,11 @@ public class SpectGridDBData {
         FlupSpectData hizSphere = dataMap.get(HIZ.toString() + SPHERE.toString());
         FlupSpectData hizIsoline10 = dataMap.get(HIZ.toString() + ISOLYNE10.toString());
         FlupSpectData hizIsoline25 = dataMap.get(HIZ.toString() + ISOLYNE25.toString());
+        FlupSpectData hizIsoline50 = dataMap.get(HIZ.toString() + ISOLYNE50.toString());
         FlupSpectData targetSphere = dataMap.get(TARGET.toString() + SPHERE.toString());
         FlupSpectData targetIsoline10 = dataMap.get(TARGET.toString() + ISOLYNE10.toString());
         FlupSpectData targetIsoline25 = dataMap.get(TARGET.toString() + ISOLYNE25.toString());
+        FlupSpectData targetIsoline50 = dataMap.get(TARGET.toString() + ISOLYNE50.toString());
         if (hyp != null) {
             spectGridData.setHypVolume(hyp.getVolume());
             spectGridData.setHypMin30(hyp.getEarlyPhase());
@@ -104,6 +106,12 @@ public class SpectGridDBData {
             spectGridData.setHizIsoline25Min60(hizIsoline25.getLatePhase());
         }
 
+        if (hizIsoline50 != null) {
+            spectGridData.setHizIsoline50Volume(hizIsoline50.getVolume());
+            spectGridData.setHizIsoline50Min30(hizIsoline50.getEarlyPhase());
+            spectGridData.setHizIsoline50Min60(hizIsoline50.getLatePhase());
+        }
+
         if (targetSphere != null) {
             spectGridData.setTargetSphereVolume(targetSphere.getVolume());
             spectGridData.setTargetSphereMin30(targetSphere.getEarlyPhase());
@@ -120,6 +128,12 @@ public class SpectGridDBData {
             spectGridData.setTargetIsoline25Volume(targetIsoline25.getVolume());
             spectGridData.setTargetIsoline25Min30(targetIsoline25.getEarlyPhase());
             spectGridData.setTargetIsoline25Min60(targetIsoline25.getLatePhase());
+        }
+
+        if (targetIsoline50 != null) {
+            spectGridData.setTargetIsoline50Volume(targetIsoline50.getVolume());
+            spectGridData.setTargetIsoline50Min30(targetIsoline50.getEarlyPhase());
+            spectGridData.setTargetIsoline50Min60(targetIsoline50.getLatePhase());
         }
         return spectGridData;
     }

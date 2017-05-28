@@ -61,6 +61,10 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             XSSFCell hizIsoline25Min30 = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell hizIsoline25Min60 = row.createCell(cellIndex++, CellType.STRING);
 
+            XSSFCell hizIsoline50Volume = row.createCell(cellIndex++, CellType.STRING);
+            XSSFCell hizIsoline50Min30 = row.createCell(cellIndex++, CellType.STRING);
+            XSSFCell hizIsoline50Min60 = row.createCell(cellIndex++, CellType.STRING);
+
             XSSFCell targetSphereVolume = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell targetSphereMin30 = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell targetSphereMin60 = row.createCell(cellIndex++, CellType.STRING);
@@ -72,6 +76,10 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             XSSFCell targetIsoline25Volume = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell targetIsoline25Min30 = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell targetIsoline25Min60 = row.createCell(cellIndex++, CellType.STRING);
+
+            XSSFCell targetIsoline50Volume = row.createCell(cellIndex++, CellType.STRING);
+            XSSFCell targetIsoline50Min30 = row.createCell(cellIndex++, CellType.STRING);
+            XSSFCell targetIsoline50Min60 = row.createCell(cellIndex++, CellType.STRING);
 
             XSSFCell hypVolume = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell hypMin30 = row.createCell(cellIndex++, CellType.STRING);
@@ -98,6 +106,10 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             setCellValue(hizIsoline25Min30, spectGridData.getHizIsoline25Min30());
             setCellValue(hizIsoline25Min60, spectGridData.getHizIsoline25Min60());
 
+            setCellValue(hizIsoline50Volume, spectGridData.getHizIsoline50Volume());
+            setCellValue(hizIsoline50Min30, spectGridData.getHizIsoline50Min30());
+            setCellValue(hizIsoline50Min60, spectGridData.getHizIsoline50Min60());
+
             setCellValue(targetSphereVolume, spectGridData.getTargetSphereVolume());
             setCellValue(targetSphereMin30, spectGridData.getTargetSphereMin30());
             setCellValue(targetSphereMin60, spectGridData.getTargetSphereMin60());
@@ -109,6 +121,10 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             setCellValue(targetIsoline25Volume, spectGridData.getTargetIsoline25Volume());
             setCellValue(targetIsoline25Min30, spectGridData.getTargetIsoline25Min30());
             setCellValue(targetIsoline25Min60, spectGridData.getTargetIsoline25Min60());
+
+            setCellValue(targetIsoline50Volume, spectGridData.getTargetIsoline50Volume());
+            setCellValue(targetIsoline50Min30, spectGridData.getTargetIsoline50Min30());
+            setCellValue(targetIsoline50Min60, spectGridData.getTargetIsoline50Min60());
 
             setCellValue(hypVolume, spectGridData.getHypVolume());
             setCellValue(hypMin30, spectGridData.getHypMin30());
@@ -136,6 +152,9 @@ public class SpectDataExcelExporter extends ExcelExportButton {
                 mainInfo.createCell(hizIsoline25Volume.getColumnIndex()).setCellValue(VOLUME.getName());
                 mainInfo.createCell(hizIsoline25Min30.getColumnIndex()).setCellValue(MIN30.getName());
                 mainInfo.createCell(hizIsoline25Min60.getColumnIndex()).setCellValue(MIN60.getName());
+                mainInfo.createCell(hizIsoline50Volume.getColumnIndex()).setCellValue(VOLUME.getName());
+                mainInfo.createCell(hizIsoline50Min30.getColumnIndex()).setCellValue(MIN30.getName());
+                mainInfo.createCell(hizIsoline50Min60.getColumnIndex()).setCellValue(MIN60.getName());
 
                 mainInfo.createCell(targetSphereVolume.getColumnIndex()).setCellValue(VOLUME.getName());
                 mainInfo.createCell(targetSphereMin30.getColumnIndex()).setCellValue(MIN30.getName());
@@ -146,34 +165,43 @@ public class SpectDataExcelExporter extends ExcelExportButton {
                 mainInfo.createCell(targetIsoline25Volume.getColumnIndex()).setCellValue(VOLUME.getName());
                 mainInfo.createCell(targetIsoline25Min30.getColumnIndex()).setCellValue(MIN30.getName());
                 mainInfo.createCell(targetIsoline25Min60.getColumnIndex()).setCellValue(MIN60.getName());
+                mainInfo.createCell(targetIsoline50Volume.getColumnIndex()).setCellValue(VOLUME.getName());
+                mainInfo.createCell(targetIsoline50Min30.getColumnIndex()).setCellValue(MIN30.getName());
+                mainInfo.createCell(targetIsoline50Min60.getColumnIndex()).setCellValue(MIN60.getName());
 
                 mainInfo.createCell(hypVolume.getColumnIndex()).setCellValue(VOLUME.getName());
                 mainInfo.createCell(hypMin30.getColumnIndex()).setCellValue(MIN30.getName());
                 mainInfo.createCell(hypMin60.getColumnIndex()).setCellValue(MIN60.getName());
 
                 int s = structureHeader.getRowNum();
-                sheet.addMergedRegion(new CellRangeAddress(s, s, hizSphereVolume.getColumnIndex(), hizIsoline25Min60.getColumnIndex()));
+                sheet.addMergedRegion(new CellRangeAddress(s, s, hizSphereVolume.getColumnIndex(), hizIsoline50Min60.getColumnIndex()));
                 structureHeader.getCell(hizSphereVolume.getColumnIndex()).setCellValue(TargetType.HIZ.getName());
                 sheet.addMergedRegion(new CellRangeAddress(s, s, hypVolume.getColumnIndex(), hypMin60.getColumnIndex()));
                 structureHeader.getCell(hypVolume.getColumnIndex()).setCellValue(TargetType.HYP.getName());
-                sheet.addMergedRegion(new CellRangeAddress(s, s, targetSphereVolume.getColumnIndex(), targetIsoline25Min60.getColumnIndex()));
+                sheet.addMergedRegion(new CellRangeAddress(s, s, targetSphereVolume.getColumnIndex(), targetIsoline50Min60.getColumnIndex()));
                 structureHeader.getCell(targetSphereVolume.getColumnIndex()).setCellValue(TargetType.TARGET.getName());
 
                 int c = contourHeader.getRowNum();
                 sheet.addMergedRegion(new CellRangeAddress(c, c, hypVolume.getColumnIndex(), hypMin60.getColumnIndex()));
                 contourHeader.getCell(hypVolume.getColumnIndex()).setCellValue(ContourType.SPHERE.getName());
+
                 sheet.addMergedRegion(new CellRangeAddress(c, c, hizSphereVolume.getColumnIndex(), hizSphereMin60.getColumnIndex()));
                 contourHeader.getCell(hizSphereVolume.getColumnIndex()).setCellValue(ContourType.SPHERE.getName());
                 sheet.addMergedRegion(new CellRangeAddress(c, c, hizIsoline10Volume.getColumnIndex(), hizIsoline10Min60.getColumnIndex()));
                 contourHeader.getCell(hizIsoline10Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE10.getName());
                 sheet.addMergedRegion(new CellRangeAddress(c, c, hizIsoline25Volume.getColumnIndex(), hizIsoline25Min60.getColumnIndex()));
                 contourHeader.getCell(hizIsoline25Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE25.getName());
+                sheet.addMergedRegion(new CellRangeAddress(c, c, hizIsoline50Volume.getColumnIndex(), hizIsoline50Min60.getColumnIndex()));
+                contourHeader.getCell(hizIsoline50Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE50.getName());
+
                 sheet.addMergedRegion(new CellRangeAddress(c, c, targetSphereVolume.getColumnIndex(), targetSphereMin60.getColumnIndex()));
                 contourHeader.getCell(targetSphereVolume.getColumnIndex()).setCellValue(ContourType.SPHERE.getName());
                 sheet.addMergedRegion(new CellRangeAddress(c, c, targetIsoline10Volume.getColumnIndex(), targetIsoline10Min60.getColumnIndex()));
                 contourHeader.getCell(targetIsoline10Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE10.getName());
                 sheet.addMergedRegion(new CellRangeAddress(c, c, targetIsoline25Volume.getColumnIndex(), targetIsoline25Min60.getColumnIndex()));
                 contourHeader.getCell(targetIsoline25Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE25.getName());
+                sheet.addMergedRegion(new CellRangeAddress(c, c, targetIsoline50Volume.getColumnIndex(), targetIsoline50Min60.getColumnIndex()));
+                contourHeader.getCell(targetIsoline50Volume.getColumnIndex()).setCellValue(ContourType.ISOLYNE50.getName());
 
                 IntStream.range(0, cellIndex).forEach(sheet::autoSizeColumn);
             }

@@ -50,6 +50,7 @@ public class SpectGrid extends Grid<SpectGridData> {
     List<Column<SpectGridData, Double>> sphereColumns;
     List<Column<SpectGridData, Double>> isoline10Columns;
     List<Column<SpectGridData, Double>> isoline25Columns;
+    List<Column<SpectGridData, Double>> isoline50Columns;
     List<Column<SpectGridData, Double>> inColumns;
     @Autowired
     private SpectDataManager spectDataManager;
@@ -105,6 +106,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> hizSphereMin60 = addColumn(SpectGridData::getHizSphereMin60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizSphereMin60, SpectGridData::setHizSphereMin60));
+
         Column<SpectGridData, Double> hizIsoline10Volume = addColumn(SpectGridData::getHizIsoline10Volume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline10Volume, SpectGridData::setHizIsoline10Volume));
@@ -114,6 +116,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> hizIsoline10Min60 = addColumn(SpectGridData::getHizIsoline10Min60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline10Min60, SpectGridData::setHizIsoline10Min60));
+
         Column<SpectGridData, Double> hizIsoline25Volume = addColumn(SpectGridData::getHizIsoline25Volume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline25Volume, SpectGridData::setHizIsoline25Volume));
@@ -123,6 +126,17 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> hizIsoline25Min60 = addColumn(SpectGridData::getHizIsoline25Min60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline25Min60, SpectGridData::setHizIsoline25Min60));
+
+        Column<SpectGridData, Double> hizIsoline50Volume = addColumn(SpectGridData::getHizIsoline50Volume)
+                .setCaption(VOLUME.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline50Volume, SpectGridData::setHizIsoline50Volume));
+        Column<SpectGridData, Double> hizIsoline50Min30 = addColumn(SpectGridData::getHizIsoline50Min30)
+                .setCaption(MIN30.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline50Min30, SpectGridData::setHizIsoline50Min30));
+        Column<SpectGridData, Double> hizIsoline50Min60 = addColumn(SpectGridData::getHizIsoline50Min60)
+                .setCaption(MIN60.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getHizIsoline50Min60, SpectGridData::setHizIsoline50Min60));
+
         Column<SpectGridData, Double> targetSphereVolume = addColumn(SpectGridData::getTargetSphereVolume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetSphereVolume, SpectGridData::setTargetSphereVolume));
@@ -132,6 +146,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> targetSphereMin60 = addColumn(SpectGridData::getTargetSphereMin60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetSphereMin60, SpectGridData::setTargetSphereMin60));
+
         Column<SpectGridData, Double> targetIsoline10Volume = addColumn(SpectGridData::getTargetIsoline10Volume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline10Volume, SpectGridData::setTargetIsoline10Volume));
@@ -141,6 +156,7 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> targetIsoline10Min60 = addColumn(SpectGridData::getTargetIsoline10Min60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline10Min60, SpectGridData::setTargetIsoline10Min60));
+
         Column<SpectGridData, Double> targetIsoline25Volume = addColumn(SpectGridData::getTargetIsoline25Volume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline25Volume, SpectGridData::setTargetIsoline25Volume));
@@ -150,6 +166,17 @@ public class SpectGrid extends Grid<SpectGridData> {
         Column<SpectGridData, Double> targetIsoline25Min60 = addColumn(SpectGridData::getTargetIsoline25Min60)
                 .setCaption(MIN60.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline25Min60, SpectGridData::setTargetIsoline25Min60));
+
+        Column<SpectGridData, Double> targetIsoline50Volume = addColumn(SpectGridData::getTargetIsoline50Volume)
+                .setCaption(VOLUME.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline50Volume, SpectGridData::setTargetIsoline50Volume));
+        Column<SpectGridData, Double> targetIsoline50Min30 = addColumn(SpectGridData::getTargetIsoline50Min30)
+                .setCaption(MIN30.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline50Min30, SpectGridData::setTargetIsoline50Min30));
+        Column<SpectGridData, Double> targetIsoline50Min60 = addColumn(SpectGridData::getTargetIsoline50Min60)
+                .setCaption(MIN60.getName())
+                .setEditorBinding(getDoubleBind(SpectGridData::getTargetIsoline50Min60, SpectGridData::setTargetIsoline50Min60));
+
         Column<SpectGridData, Double> hypVolume = addColumn(SpectGridData::getHypVolume)
                 .setCaption(VOLUME.getName())
                 .setEditorBinding(getDoubleBind(SpectGridData::getHypVolume, SpectGridData::setHypVolume));
@@ -163,10 +190,12 @@ public class SpectGrid extends Grid<SpectGridData> {
         hypColumns = Arrays.asList(hypVolume, hypMin30, hypMin60);
         hizColumns = Arrays.asList(hizSphereVolume, hizSphereMin30, hizSphereMin60,
                 hizIsoline10Volume, hizIsoline10Min30, hizIsoline10Min60,
-                hizIsoline25Volume, hizIsoline25Min30, hizIsoline25Min60);
+                hizIsoline25Volume, hizIsoline25Min30, hizIsoline25Min60,
+                hizIsoline50Volume, hizIsoline50Min30, hizIsoline50Min60);
         targetsColumns = Arrays.asList(targetSphereVolume, targetSphereMin30, targetSphereMin60,
                 targetIsoline10Volume, targetIsoline10Min30, targetIsoline10Min60,
-                targetIsoline25Volume, targetIsoline25Min30, targetIsoline25Min60);
+                targetIsoline25Volume, targetIsoline25Min30, targetIsoline25Min60,
+                targetIsoline50Volume, targetIsoline50Min30, targetIsoline50Min60);
         mainInfoColumns = new ArrayList<>(hypColumns);
         mainInfoColumns.addAll(hizColumns);
         mainInfoColumns.addAll(targetsColumns);
@@ -190,6 +219,8 @@ public class SpectGrid extends Grid<SpectGridData> {
                 targetIsoline10Volume, targetIsoline10Min30, targetIsoline10Min60);
         isoline25Columns = Arrays.asList(hizIsoline25Volume, hizIsoline25Min30, hizIsoline25Min60,
                 targetIsoline25Volume, targetIsoline25Min30, targetIsoline25Min60);
+        isoline50Columns = Arrays.asList(hizIsoline50Volume, hizIsoline50Min30, hizIsoline50Min60,
+                targetIsoline50Volume, targetIsoline50Min30, targetIsoline50Min60);
 
         mainInfoColumns.forEach(spectGridDataDoubleColumn -> spectGridDataDoubleColumn.setHidable(false));
         HeaderRow filterHeader = prependHeaderRow();
@@ -319,6 +350,10 @@ public class SpectGrid extends Grid<SpectGridData> {
         for (int i = 0; i < isoline25Columns.size(); i += 3) {
             HeaderCell join = structureTypeHeader.join(isoline25Columns.get(i), isoline25Columns.get(i + 1), isoline25Columns.get(i + 2));
             join.setText(ISOLYNE25.getName());
+        }
+        for (int i = 0; i < isoline50Columns.size(); i += 3) {
+            HeaderCell join = structureTypeHeader.join(isoline50Columns.get(i), isoline50Columns.get(i + 1), isoline50Columns.get(i + 2));
+            join.setText(ISOLYNE50.getName());
         }
         return structureTypeHeader;
     }
