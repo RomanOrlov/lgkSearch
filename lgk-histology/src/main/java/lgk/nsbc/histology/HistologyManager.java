@@ -34,7 +34,7 @@ public class HistologyManager {
         List<Histology> histologyList = histologyDao.findByPatient(patients);
         Map<Long, List<Mutation>> mutationsMap = mutationsDao.findMutationsByHistologyList(histologyList);
         List<Long> studId = histologyList.stream()
-                .map(Histology::getNbcStudN)
+                .map(Histology::getStudN)
                 .filter(Objects::nonNull)
                 .collect(toList());
         Map<Long, Stud> studMap = studDao.findById(studId)
@@ -52,10 +52,10 @@ public class HistologyManager {
                 mutationsTemplate.addAll(mutations);
             }
             histologyBind.setMutations(mutationsTemplate);
-            Stud stud = studMap.get(histology.getNbcStudN());
+            Stud stud = studMap.get(histology.getStudN());
             histologyBind.setStud(stud);
-            if (stud != null && stud.getStudydatetime() != null)
-                histologyBind.setHistologyDate(DateUtils.asLocalDate(stud.getStudydatetime()));
+            if (stud != null && stud.getStudyDateTime() != null)
+                histologyBind.setHistologyDate(DateUtils.asLocalDate(stud.getStudyDateTime()));
         });
         return histologyBindList;
     }
@@ -72,7 +72,7 @@ public class HistologyManager {
 
     private Histology toHistology(HistologyBind histologyBind, Stud stud) {
         return Histology.builder()
-                .nbcStudN(stud.getN())
+                .studN(stud.getN())
                 .histVerifBurd(HistologyBind.getStringBurdenkoVerification(histologyBind.getBurdenkoVerification()))
                 .ki67From(histologyBind.getKi67From())
                 .ki67To(histologyBind.getKi67To())
@@ -105,7 +105,7 @@ public class HistologyManager {
         Stud stud = getStud(histologyBind, patients);
         histologyBind.setStud(stud);
         Histology histology = toHistology(histologyBind, stud);
-        histology.setNbcPatientsN(patients.getN());
+        histology.setPatientsN(patients.getN());
         histologyBind.setHistology(histology);
         histologyDao.saveHistology(histology);
         saveMutations(histologyBind, stud, histology);
@@ -124,9 +124,9 @@ public class HistologyManager {
 
     private Stud getStud(HistologyBind histologyBind, Patients patients) {
         Stud stud = Stud.builder()
-                .nbc_patients_n(patients.getN())
+                .patientsN(patients.getN())
                 .studType(getStudTypeMap().get(8L))
-                .studydatetime(DateUtils.asDate(histologyBind.getHistologyDate()))
+                .studyDateTime(DateUtils.asDate(histologyBind.getHistologyDate()))
                 .build();
         if (histologyBind.getStud() != null && histologyBind.getStud().getN() != null) {
             stud.setN(histologyBind.getStud().getN());
@@ -139,7 +139,7 @@ public class HistologyManager {
             if (studyByDate.isPresent())
                 return studyByDate.get();
         }
-        studDao.createNbcStud(stud);
+        studDao.createStud(stud);
         return stud;
     }
 

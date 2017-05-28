@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.BasSamples.BAS_SAMPLES;
+import static lgk.nsbc.generated.tables.Samples.SAMPLES;
 
 @Getter
 @Setter
@@ -24,13 +24,13 @@ public class Sample implements Serializable {
     private String actuality;
 
     public static Sample buildFromRecord(Record record) {
-        return builder().n(record.get(BAS_SAMPLES.N))
-                .code(record.get(BAS_SAMPLES.CODE))
-                .name(record.get(BAS_SAMPLES.NAME))
-                .sysAgent(record.get(BAS_SAMPLES.SYS_AGENTS_N))
-                .description(record.get(BAS_SAMPLES.DESCRIPTION))
-                .script(record.get(BAS_SAMPLES.SCRIPT))
-                .actuality(record.get(BAS_SAMPLES.ACTUALTY))
+        return builder().n(record.get(SAMPLES.N))
+                .code(record.get(SAMPLES.CODE))
+                .name(record.get(SAMPLES.NAME))
+                .sysAgent(record.get(SAMPLES.SYS_AGENTS_N))
+                .description(record.get(SAMPLES.DESCRIPTION))
+                .script(record.get(SAMPLES.SCRIPT))
+                .actuality(record.get(SAMPLES.ACTUALTY))
                 .build();
     }
 

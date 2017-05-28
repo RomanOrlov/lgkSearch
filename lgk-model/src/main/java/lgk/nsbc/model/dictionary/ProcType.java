@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcProcProcType.NBC_PROC_PROC_TYPE;
+import static lgk.nsbc.generated.tables.ProcProcType.PROC_PROC_TYPE;
 
 @Getter
 @Builder
@@ -25,12 +25,12 @@ public class ProcType implements Serializable {
     private String shorts;
 
     public static ProcType buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_PROC_PROC_TYPE.N))
-                .name(record.get(NBC_PROC_PROC_TYPE.NAME))
-                .text(record.get(NBC_PROC_PROC_TYPE.TEXT))
-                .hideStatus(record.get(NBC_PROC_PROC_TYPE.HIDE_STATUS))
-                .ord(record.get(NBC_PROC_PROC_TYPE.ORD))
-                .shorts(record.get(NBC_PROC_PROC_TYPE.SHORTS))
+        return builder().n(record.get(PROC_PROC_TYPE.N))
+                .name(record.get(PROC_PROC_TYPE.NAME))
+                .text(record.get(PROC_PROC_TYPE.TEXT))
+                .hideStatus(record.get(PROC_PROC_TYPE.HIDE_STATUS))
+                .ord(record.get(PROC_PROC_TYPE.ORD))
+                .shorts(record.get(PROC_PROC_TYPE.SHORTS))
                 .build();
     }
 

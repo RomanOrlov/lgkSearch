@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
+import static lgk.nsbc.generated.tables.MutationTypes.MUTATION_TYPES;
 
 @Service
 public class MutationTypesDao implements Serializable {
@@ -25,7 +25,7 @@ public class MutationTypesDao implements Serializable {
 
     @PostConstruct
     void init() {
-        mutationTypes = Collections.unmodifiableMap(context.fetch(NBC_MUTATION_TYPES)
+        mutationTypes = Collections.unmodifiableMap(context.fetch(MUTATION_TYPES)
                 .stream()
                 .map(MutationType::buildFromRecord)
                 .collect(toMap(MutationType::getN, identity()))

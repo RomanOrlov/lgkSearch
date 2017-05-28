@@ -18,7 +18,7 @@ public abstract class ExcelExportButton extends HorizontalLayout {
         button = new Button(caption);
         StreamResource myResource = createResource();
         FileDownloader fileDownloader = new FileDownloader(myResource);
-        fileDownloader.extend(this);
+        fileDownloader.extend(button);
         button.addClickListener(event -> fileDownloader.setFileDownloadResource(createResource()));
         addComponent(button);
     }

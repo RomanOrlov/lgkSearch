@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 
-import static lgk.nsbc.generated.tables.NbcStud.NBC_STUD;
+import static lgk.nsbc.generated.tables.Stud.STUD;
 
 @Getter
 @Setter
@@ -22,19 +22,19 @@ public class Stud implements Serializable {
     private Long n;
     private Patients patients;
     private Proc proc;
-    private Date studydatetime;
+    private Date studyDateTime;
     private StudType studType;
-    private Long nbc_patients_n;
-    private Long nbc_procedures_n;
+    private Long patientsN;
+    private Long proceduresN;
 
     public static Optional<Stud> buildFromRecord(Record record) {
         if (record == null) return Optional.empty();
         return Optional.of(builder()
-                .n(record.get(NBC_STUD.N))
-                .nbc_patients_n(record.get(NBC_STUD.NBC_PATIENTS_N))
-                .nbc_procedures_n(record.get(NBC_STUD.NBC_PROCEDURES_N))
-                .studType(StudTypeDao.getStudTypeMap().get(record.get(NBC_STUD.STUDY_TYPE)))
-                .studydatetime(record.get(NBC_STUD.STUDYDATETIME))
+                .n(record.get(STUD.N))
+                .patientsN(record.get(STUD.PATIENTS_N))
+                .proceduresN(record.get(STUD.PROCEDURES_N))
+                .studType(StudTypeDao.getStudTypeMap().get(record.get(STUD.STUDY_TYPE)))
+                .studyDateTime(record.get(STUD.STUDYDATETIME))
                 .build());
     }
 }

@@ -11,8 +11,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static lgk.nsbc.generated.tables.NbcTarget.NBC_TARGET;
-import static lgk.nsbc.generated.tables.NbcTargetTargettype.NBC_TARGET_TARGETTYPE;
+import static lgk.nsbc.generated.tables.Target.TARGET;
+import static lgk.nsbc.generated.tables.TargetTargettype.TARGET_TARGETTYPE;
 
 @Service
 public class TargetDao implements Serializable {
@@ -22,14 +22,14 @@ public class TargetDao implements Serializable {
     private DSLContext context;
 
     public int countTargetsForPatient(Patients patients) {
-        return context.fetchCount(NBC_TARGET, NBC_TARGET.NBC_PATIENTS_N.eq(patients.getN()));
+        return context.fetchCount(TARGET, TARGET.PATIENTS_N.eq(patients.getN()));
     }
 
     public List<Target> getPatientsTargets(Patients patients) {
         return context.select()
-                .from(NBC_TARGET)
-                .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
-                .where(NBC_TARGET.NBC_PATIENTS_N.eq(patients.getN()))
+                .from(TARGET)
+                .leftJoin(TARGET_TARGETTYPE).on(TARGET.TARGETTYPE.eq(TARGET_TARGETTYPE.N))
+                .where(TARGET.PATIENTS_N.eq(patients.getN()))
                 .fetch()
                 .stream()
                 .map(Target::buildFromRecord)
@@ -38,9 +38,9 @@ public class TargetDao implements Serializable {
 
     public Target findTargetById(Long n) {
         Record record = context.select()
-                .from(NBC_TARGET)
-                .leftJoin(NBC_TARGET_TARGETTYPE).on(NBC_TARGET.TARGETTYPE.eq(NBC_TARGET_TARGETTYPE.N))
-                .where(NBC_TARGET.N.in(n))
+                .from(TARGET)
+                .leftJoin(TARGET_TARGETTYPE).on(TARGET.TARGETTYPE.eq(TARGET_TARGETTYPE.N))
+                .where(TARGET.N.in(n))
                 .fetchOne();
         return Target.buildFromRecord(record);
     }

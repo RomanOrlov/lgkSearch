@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcDvh.NBC_DVH;
+import static lgk.nsbc.generated.tables.Dvh.DVH;
 import static lgk.nsbc.model.dao.dictionary.DvhDataVersionDao.getDvhDataVersionMap;
 import static lgk.nsbc.model.dao.dictionary.DvhDoseAlgorithmDao.getDvhDoseAlgorithmMap;
 import static lgk.nsbc.model.dao.dictionary.DvhLgpVersionDao.getDvhLgpVersionMap;
@@ -32,15 +32,15 @@ public class Dvh implements Serializable {
     private Double binSize;
 
     public static Dvh buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_DVH.N))
-                .name(record.get(NBC_DVH.NAME))
-                .doseMax(record.get(NBC_DVH.DOSEMAX))
-                .doseMin(record.get(NBC_DVH.DOSEMIN))
-                .dvhDataVersion(getDvhDataVersionMap().get(record.get(NBC_DVH.DATA_VERSION)))
-                .dvhLgpVersion(getDvhLgpVersionMap().get(record.get(NBC_DVH.LGP_VERSION)))
-                .dvhDoseAlgorithm(getDvhDoseAlgorithmMap().get(record.get(NBC_DVH.DOSE_ALGORITHM)))
-                .nBins(record.get(NBC_DVH.N_BINS))
-                .binSize(record.get(NBC_DVH.BIN_SIZE))
+        return builder().n(record.get(DVH.N))
+                .name(record.get(DVH.NAME))
+                .doseMax(record.get(DVH.DOSEMAX))
+                .doseMin(record.get(DVH.DOSEMIN))
+                .dvhDataVersion(getDvhDataVersionMap().get(record.get(DVH.DATA_VERSION)))
+                .dvhLgpVersion(getDvhLgpVersionMap().get(record.get(DVH.LGP_VERSION)))
+                .dvhDoseAlgorithm(getDvhDoseAlgorithmMap().get(record.get(DVH.DOSE_ALGORITHM)))
+                .nBins(record.get(DVH.N_BINS))
+                .binSize(record.get(DVH.BIN_SIZE))
                 .build();
     }
 }

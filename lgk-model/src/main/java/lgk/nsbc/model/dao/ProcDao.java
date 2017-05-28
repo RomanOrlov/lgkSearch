@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
+import static lgk.nsbc.generated.tables.Proc.PROC;
 
 @Service
 public class ProcDao implements Serializable {
@@ -20,21 +20,21 @@ public class ProcDao implements Serializable {
     private DSLContext context;
 
     public List<Proc> findPatientProc(Patients patients) {
-        return context.fetch(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.eq(patients.getN()))
+        return context.fetch(PROC, PROC.PATIENTS_N.eq(patients.getN()))
                 .stream()
                 .map(Proc::buildFromRecord)
                 .collect(toList());
     }
 
     public List<Proc> findPatientsProcedures(List<Long> patientsId, Long procedureType) {
-        return context.fetch(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.in(patientsId)
-                .and(NBC_PROC.PROC_TYPE.eq(procedureType)))
+        return context.fetch(PROC, PROC.PATIENTS_N.in(patientsId)
+                .and(PROC.PROC_TYPE.eq(procedureType)))
                 .stream()
                 .map(Proc::buildFromRecord)
                 .collect(toList());
     }
 
     public int countProceduresForPatient(Patients patients) {
-        return context.fetchCount(NBC_PROC, NBC_PROC.NBC_PATIENTS_N.eq(patients.getN()));
+        return context.fetchCount(PROC, PROC.PATIENTS_N.eq(patients.getN()));
     }
 }

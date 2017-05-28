@@ -61,18 +61,18 @@ public class DataMigrationService implements Serializable{
             for (StudyRecords records : studyRecordsTreeSet) {
                 Stud stud = studyFromRecord(records, patient);
                 // Запись о исследовании
-                if (!studDao.isSpectStudyExist(stud.getNbc_patients_n(), stud.getStudydatetime())) {
-                    studDao.createNbcStud(stud);
+                if (!studDao.isSpectStudyExist(stud.getPatientsN(), stud.getStudyDateTime())) {
+                    studDao.createStud(stud);
                 }
                 Optional<StudInj> injOptional = studInjDao.findByStudy(stud);
                 if (injOptional.isPresent()) {
                     StudInj studInj = injOptional.get();
-                    studInj.setInj_activity_bq(records.getDose());
+                    studInj.setInjActivityBq(records.getDose());
                     studInjDao.updateInj(studInj);
                 } else {
                     StudInj studInj = StudInj.builder()
-                            .nbc_stud_n(stud.getN())
-                            .inj_activity_bq(records.getDose())
+                            .studN(stud.getN())
+                            .injActivityBq(records.getDose())
                             .build();
                     studInjDao.insertStudInj(studInj);
                 }
@@ -83,7 +83,7 @@ public class DataMigrationService implements Serializable{
                 if (followUps.isEmpty()) {
                     for (StudyTarget target : targets) {
                         FollowUp followUp = FollowUp.builder()
-                                .nbc_stud_n(stud.getN())
+                                .studN(stud.getN())
                                 .build();
                         List<FlupSpectData> dataList = target.getTargets()
                                 .stream()
@@ -107,17 +107,17 @@ public class DataMigrationService implements Serializable{
                 .contourType(target.getContourType())
                 .targetType(target.getTargetType())
                 .volume(target.getVolume())
-                .early_phase(target.getCountsAfter30min())
-                .late_phase(target.getCountsAfter60min())
+                .earlyPhase(target.getCountsAfter30min())
+                .latePhase(target.getCountsAfter60min())
                 .build();
     }
 
 
     private Stud studyFromRecord(StudyRecords studyRecords, Patients patient) {
         return Stud.builder()
-                .nbc_patients_n(patient.getN())
+                .patientsN(patient.getN())
                 .studType(StudTypeDao.getStudTypeMap().get(11L))
-                .studydatetime(studyRecords.getDate())
+                .studyDateTime(studyRecords.getDate())
                 .build();
     }
 

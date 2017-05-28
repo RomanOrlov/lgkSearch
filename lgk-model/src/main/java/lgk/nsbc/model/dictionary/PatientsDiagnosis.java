@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcPatientsDiagnosis.NBC_PATIENTS_DIAGNOSIS;
+import static lgk.nsbc.generated.tables.PatientsDiagnosis.PATIENTS_DIAGNOSIS;
 
 @Getter
 @Builder
@@ -24,9 +24,9 @@ public class PatientsDiagnosis implements Serializable {
     private String useful;
 
     public static PatientsDiagnosis buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_PATIENTS_DIAGNOSIS.N))
-                .name(record.get(NBC_PATIENTS_DIAGNOSIS.NAME))
-                .text(record.get(NBC_PATIENTS_DIAGNOSIS.TEXT))
+        return builder().n(record.get(PATIENTS_DIAGNOSIS.N))
+                .name(record.get(PATIENTS_DIAGNOSIS.NAME))
+                .text(record.get(PATIENTS_DIAGNOSIS.TEXT))
                 .build();
     }
 }

@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toSet;
 public class HistologyBind {
     private Stud stud;
     private Histology histology;
-    private Set<Mutation> mutations = new TreeSet<>();
+    private Set<Mutation> mutations;
 
     private LocalDate histologyDate;
     private Boolean burdenkoVerification;

@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
-import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
+import static lgk.nsbc.generated.tables.People.PEOPLE;
+import static lgk.nsbc.generated.tables.Patients.PATIENTS;
 import static org.jooq.impl.DSL.val;
 
 @Service
@@ -31,40 +31,40 @@ public class PatientsDao implements Serializable {
         String[] splitedName = fullName.trim().replaceAll("[ ]{2,}", " ").split(" ");
         if (splitedName.length == 0)
             return Collections.emptyList();
-        Condition likeCondition = BAS_PEOPLE.SURNAME.likeIgnoreCase(val("%" + splitedName[0] + "%"));
+        Condition likeCondition = PEOPLE.SURNAME.likeIgnoreCase(val("%" + splitedName[0] + "%"));
         if (splitedName.length > 1)
-            likeCondition = likeCondition.and(BAS_PEOPLE.NAME.likeIgnoreCase(val("%" + splitedName[1] + "%")));
+            likeCondition = likeCondition.and(PEOPLE.NAME.likeIgnoreCase(val("%" + splitedName[1] + "%")));
         if (splitedName.length > 2)
-            likeCondition = likeCondition.and(BAS_PEOPLE.PATRONYMIC.likeIgnoreCase(val("%" + splitedName[2] + "%")));
+            likeCondition = likeCondition.and(PEOPLE.PATRONYMIC.likeIgnoreCase(val("%" + splitedName[2] + "%")));
         Result<Record> records = context.select()
-                .from(NBC_PATIENTS)
-                .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
+                .from(PATIENTS)
+                .leftJoin(PEOPLE).on(PATIENTS.PEOPLE_N.eq(PEOPLE.N))
                 .where(likeCondition)
                 .fetch();
-        return getNbcPatientsAndBasPeople(records);
+        return getPatientsAndPeople(records);
     }
 
     public List<Patients> getPatientsByFullName(String surname, String name, String patronymic) {
         Result<Record> records = context.select()
-                .from(NBC_PATIENTS)
-                .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
-                .where(BAS_PEOPLE.SURNAME.equalIgnoreCase(surname)
-                        .and(BAS_PEOPLE.NAME.equalIgnoreCase(name))
-                        .and(BAS_PEOPLE.PATRONYMIC.equalIgnoreCase(patronymic)))
+                .from(PATIENTS)
+                .leftJoin(PEOPLE).on(PATIENTS.PEOPLE_N.eq(PEOPLE.N))
+                .where(PEOPLE.SURNAME.equalIgnoreCase(surname)
+                        .and(PEOPLE.NAME.equalIgnoreCase(name))
+                        .and(PEOPLE.PATRONYMIC.equalIgnoreCase(patronymic)))
                 .fetch();
-        return getNbcPatientsAndBasPeople(records);
+        return getPatientsAndPeople(records);
     }
 
     public List<Patients> findPatientsWithIdIn(List<Long> patientsId) {
         Result<Record> records = context.select()
-                .from(NBC_PATIENTS)
-                .leftJoin(BAS_PEOPLE).on(NBC_PATIENTS.BAS_PEOPLE_N.eq(BAS_PEOPLE.N))
-                .where(NBC_PATIENTS.N.in(patientsId))
+                .from(PATIENTS)
+                .leftJoin(PEOPLE).on(PATIENTS.PEOPLE_N.eq(PEOPLE.N))
+                .where(PATIENTS.N.in(patientsId))
                 .fetch();
-        return getNbcPatientsAndBasPeople(records);
+        return getPatientsAndPeople(records);
     }
 
-    private List<Patients> getNbcPatientsAndBasPeople(Result<Record> records) {
+    private List<Patients> getPatientsAndPeople(Result<Record> records) {
         return records.stream()
                 .map(record -> {
                     People people = People.buildFromRecord(record);

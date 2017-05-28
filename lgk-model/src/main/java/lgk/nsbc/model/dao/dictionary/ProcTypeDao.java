@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcProcProcType.NBC_PROC_PROC_TYPE;
+import static lgk.nsbc.generated.tables.ProcProcType.PROC_PROC_TYPE;
 
 @Service
 public class ProcTypeDao implements Serializable {
@@ -25,7 +25,7 @@ public class ProcTypeDao implements Serializable {
 
     @PostConstruct
     void init() {
-        procTypeMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_PROC_TYPE)
+        procTypeMap = Collections.unmodifiableMap(context.fetch(PROC_PROC_TYPE)
                 .stream()
                 .map(ProcType::buildFromRecord)
                 .collect(toMap(ProcType::getN, identity()))

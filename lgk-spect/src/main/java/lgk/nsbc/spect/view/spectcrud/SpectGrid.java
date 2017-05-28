@@ -273,7 +273,7 @@ public class SpectGrid extends Grid<SpectGridData> {
                 .forField(targets)
                 .withNullRepresentation(Target.builder()
                         .n(-1L)
-                        .nbcPatientsN(-1L)
+                        .patientsN(-1L)
                         .targetName("Мишень не выбрана")
                         .targetType(-1L)
                         .build())

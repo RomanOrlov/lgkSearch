@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcHistology_1.NBC_HISTOLOGY_1;
+import static lgk.nsbc.generated.tables.Histology.HISTOLOGY;
 
 @Getter
 @Setter
@@ -16,16 +16,16 @@ public class Histology implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long n;
-    private Long nbcStudN;
+    private Long studN;
     private Long diagVerif;
     private String histVerifBurd;
-    private Long nbcPatientsDiagnosisN;
+    private Long patientsDiagnosisN;
     private Long cancerHistologyCon;
     private Long oncoDiagCon;
     private String commentary;
 
-    private Long nbcPatientsN;
-    private Long nbcTargetN;
+    private Long patientsN;
+    private Long targetN;
     private Double ki67From;
     private Double ki67To;
     private Integer her2neu;
@@ -36,24 +36,24 @@ public class Histology implements Serializable {
     private Long pg;
 
     public static Histology buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_HISTOLOGY_1.N))
-                .nbcStudN(record.get(NBC_HISTOLOGY_1.NBC_STUD_N))
-                .diagVerif(record.get(NBC_HISTOLOGY_1.DIAG_VERIF))
-                .histVerifBurd(record.get(NBC_HISTOLOGY_1.HIST_VERIF_BURD))
-                .nbcPatientsDiagnosisN(record.get(NBC_HISTOLOGY_1.NBC_PATIENTS_DIAGNOSIS_N))
-                .cancerHistologyCon(record.get(NBC_HISTOLOGY_1.CANCER_HISTOLOGY_1_CON))
-                .oncoDiagCon(record.get(NBC_HISTOLOGY_1.ONCO_DIAG_1_CON))
-                .commentary(record.get(NBC_HISTOLOGY_1.COMMENTARY))
-                .nbcPatientsN(record.get(NBC_HISTOLOGY_1.NBC_PATIENTS_N))
-                .nbcTargetN(record.get(NBC_HISTOLOGY_1.NBC_TARGET_N))
-                .ki67From(record.get(NBC_HISTOLOGY_1.KI67_FROM))
-                .ki67To(record.get(NBC_HISTOLOGY_1.KI67_TO))
-                .her2neu(record.get(NBC_HISTOLOGY_1.HER2NEU))
-                .fish(record.get(NBC_HISTOLOGY_1.FISH))
-                .erB(record.get(NBC_HISTOLOGY_1.ER_B))
-                .er(record.get(NBC_HISTOLOGY_1.ER))
-                .pgB(record.get(NBC_HISTOLOGY_1.PG_B))
-                .pg(record.get(NBC_HISTOLOGY_1.PG))
+        return builder().n(record.get(HISTOLOGY.N))
+                .studN(record.get(HISTOLOGY.STUD_N))
+                .diagVerif(record.get(HISTOLOGY.DIAG_VERIF))
+                .histVerifBurd(record.get(HISTOLOGY.HIST_VERIF_BURD))
+                .patientsDiagnosisN(record.get(HISTOLOGY.PATIENTS_DIAGNOSIS_N))
+                .cancerHistologyCon(record.get(HISTOLOGY.CANCER_HISTOLOGY_CON))
+                .oncoDiagCon(record.get(HISTOLOGY.ONCO_DIAG_CON))
+                .commentary(record.get(HISTOLOGY.COMMENTARY))
+                .patientsN(record.get(HISTOLOGY.PATIENTS_N))
+                .targetN(record.get(HISTOLOGY.TARGET_N))
+                .ki67From(record.get(HISTOLOGY.KI67_FROM))
+                .ki67To(record.get(HISTOLOGY.KI67_TO))
+                .her2neu(record.get(HISTOLOGY.HER2NEU))
+                .fish(record.get(HISTOLOGY.FISH))
+                .erB(record.get(HISTOLOGY.ER_B))
+                .er(record.get(HISTOLOGY.ER))
+                .pgB(record.get(HISTOLOGY.PG_B))
+                .pg(record.get(HISTOLOGY.PG))
                 .build();
     }
 }

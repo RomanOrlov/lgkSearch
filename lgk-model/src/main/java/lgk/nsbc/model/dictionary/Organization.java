@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcOrganizations.NBC_ORGANIZATIONS;
+import static lgk.nsbc.generated.tables.Organizations.ORGANIZATIONS;
 
 @Getter
 @NoArgsConstructor
@@ -20,9 +20,9 @@ public class Organization implements Serializable {
 
     public static Organization buildFromRecord(Record record) {
         return builder()
-                .n(record.get(NBC_ORGANIZATIONS.N))
-                .name(record.get(NBC_ORGANIZATIONS.NAME))
-                .sign(record.get(NBC_ORGANIZATIONS.SIGN))
+                .n(record.get(ORGANIZATIONS.N))
+                .name(record.get(ORGANIZATIONS.NAME))
+                .sign(record.get(ORGANIZATIONS.SIGN))
                 .build();
     }
 

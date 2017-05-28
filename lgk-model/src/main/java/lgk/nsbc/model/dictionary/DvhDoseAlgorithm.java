@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcDvhDoseAlgorithm.NBC_DVH_DOSE_ALGORITHM;
+import static lgk.nsbc.generated.tables.DvhDoseAlgorithm.DVH_DOSE_ALGORITHM;
 
 @Getter
 @Builder
@@ -22,9 +22,9 @@ public class DvhDoseAlgorithm implements Serializable {
     private String text;
 
     public static DvhDoseAlgorithm buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_DVH_DOSE_ALGORITHM.N))
-                .name(record.get(NBC_DVH_DOSE_ALGORITHM.NAME))
-                .text(record.get(NBC_DVH_DOSE_ALGORITHM.TEXT))
+        return builder().n(record.get(DVH_DOSE_ALGORITHM.N))
+                .name(record.get(DVH_DOSE_ALGORITHM.NAME))
+                .text(record.get(DVH_DOSE_ALGORITHM.TEXT))
                 .build();
     }
 

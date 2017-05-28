@@ -9,7 +9,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcHistology_1Mutation.NBC_HISTOLOGY_1_MUTATION;
+import static lgk.nsbc.generated.tables.HistologyMutation.HISTOLOGY_MUTATION;
 import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
 import static lgk.nsbc.model.dao.dictionary.MutationTypesDao.getMutationTypes;
 
@@ -30,12 +30,12 @@ public class Mutation implements Serializable, Comparable<Mutation> {
     private DicYesNo dicYesNo;
 
     public static Mutation buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_HISTOLOGY_1_MUTATION.N))
-                .histologyN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_HISTOLOGY_1_N))
-                .studyN(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_STUD_N))
-                .mutationType(getMutationTypes().get(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_MUTATION_TYPES_N)))
-                .gene(getGenes().get(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_GENES_N)))
-                .dicYesNo(DicYesNoDao.getDicYesNo().get(record.get(NBC_HISTOLOGY_1_MUTATION.NBC_DIC_YES_NO_N)))
+        return builder().n(record.get(HISTOLOGY_MUTATION.N))
+                .histologyN(record.get(HISTOLOGY_MUTATION.HISTOLOGY_N))
+                .studyN(record.get(HISTOLOGY_MUTATION.STUD_N))
+                .mutationType(getMutationTypes().get(record.get(HISTOLOGY_MUTATION.MUTATION_TYPES_N)))
+                .gene(getGenes().get(record.get(HISTOLOGY_MUTATION.GENES_N)))
+                .dicYesNo(DicYesNoDao.getDicYesNo().get(record.get(HISTOLOGY_MUTATION.DIC_YES_NO_N)))
                 .build();
     }
 

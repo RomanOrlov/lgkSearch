@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcStudStudyType.NBC_STUD_STUDY_TYPE;
+import static lgk.nsbc.generated.tables.StudStudyType.STUD_STUDY_TYPE;
 
 @Service
 public class StudTypeDao implements Serializable {
@@ -25,7 +25,7 @@ public class StudTypeDao implements Serializable {
 
     @PostConstruct
     void init() {
-        studTypeMap = Collections.unmodifiableMap(context.fetch(NBC_STUD_STUDY_TYPE)
+        studTypeMap = Collections.unmodifiableMap(context.fetch(STUD_STUDY_TYPE)
                 .stream()
                 .map(StudType::buildFromRecord)
                 .collect(toMap(StudType::getN, identity()))

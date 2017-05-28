@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcDvhDoseAlgorithm.NBC_DVH_DOSE_ALGORITHM;
+import static lgk.nsbc.generated.tables.DvhDoseAlgorithm.DVH_DOSE_ALGORITHM;
 
 @Service
 public class DvhDoseAlgorithmDao implements Serializable {
@@ -25,7 +25,7 @@ public class DvhDoseAlgorithmDao implements Serializable {
 
     @PostConstruct
     void init() {
-        dvhDoseAlgorithmMap = Collections.unmodifiableMap(context.fetch(NBC_DVH_DOSE_ALGORITHM)
+        dvhDoseAlgorithmMap = Collections.unmodifiableMap(context.fetch(DVH_DOSE_ALGORITHM)
                 .stream()
                 .map(DvhDoseAlgorithm::buildFromRecord)
                 .collect(toMap(DvhDoseAlgorithm::getN, identity()))

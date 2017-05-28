@@ -45,14 +45,14 @@ public class SpectGridDBData {
         this.targets = targets;
         this.stud = Stud.builder()
                 .n(-1L)
-                .nbc_patients_n(patients.getN())
+                .patientsN(patients.getN())
                 .studType(StudTypeDao.getStudTypeMap().get(11L))
                 .build();
         this.followUp = FollowUp.builder()
                 .n(-1L)
                 .build();
         this.target = Target.builder()
-                .nbcPatientsN(patients.getN())
+                .patientsN(patients.getN())
                 .targetName("Мишень не")
                 .targetTypeText("выбрана")
                 .build();
@@ -70,9 +70,9 @@ public class SpectGridDBData {
         spectGridData.setPatronymic(patients.getPeople().getPatronymic());
         spectGridData.setTarget(target);
         spectGridData.setCaseHistoryNum(String.valueOf(patients.getCaseHistoryNum()));
-        spectGridData.setDose(studInj.getInj_activity_bq());
-        if (stud != null && stud.getStudydatetime() != null)
-            spectGridData.setStudyDate(DateUtils.asLocalDate(stud.getStudydatetime()));
+        spectGridData.setDose(studInj.getInjActivityBq());
+        if (stud != null && stud.getStudyDateTime() != null)
+            spectGridData.setStudyDate(DateUtils.asLocalDate(stud.getStudyDateTime()));
         FlupSpectData hyp = dataMap.get(HYP.toString() + SPHERE.toString());
         FlupSpectData hizSphere = dataMap.get(HIZ.toString() + SPHERE.toString());
         FlupSpectData hizIsoline10 = dataMap.get(HIZ.toString() + ISOLYNE10.toString());
@@ -82,44 +82,44 @@ public class SpectGridDBData {
         FlupSpectData targetIsoline25 = dataMap.get(TARGET.toString() + ISOLYNE25.toString());
         if (hyp != null) {
             spectGridData.setHypVolume(hyp.getVolume());
-            spectGridData.setHypMin30(hyp.getEarly_phase());
-            spectGridData.setHypMin60(hyp.getLate_phase());
+            spectGridData.setHypMin30(hyp.getEarlyPhase());
+            spectGridData.setHypMin60(hyp.getLatePhase());
         }
 
         if (hizSphere != null) {
             spectGridData.setHizSphereVolume(hizSphere.getVolume());
-            spectGridData.setHizSphereMin30(hizSphere.getEarly_phase());
-            spectGridData.setHizSphereMin60(hizSphere.getLate_phase());
+            spectGridData.setHizSphereMin30(hizSphere.getEarlyPhase());
+            spectGridData.setHizSphereMin60(hizSphere.getLatePhase());
         }
 
         if (hizIsoline10 != null) {
             spectGridData.setHizIsoline10Volume(hizIsoline10.getVolume());
-            spectGridData.setHizIsoline10Min30(hizIsoline10.getEarly_phase());
-            spectGridData.setHizIsoline10Min60(hizIsoline10.getLate_phase());
+            spectGridData.setHizIsoline10Min30(hizIsoline10.getEarlyPhase());
+            spectGridData.setHizIsoline10Min60(hizIsoline10.getLatePhase());
         }
 
         if (hizIsoline25 != null) {
             spectGridData.setHizIsoline25Volume(hizIsoline25.getVolume());
-            spectGridData.setHizIsoline25Min30(hizIsoline25.getEarly_phase());
-            spectGridData.setHizIsoline25Min60(hizIsoline25.getLate_phase());
+            spectGridData.setHizIsoline25Min30(hizIsoline25.getEarlyPhase());
+            spectGridData.setHizIsoline25Min60(hizIsoline25.getLatePhase());
         }
 
         if (targetSphere != null) {
             spectGridData.setTargetSphereVolume(targetSphere.getVolume());
-            spectGridData.setTargetSphereMin30(targetSphere.getEarly_phase());
-            spectGridData.setTargetSphereMin60(targetSphere.getLate_phase());
+            spectGridData.setTargetSphereMin30(targetSphere.getEarlyPhase());
+            spectGridData.setTargetSphereMin60(targetSphere.getLatePhase());
         }
 
         if (targetIsoline10 != null) {
             spectGridData.setTargetIsoline10Volume(targetIsoline10.getVolume());
-            spectGridData.setTargetIsoline10Min30(targetIsoline10.getEarly_phase());
-            spectGridData.setTargetIsoline10Min60(targetIsoline10.getLate_phase());
+            spectGridData.setTargetIsoline10Min30(targetIsoline10.getEarlyPhase());
+            spectGridData.setTargetIsoline10Min60(targetIsoline10.getLatePhase());
         }
 
         if (targetIsoline25 != null) {
             spectGridData.setTargetIsoline25Volume(targetIsoline25.getVolume());
-            spectGridData.setTargetIsoline25Min30(targetIsoline25.getEarly_phase());
-            spectGridData.setTargetIsoline25Min60(targetIsoline25.getLate_phase());
+            spectGridData.setTargetIsoline25Min30(targetIsoline25.getEarlyPhase());
+            spectGridData.setTargetIsoline25Min60(targetIsoline25.getLatePhase());
         }
         return spectGridData;
     }

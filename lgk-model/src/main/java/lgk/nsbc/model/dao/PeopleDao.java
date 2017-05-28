@@ -1,6 +1,6 @@
 package lgk.nsbc.model.dao;
 
-import lgk.nsbc.generated.tables.records.BasPeopleRecord;
+import lgk.nsbc.generated.tables.records.PeopleRecord;
 import lgk.nsbc.model.People;
 import org.jooq.DSLContext;
 import org.jooq.Result;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
+import static lgk.nsbc.generated.tables.People.PEOPLE;
 
 @Service
 public class PeopleDao implements Serializable {
@@ -22,7 +22,7 @@ public class PeopleDao implements Serializable {
     private DSLContext context;
 
     public List<People> getPeoplesBySurname(Set<String> surname) {
-        Result<BasPeopleRecord> fetch = context.fetch(BAS_PEOPLE, BAS_PEOPLE.SURNAME.in(surname));
+        Result<PeopleRecord> fetch = context.fetch(PEOPLE, PEOPLE.SURNAME.in(surname));
         return fetch.stream()
                 .map(People::buildFromRecord)
                 .collect(Collectors.toList());

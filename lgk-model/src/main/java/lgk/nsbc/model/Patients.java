@@ -7,7 +7,7 @@ import org.jooq.Record;
 import java.io.Serializable;
 import java.util.Date;
 
-import static lgk.nsbc.generated.tables.NbcPatients.NBC_PATIENTS;
+import static lgk.nsbc.generated.tables.Patients.PATIENTS;
 import static lgk.nsbc.model.dao.dictionary.OrganizationsDao.getOrganizationsMap;
 
 @Getter
@@ -27,21 +27,21 @@ public class Patients implements Serializable {
 
     public static Patients buildFromRecord(Record record) {
         return builder()
-                .n(record.get(NBC_PATIENTS.N))
-                .caseHistoryNum(record.get(NBC_PATIENTS.CASE_HISTORY_NUM))
-                .caseHistoryDate(record.get(NBC_PATIENTS.CASE_HISTORY_DATE))
-                .diagnosis(record.get(NBC_PATIENTS.DIAGNOSIS))
-                .organization(getOrganizationsMap().get(record.get(NBC_PATIENTS.NBC_ORGANIZATIONS_N)))
+                .n(record.get(PATIENTS.N))
+                .caseHistoryNum(record.get(PATIENTS.CASE_HISTORY_NUM))
+                .caseHistoryDate(record.get(PATIENTS.CASE_HISTORY_DATE))
+                .diagnosis(record.get(PATIENTS.DIAGNOSIS))
+                .organization(getOrganizationsMap().get(record.get(PATIENTS.ORGANIZATIONS_N)))
                 .build();
     }
 
     @Override
     public String toString() {
-        return toStringWithCaseHistory();
+        return getFullName();
     }
 
     public String getFullName() {
-        return people.getSurname() + " " + people.getName() + " " + people.getPatronymic();
+        return people.getFullName();
     }
 
     public String getCaseHistoryNumber() {

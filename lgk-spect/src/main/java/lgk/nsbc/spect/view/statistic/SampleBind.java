@@ -17,7 +17,7 @@ import java.time.Period;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SampleBind implements Serializable {
+public class SampleBind implements Serializable, Comparable<SampleBind> {
     private static final long serialVersionUID = 1L;
 
     private Proc surgeryProc;
@@ -142,7 +142,7 @@ public class SampleBind implements Serializable {
         Double spect1InEarly = getSpect1InEarly();
         Double spect2InEarly = getSpect2InEarly();
         if (spect1InEarly != null && spect2InEarly != null)
-            return spect1InEarly < spect2InEarly ? "+" : "-";
+            return spect1InEarly < spect2InEarly ? "пол" : "отр";
         return null;
     }
 
@@ -150,7 +150,7 @@ public class SampleBind implements Serializable {
         Double spect1InLate = getSpect1InLate();
         Double spect2InLate = getSpect2InLate();
         if (spect1InLate != null && spect2InLate != null)
-            return spect1InLate < spect2InLate ? "+" : "-";
+            return spect1InLate < spect2InLate ? "пол" : "отр";
         return null;
     }
 
@@ -158,7 +158,7 @@ public class SampleBind implements Serializable {
         Double spect2InEarly = getSpect2InEarly();
         Double spect3InEarly = getSpect3InEarly();
         if (spect2InEarly != null && spect3InEarly != null)
-            return spect2InEarly < spect3InEarly ? "+" : "-";
+            return spect2InEarly < spect3InEarly ? "пол" : "отр";
         return null;
     }
 
@@ -166,7 +166,17 @@ public class SampleBind implements Serializable {
         Double spect2InLate = getSpect2InLate();
         Double spect3InLate = getSpect3InLate();
         if (spect2InLate != null && spect3InLate != null)
-            return spect2InLate < spect3InLate ? "+" : "-";
+            return spect2InLate < spect3InLate ? "пол" : "отр";
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return patients == null ? "" : patients.toStringWithCaseHistory();
+    }
+
+    @Override
+    public int compareTo(SampleBind o) {
+        return patients.getFullName().compareTo(o.getPatients().getFullName());
     }
 }

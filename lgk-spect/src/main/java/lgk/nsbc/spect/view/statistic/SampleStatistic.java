@@ -12,6 +12,8 @@ import com.vaadin.ui.components.grid.FooterCell;
 import com.vaadin.ui.components.grid.FooterRow;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.NumberRenderer;
+import lgk.nsbc.model.Patients;
+import lgk.nsbc.model.SamplePatients;
 import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
 import lgk.nsbc.util.DateUtils;
 import lgk.nsbc.util.components.GridHeaderFilter;
@@ -23,12 +25,11 @@ import org.vaadin.dialogs.ConfirmDialog;
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 @VaadinSessionScope
@@ -41,7 +42,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
     private List<SampleBind> sampleBinds = new ArrayList<>();
     private ListDataProvider<SampleBind> dataProvider = new ListDataProvider<>(sampleBinds);
-    private Grid<SampleBind> sampleGrid = new Grid<>("Выборка ОФЕКТ", dataProvider);
+    private Grid<SampleBind> sampleGrid = new Grid<>(dataProvider);
 
     private Button refresh = new Button("Обновить");
     private HorizontalLayout statisticToExcel = new StatisticExcelExporter(sampleGrid, "Данные в Excel");
@@ -69,21 +70,12 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     private void initButtons() {
         refresh.addClickListener(event -> {
             List<SampleBind> spectSample = sampleManager.getSpectSample();
+            spectSample.sort(SampleBind::compareTo);
             sampleBinds.clear();
             sampleBinds.addAll(spectSample);
             sampleGrid.getDataProvider().refreshAll();
         });
-        addToSample.addClickListener(clickEvent -> {
-            if (!combobox.getSelectedItem().isPresent()) {
-                Notification.show("Не выбран пациент");
-                return;
-            }
-            SampleBind simpleBind = sampleManager.getTamplateSimpleBind(combobox.getValue());
-            sampleBinds.add(simpleBind);
-            dataProvider.refreshAll();
-            sampleGrid.select(simpleBind);
-            sampleGrid.scrollTo(sampleBinds.indexOf(simpleBind));
-        });
+        addToSample.addClickListener(clickEvent -> handleAddToSample());
         removeFromSample.addClickListener(clickEvent -> {
             if (sampleGrid.asSingleSelect().isEmpty()) {
                 Notification.show("Не выбран пациент из выборки");
@@ -99,6 +91,36 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 }
             });
         });
+    }
+
+    private void handleAddToSample() {
+        if (!combobox.getSelectedItem().isPresent()) {
+            Notification.show("Не выбран пациент");
+            return;
+        }
+        Patients selectedPatient = combobox.getValue();
+        Set<Long> uniquePatientsId = sampleBinds.stream()
+                .map(SampleBind::getSamplePatients)
+                .map(SamplePatients::getPatientId)
+                .collect(toSet());
+        if (uniquePatientsId.contains(selectedPatient.getN())) {
+            Notification.show("Данный пациент уже находится в выборке");
+            return;
+        }
+        Set<String> uniqueNames = sampleBinds.stream()
+                .map(SampleBind::getPatients)
+                .map(Patients::getFullName)
+                .collect(toSet());
+        if (uniqueNames.contains(selectedPatient.getFullName())) {
+            Notification.show("Пациент с таким же именем уже находится в выборке");
+            return;
+        }
+        SampleBind simpleBind = sampleManager.getTamplateSimpleBind(selectedPatient);
+        sampleBinds.add(simpleBind);
+        sampleBinds.sort(SampleBind::compareTo);
+        dataProvider.refreshAll();
+        sampleGrid.select(simpleBind);
+        sampleGrid.scrollTo(sampleBinds.indexOf(simpleBind));
     }
 
     private void initSampleGrid() {
@@ -127,7 +149,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setHidden(true);
 
         NativeSelect<String> inclusionEdit = new NativeSelect<>();
-        inclusionEdit.setItems(Arrays.asList("Да", "Нет", "Неизвестно"));
+        inclusionEdit.setItems(asList("Да", "Нет", "Неизвестно"));
         inclusionEdit.setEmptySelectionAllowed(true);
 
         Grid.Column<SampleBind, String> includedColumn = sampleGrid.addColumn(SampleBind::getInclusionRepresentation)
@@ -180,14 +202,13 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             return sampleBind.getSpect1().getStudyDate();
         }).setCaption("№1 ОФЕКТ");
 
-        NumberRenderer inRenderer = new NumberRenderer(inFormat);
-        Grid.Column<SampleBind, Double> spect1InEarly = sampleGrid.addColumn(SampleBind::getSpect1InEarly, inRenderer)
+        Grid.Column<SampleBind, Double> spect1InEarly = sampleGrid.addColumn(SampleBind::getSpect1InEarly, new NumberRenderer(inFormat))
                 .setCaption("№1 ИН 30");
 
-        Grid.Column<SampleBind, Double> spect1InLate = sampleGrid.addColumn(SampleBind::getSpect1InLate, inRenderer)
+        Grid.Column<SampleBind, Double> spect1InLate = sampleGrid.addColumn(SampleBind::getSpect1InLate, new NumberRenderer(inFormat))
                 .setCaption("№1 ИН 60");
 
-        Grid.Column<SampleBind, Double> spect1InOut = sampleGrid.addColumn(SampleBind::getSpect1InOut, inRenderer)
+        Grid.Column<SampleBind, Double> spect1InOut = sampleGrid.addColumn(SampleBind::getSpect1InOut, new NumberRenderer(inFormat))
                 .setCaption("№1 Вымывание");
 
         sampleGrid.addColumn(sampleBind -> {
@@ -196,15 +217,15 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         }).setCaption("№2 ОФЕКТ")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect2InEarly = sampleGrid.addColumn(SampleBind::getSpect2InEarly, inRenderer)
+        Grid.Column<SampleBind, Double> spect2InEarly = sampleGrid.addColumn(SampleBind::getSpect2InEarly, new NumberRenderer(inFormat))
                 .setCaption("№2 ИН 30")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect2InLate = sampleGrid.addColumn(SampleBind::getSpect2InLate, inRenderer)
+        Grid.Column<SampleBind, Double> spect2InLate = sampleGrid.addColumn(SampleBind::getSpect2InLate, new NumberRenderer(inFormat))
                 .setCaption("№2 ИН 60")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect2InOut = sampleGrid.addColumn(SampleBind::getSpect2InOut, inRenderer)
+        Grid.Column<SampleBind, Double> spect2InOut = sampleGrid.addColumn(SampleBind::getSpect2InOut, new NumberRenderer(inFormat))
                 .setCaption("№2 Вымывание")
                 .setHidden(true);
 
@@ -214,15 +235,15 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         }).setCaption("№3 ОФЕКТ")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect3InEarly = sampleGrid.addColumn(SampleBind::getSpect3InEarly, inRenderer)
+        Grid.Column<SampleBind, Double> spect3InEarly = sampleGrid.addColumn(SampleBind::getSpect3InEarly, new NumberRenderer(inFormat))
                 .setCaption("№3 ИН 30")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect3InLate = sampleGrid.addColumn(SampleBind::getSpect3InLate, inRenderer)
+        Grid.Column<SampleBind, Double> spect3InLate = sampleGrid.addColumn(SampleBind::getSpect3InLate, new NumberRenderer(inFormat))
                 .setCaption("№3 ИН 60")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> spect3InOut = sampleGrid.addColumn(SampleBind::getSpect3InOut, inRenderer)
+        Grid.Column<SampleBind, Double> spect3InOut = sampleGrid.addColumn(SampleBind::getSpect3InOut, new NumberRenderer(inFormat))
                 .setCaption("№3 Вымывание")
                 .setHidden(true);
 
@@ -255,20 +276,20 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("Цензурирована ли выживаемость")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic30)
-                .setCaption("Динамика ОФЕКТ 1<->2 30 мин")
+        Grid.Column<SampleBind, String> dynamic1_2_30 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic30)
+                .setCaption("ОФЕКТ 1 vs 2 30 мин")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic60)
-                .setCaption("Динамика ОФЕКТ 1<->2 60 мин")
+        Grid.Column<SampleBind, String> dynamic1_2_60 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic60)
+                .setCaption("ОФЕКТ 1 vs 2 60 мин")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic30)
-                .setCaption("Динамика ОФЕКТ 2<->3 30 мин")
+        Grid.Column<SampleBind, String> dynamic2_3_30 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic30)
+                .setCaption("ОФЕКТ 2 vs 3 30 мин")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic60)
-                .setCaption("Динамика ОФЕКТ 2<->3 60 мин")
+        Grid.Column<SampleBind, String> dynamic2_3_60 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic60)
+                .setCaption("ОФЕКТ 2 vs 3 60 мин")
                 .setHidden(true);
 
         sampleGrid.getColumns().forEach(column -> column.setHidable(true));
@@ -311,8 +332,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         HeaderRow filterHeader = sampleGrid.prependHeaderRow();
         filterHeader.setStyleName("align-center"); // ONG стало лучше выглядеть
         GridHeaderFilter.addTextFilter(filterHeader.getCell(name), dataProvider, sampleBind -> sampleBind.getPatients().toString());
-        //GridHeaderFilter.addListSelectFilter(filterHeader.getCell(gender), dataProvider, sampleBind -> sampleBind.getPatients().getPeople().getSex(), Arrays.asList("М", "Ж"));
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(gender), dataProvider, sampleBind -> sampleBind.getPatients().getPeople().getSex(), Arrays.asList("М", "Ж"));
+        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(gender), dataProvider, sampleBind -> sampleBind.getPatients().getPeople().getSex(), asList("М", "Ж"));
         GridHeaderFilter.addIntegerFilter(filterHeader.getCell(fullYearsAtSurgery), dataProvider, SampleBind::getAgeAtSurgery);
         GridHeaderFilter.addCheckBoxFilter(filterHeader.getCell(includedColumn), dataProvider, SampleBind::getInclusionRepresentation, "Да");
 
@@ -327,6 +347,11 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InEarly), dataProvider, SampleBind::getSpect3InEarly);
         GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InLate), dataProvider, SampleBind::getSpect3InLate);
         GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InOut), dataProvider, SampleBind::getSpect3InOut);
+
+        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic1_2_30), dataProvider, SampleBind::getSpect1_2Dynamic30, asList("пол", "отр"));
+        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic1_2_60), dataProvider, SampleBind::getSpect1_2Dynamic60, asList("пол", "отр"));
+        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic2_3_30), dataProvider, SampleBind::getSpect2_3Dynamic30, asList("пол", "отр"));
+        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic2_3_60), dataProvider, SampleBind::getSpect2_3Dynamic60, asList("пол", "отр"));
         sampleGrid.setSortOrder(GridSortOrder.asc(name));
     }
 

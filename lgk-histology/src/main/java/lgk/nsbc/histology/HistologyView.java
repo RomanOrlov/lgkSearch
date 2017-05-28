@@ -32,11 +32,10 @@ import java.util.*;
 @VaadinSessionScope
 public class HistologyView extends VerticalLayout implements View {
     @Autowired
-    private PatientsDao patientsDao;
-    @Autowired
     private HistologyManager histologyManager;
-
+    @Autowired
     private SuggestionCombobox suggestionCombobox;
+
     private Set<Mutation> mutations = new TreeSet<>();
     private Grid<Mutation> mutationGrid = new Grid<>("Мутации", mutations);
 
@@ -61,7 +60,7 @@ public class HistologyView extends VerticalLayout implements View {
 
     @PostConstruct
     public void init() {
-        suggestionCombobox = new SuggestionCombobox(patientsDao::getPatientsWithFullNameLike);
+        suggestionCombobox = new SuggestionCombobox();
         suggestionCombobox.focus();
         suggestionCombobox.addValueChangeListener(event -> {
             clearAll();
@@ -280,7 +279,7 @@ public class HistologyView extends VerticalLayout implements View {
 
     private void initStudGrid() {
         studGrid.setHeightByRows(3);
-        studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudydatetime()))
+        studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudyDateTime()))
                 .setCaption("Дата");
         studGrid.addColumn(Stud::getStudType)
                 .setCaption("Тип");

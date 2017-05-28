@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcDvhDataVersion.NBC_DVH_DATA_VERSION;
+import static lgk.nsbc.generated.tables.DvhDataVersion.DVH_DATA_VERSION;
 
 @Getter
 @Builder
@@ -22,9 +22,9 @@ public class DvhDataVersion implements Serializable {
     private String text;
 
     public static DvhDataVersion buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_DVH_DATA_VERSION.N))
-                .name(record.get(NBC_DVH_DATA_VERSION.NAME))
-                .text(record.get(NBC_DVH_DATA_VERSION.TEXT))
+        return builder().n(record.get(DVH_DATA_VERSION.N))
+                .name(record.get(DVH_DATA_VERSION.NAME))
+                .text(record.get(DVH_DATA_VERSION.TEXT))
                 .build();
     }
 

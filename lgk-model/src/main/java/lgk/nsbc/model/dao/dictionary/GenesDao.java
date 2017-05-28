@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcGenes.NBC_GENES;
+import static lgk.nsbc.generated.tables.Genes.GENES;
 
 @Service
 public class GenesDao implements Serializable {
@@ -25,7 +25,7 @@ public class GenesDao implements Serializable {
 
     @PostConstruct
     void init() {
-        genes = Collections.unmodifiableMap(context.fetch(NBC_GENES)
+        genes = Collections.unmodifiableMap(context.fetch(GENES)
                 .stream()
                 .map(Gene::buildFromRecord)
                 .collect(toMap(Gene::getN, identity()))

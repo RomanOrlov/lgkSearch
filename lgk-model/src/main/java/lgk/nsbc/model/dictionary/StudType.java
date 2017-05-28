@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcStudStudyType.NBC_STUD_STUDY_TYPE;
+import static lgk.nsbc.generated.tables.StudStudyType.STUD_STUDY_TYPE;
 
 @Getter
 @Builder
@@ -22,9 +22,9 @@ public class StudType implements Serializable {
     private String text;
 
     public static StudType buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_STUD_STUDY_TYPE.N))
-                .name(record.get(NBC_STUD_STUDY_TYPE.NAME))
-                .text(record.get(NBC_STUD_STUDY_TYPE.TEXT))
+        return builder().n(record.get(STUD_STUDY_TYPE.N))
+                .name(record.get(STUD_STUDY_TYPE.NAME))
+                .text(record.get(STUD_STUDY_TYPE.TEXT))
                 .build();
     }
 

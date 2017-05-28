@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcProcRtTech.NBC_PROC_RT_TECH;
+import static lgk.nsbc.generated.tables.ProcRtTech.PROC_RT_TECH;
 
 @Service
 public class ProcRtTechDao implements Serializable {
@@ -25,7 +25,7 @@ public class ProcRtTechDao implements Serializable {
 
     @PostConstruct
     void init() {
-        procRtTechMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_RT_TECH)
+        procRtTechMap = Collections.unmodifiableMap(context.fetch(PROC_RT_TECH)
                 .stream()
                 .map(ProcRtTech::buildFromRecord)
                 .collect(toMap(ProcRtTech::getN, identity()))

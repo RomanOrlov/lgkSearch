@@ -11,11 +11,11 @@
 
     <artifactId>model</artifactId>
 
-<dependencies>
-    <dependency>
-        <groupId>lgk.nsbc</groupId>
-        <artifactId>generated</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>lgk.nsbc</groupId>
+            <artifactId>generated</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

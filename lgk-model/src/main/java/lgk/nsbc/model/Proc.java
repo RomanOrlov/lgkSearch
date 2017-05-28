@@ -7,7 +7,7 @@ import org.jooq.Record;
 import java.io.Serializable;
 import java.util.Date;
 
-import static lgk.nsbc.generated.tables.NbcProc.NBC_PROC;
+import static lgk.nsbc.generated.tables.Proc.PROC;
 import static lgk.nsbc.model.dao.dictionary.OrganizationsDao.getOrganizationsMap;
 import static lgk.nsbc.model.dao.dictionary.ProcRtDeviceDao.getProcRtDeviceMap;
 import static lgk.nsbc.model.dao.dictionary.ProcRtTechDao.getProcRtTechMap;
@@ -39,20 +39,20 @@ public class Proc implements Serializable {
 
     public static Proc buildFromRecord(Record record) {
         return builder()
-                .n(record.get(NBC_PROC.N))
-                .patientN(record.get(NBC_PROC.NBC_PATIENTS_N))
-                .procType(getProcTypeMap().get(record.get(NBC_PROC.PROC_TYPE)))
-                .procBeginTime(record.get(NBC_PROC.PROCBEGINTIME))
-                .procEndTime(record.get(NBC_PROC.PROCENDTIME))
-                .procTimeApprox(getProcTimeApproxMap().get(record.get(NBC_PROC.TIME_APPROX)))
-                .comment(record.get(NBC_PROC.COMMENT))
-                .studN(record.get(NBC_PROC.NBC_STUD_N))
-                .recommendation(record.get(NBC_PROC.RECOMMENDATION))
-                .studComment(record.get(NBC_PROC.STUD_COMMENT))
-                .procRtDevice(getProcRtDeviceMap().get(record.get(NBC_PROC.RT_DEVICE)))
-                .procRtTech(getProcRtTechMap().get(record.get(NBC_PROC.RT_TECH)))
-                .parentProc(record.get(NBC_PROC.PARENT_PROC))
-                .organization(getOrganizationsMap().get(record.get(NBC_PROC.NBC_ORGANIZATIONS_N)))
+                .n(record.get(PROC.N))
+                .patientN(record.get(PROC.PATIENTS_N))
+                .procType(getProcTypeMap().get(record.get(PROC.PROC_TYPE)))
+                .procBeginTime(record.get(PROC.PROCBEGINTIME))
+                .procEndTime(record.get(PROC.PROCENDTIME))
+                .procTimeApprox(getProcTimeApproxMap().get(record.get(PROC.TIME_APPROX)))
+                .comment(record.get(PROC.COMMENT))
+                .studN(record.get(PROC.STUD_N))
+                .recommendation(record.get(PROC.RECOMMENDATION))
+                .studComment(record.get(PROC.STUD_COMMENT))
+                .procRtDevice(getProcRtDeviceMap().get(record.get(PROC.RT_DEVICE)))
+                .procRtTech(getProcRtTechMap().get(record.get(PROC.RT_TECH)))
+                .parentProc(record.get(PROC.PARENT_PROC))
+                .organization(getOrganizationsMap().get(record.get(PROC.ORGANIZATIONS_N)))
                 .build();
     }
 

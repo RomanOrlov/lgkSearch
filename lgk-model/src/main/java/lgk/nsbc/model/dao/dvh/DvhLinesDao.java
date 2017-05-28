@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static lgk.nsbc.generated.tables.NbcDvhLines.NBC_DVH_LINES;
+import static lgk.nsbc.generated.tables.DvhLines.DVH_LINES;
 
 @Service
 public class DvhLinesDao implements Serializable {
@@ -21,14 +21,14 @@ public class DvhLinesDao implements Serializable {
 
     public List<DvhLines> findDvhLines(Long dvhId) {
         if (dvhId == null) return Collections.emptyList();
-        return context.fetch(NBC_DVH_LINES, NBC_DVH_LINES.NBC_DVH_N.eq(dvhId))
+        return context.fetch(DVH_LINES, DVH_LINES.DVH_N.eq(dvhId))
                 .stream()
                 .map(DvhLines::buildFromRecord)
                 .collect(Collectors.toList());
     }
 
     public List<DvhLines> findDvhLines(List<Long> dvhId) {
-        return context.fetch(NBC_DVH_LINES, NBC_DVH_LINES.NBC_DVH_N.in(dvhId))
+        return context.fetch(DVH_LINES, DVH_LINES.DVH_N.in(dvhId))
                 .stream()
                 .map(DvhLines::buildFromRecord)
                 .collect(Collectors.toList());

@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcOrganizations.NBC_ORGANIZATIONS;
+import static lgk.nsbc.generated.tables.Organizations.ORGANIZATIONS;
 
 @Service
 public class OrganizationsDao implements Serializable {
@@ -25,7 +25,7 @@ public class OrganizationsDao implements Serializable {
 
     @PostConstruct
     void init() {
-        organizationsMap = Collections.unmodifiableMap(context.fetch(NBC_ORGANIZATIONS)
+        organizationsMap = Collections.unmodifiableMap(context.fetch(ORGANIZATIONS)
                 .stream()
                 .map(Organization::buildFromRecord)
                 .collect(toMap(Organization::getN, identity()))

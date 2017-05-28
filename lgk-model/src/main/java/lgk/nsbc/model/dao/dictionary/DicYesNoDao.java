@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcDicYesNo.NBC_DIC_YES_NO;
+import static lgk.nsbc.generated.tables.DicYesNo.DIC_YES_NO;
 
 @Service
 public class DicYesNoDao implements Serializable {
@@ -25,7 +25,7 @@ public class DicYesNoDao implements Serializable {
 
     @PostConstruct
     void init() {
-        dicYesNo = Collections.unmodifiableMap(context.fetch(NBC_DIC_YES_NO)
+        dicYesNo = Collections.unmodifiableMap(context.fetch(DIC_YES_NO)
                 .stream()
                 .map(DicYesNo::buildFromRecord)
                 .collect(toMap(DicYesNo::getN, identity()))

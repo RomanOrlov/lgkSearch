@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcMutationTypes.NBC_MUTATION_TYPES;
+import static lgk.nsbc.generated.tables.MutationTypes.MUTATION_TYPES;
 
 @Getter
 @Builder
@@ -21,10 +21,10 @@ public class MutationType implements Serializable {
     private String description;
 
     public static MutationType buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_MUTATION_TYPES.N))
-                .name(record.get(NBC_MUTATION_TYPES.NAME))
-                .text(record.get(NBC_MUTATION_TYPES.TEXT))
-                .description(record.get(NBC_MUTATION_TYPES.DESCRIPTION))
+        return builder().n(record.get(MUTATION_TYPES.N))
+                .name(record.get(MUTATION_TYPES.NAME))
+                .text(record.get(MUTATION_TYPES.TEXT))
+                .description(record.get(MUTATION_TYPES.DESCRIPTION))
                 .build();
     }
 

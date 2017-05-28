@@ -8,7 +8,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcProcRtDevice.NBC_PROC_RT_DEVICE;
+import static lgk.nsbc.generated.tables.ProcRtDevice.PROC_RT_DEVICE;
 
 @Getter
 @Builder
@@ -22,9 +22,9 @@ public class ProcRtDevice implements Serializable {
     private String text;
 
     public static ProcRtDevice buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_PROC_RT_DEVICE.N))
-                .name(record.get(NBC_PROC_RT_DEVICE.NAME))
-                .text(record.get(NBC_PROC_RT_DEVICE.TEXT))
+        return builder().n(record.get(PROC_RT_DEVICE.N))
+                .name(record.get(PROC_RT_DEVICE.NAME))
+                .text(record.get(PROC_RT_DEVICE.TEXT))
                 .build();
     }
 

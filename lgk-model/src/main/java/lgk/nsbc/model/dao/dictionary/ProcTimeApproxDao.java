@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcProcTimeApprox.NBC_PROC_TIME_APPROX;
+import static lgk.nsbc.generated.tables.ProcTimeApprox.PROC_TIME_APPROX;
 
 @Service
 public class ProcTimeApproxDao implements Serializable {
@@ -25,7 +25,7 @@ public class ProcTimeApproxDao implements Serializable {
 
     @PostConstruct
     void init() {
-        procTimeApproxMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_TIME_APPROX)
+        procTimeApproxMap = Collections.unmodifiableMap(context.fetch(PROC_TIME_APPROX)
                 .stream()
                 .map(ProcTimeApprox::buildFromRecord)
                 .collect(toMap(ProcTimeApprox::getN, identity()))

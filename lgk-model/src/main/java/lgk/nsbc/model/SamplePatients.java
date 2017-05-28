@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcSmplPatients.NBC_SMPL_PATIENTS;
+import static lgk.nsbc.generated.tables.SmplPatients.SMPL_PATIENTS;
 
 @Getter
 @Setter
@@ -22,11 +22,11 @@ public class SamplePatients implements Serializable {
     private String inclusion;
 
     public static SamplePatients buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_SMPL_PATIENTS.N))
-                .sampleId(record.get(NBC_SMPL_PATIENTS.BAS_SAMPLES_N))
-                .patientId(record.get(NBC_SMPL_PATIENTS.NBC_PATIENTS_N))
-                .comment(record.get(NBC_SMPL_PATIENTS.COMMENTS))
-                .inclusion(record.get(NBC_SMPL_PATIENTS.INCLUSION))
+        return builder().n(record.get(SMPL_PATIENTS.N))
+                .sampleId(record.get(SMPL_PATIENTS.SAMPLES_N))
+                .patientId(record.get(SMPL_PATIENTS.PATIENTS_N))
+                .comment(record.get(SMPL_PATIENTS.COMMENTS))
+                .inclusion(record.get(SMPL_PATIENTS.INCLUSION))
                 .build();
     }
 }

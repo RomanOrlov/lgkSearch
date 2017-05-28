@@ -6,7 +6,7 @@ import org.jooq.Record;
 import java.io.Serializable;
 import java.util.Date;
 
-import static lgk.nsbc.generated.tables.BasPeople.BAS_PEOPLE;
+import static lgk.nsbc.generated.tables.People.PEOPLE;
 
 @Getter
 @Setter
@@ -23,15 +23,21 @@ public class People implements Serializable {
     private String patronymic;
     private String sex;
     private Date birthday;
+    private String fullName;
+
+    public String getFullName() {
+        if (fullName != null) return fullName;
+        return surname + " " + name + " " + patronymic;
+    }
 
     public static People buildFromRecord(Record record) {
         return builder()
-                .n(record.get(BAS_PEOPLE.N))
-                .name(record.get(BAS_PEOPLE.NAME))
-                .surname(record.get(BAS_PEOPLE.SURNAME))
-                .patronymic(record.get(BAS_PEOPLE.PATRONYMIC))
-                .sex(record.get(BAS_PEOPLE.SEX))
-                .birthday(record.get(BAS_PEOPLE.BIRTHDAY))
+                .n(record.get(PEOPLE.N))
+                .name(record.get(PEOPLE.NAME))
+                .surname(record.get(PEOPLE.SURNAME))
+                .patronymic(record.get(PEOPLE.PATRONYMIC))
+                .sex(record.get(PEOPLE.SEX))
+                .birthday(record.get(PEOPLE.BIRTHDAY))
                 .build();
     }
 }

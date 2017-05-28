@@ -28,7 +28,7 @@ public class SysAgents implements Serializable {
                 .name(record.get(SYS_AGENTS.NAME))
                 .pid(record.get(SYS_AGENTS.PID))
                 .people_n(record.get(SYS_AGENTS.PEOPLE_N))
-                .nbc_org_n_default(record.get(SYS_AGENTS.NBC_ORG_N_DEAFULT))
+                .nbc_org_n_default(record.get(SYS_AGENTS.ORG_N_DEAFULT))
                 .build();
     }
 }

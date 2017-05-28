@@ -5,7 +5,7 @@ import org.jooq.Record;
 
 import java.io.Serializable;
 
-import static lgk.nsbc.generated.tables.NbcDvhLines.NBC_DVH_LINES;
+import static lgk.nsbc.generated.tables.DvhLines.DVH_LINES;
 
 @Getter
 @Setter
@@ -21,10 +21,10 @@ public class DvhLines implements Serializable {
     private Double volume;
 
     public static DvhLines buildFromRecord(Record record) {
-        return builder().n(record.get(NBC_DVH_LINES.N))
-                .dvhN(record.get(NBC_DVH_LINES.NBC_DVH_N))
-                .dose(record.get(NBC_DVH_LINES.DOSE))
-                .volume(record.get(NBC_DVH_LINES.VOLUME))
+        return builder().n(record.get(DVH_LINES.N))
+                .dvhN(record.get(DVH_LINES.DVH_N))
+                .dose(record.get(DVH_LINES.DOSE))
+                .volume(record.get(DVH_LINES.VOLUME))
                 .build();
     }
 }

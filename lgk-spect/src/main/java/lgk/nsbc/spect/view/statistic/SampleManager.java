@@ -155,12 +155,12 @@ public class SampleManager implements Serializable {
                 .filter(histologyList -> !histologyList.isEmpty())
                 .map(histologyList -> histologyList.get(histologyList.size() - 1))
                 .filter(histology -> genesByHistology.containsKey(histology.getN()))
-                .collect(toMap(Histology::getNbcPatientsN, histology -> genesByHistology.get(histology.getN())));
+                .collect(toMap(Histology::getPatientsN, histology -> genesByHistology.get(histology.getN())));
     }
 
     private List<Histology> getPatientHistology(List<Histology> patientsHistology, SamplePatients patient) {
         return patientsHistology.stream()
-                .filter(histology -> Objects.equals(histology.getNbcPatientsN(), patient.getPatientId()))
+                .filter(histology -> Objects.equals(histology.getPatientsN(), patient.getPatientId()))
                 .sorted(Comparator.comparing(Histology::getN))
                 .collect(toList());
     }

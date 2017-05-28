@@ -39,19 +39,13 @@
             <version>${jooq.version}</version>
         </dependency>
     </dependencies>
+    <!--Не забыть install файлы из модуля для генерации-->
     <build>
         <plugins>
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
                 <version>${jooq.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.firebirdsql.jdbc</groupId>
-                        <artifactId>jaybird-jdk18</artifactId>
-                        <version>2.2.10</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
                     <!--  JDBC connection parameters  -->
                     <jdbc>
@@ -62,13 +56,13 @@
                     </jdbc>
                     <!--  Generator parameters  -->
                     <generator>
-                        <!-- <name>org.jooq.util.JavaGenerator</name>  -->
                         <database>
-                            <name>org.jooq.util.firebird.FirebirdDatabase</name>
+                            <name>lgk.nsbc.generated.CustomDatabase</name>
+                            <!--<name>org.jooq.util.firebird.FirebirdDatabase</name>-->
                             <includes>.*</includes>
                             <!-- Exclude HIS tables and some views (x2 times lighter) -->
                             <excludes>
-                                    .*(_HIS)$
+                                .*(_HIS)$
                                 | .*(_LST)$
                                 | .*(_DEL)$
                                 | .*(_GET)$
@@ -79,15 +73,37 @@
                                 | ^(Test).*
                                 | .*(Go)$
                                 | .*(Qry)$
+                                | ^(Mon\$).*
                             </excludes>
                             <inputSchema/>
                         </database>
+                        <name>org.jooq.util.JavaGenerator</name>
+                        <strategy>
+                            <name>lgk.nsbc.generated.CustomGeneratorStrategy</name>
+                        </strategy>
+                        <!--<strategy>
+                            <name>org.jooq.util.DefaultGeneratorStrategy</name>
+                        </strategy>-->
                         <target>
                             <packageName>lgk.nsbc.generated</packageName>
                             <directory>src/main/java/</directory>
                         </target>
                     </generator>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.firebirdsql.jdbc</groupId>
+                        <artifactId>jaybird-jdk18</artifactId>
+                        <version>2.2.10</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>lgk.nsbc</groupId>
+                        <artifactId>generator-strategy</artifactId>
+                        <version>0.0.1-SNAPSHOT</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

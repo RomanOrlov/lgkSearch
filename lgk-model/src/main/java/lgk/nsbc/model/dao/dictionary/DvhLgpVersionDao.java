@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcDvhLgpVersion.NBC_DVH_LGP_VERSION;
+import static lgk.nsbc.generated.tables.DvhLgpVersion.DVH_LGP_VERSION;
 
 @Service
 public class DvhLgpVersionDao implements Serializable {
@@ -25,7 +25,7 @@ public class DvhLgpVersionDao implements Serializable {
 
     @PostConstruct
     void init() {
-        dvhLgpVersionMap = Collections.unmodifiableMap(context.fetch(NBC_DVH_LGP_VERSION)
+        dvhLgpVersionMap = Collections.unmodifiableMap(context.fetch(DVH_LGP_VERSION)
                 .stream()
                 .map(DvhLgpVersion::buildFromRecord)
                 .collect(toMap(DvhLgpVersion::getN, identity()))

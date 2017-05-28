@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 
-import static lgk.nsbc.generated.tables.NbcStudInj.NBC_STUD_INJ;
+import static lgk.nsbc.generated.tables.StudInj.STUD_INJ;
 
 @Getter
 @Setter
@@ -19,24 +19,24 @@ public class StudInj implements Serializable {
 
     private Long n;
     private Long op_create;
-    private Long nbc_stud_n;
-    private Long nbc_rfp_n;
-    private Double inj_activity_bq;
-    private Double inj_vol_ml;
-    private Date inj_begin;
-    private Date inj_end;
+    private Long studN;
+    private Long rfpN;
+    private Double injActivityBq;
+    private Double injVolMl;
+    private Date injBegin;
+    private Date injEnd;
 
     public static Optional<StudInj> buildFromRecord(Record record) {
         if (record == null) return Optional.empty();
         return Optional.of(builder()
-                .n(record.get(NBC_STUD_INJ.N))
-                .op_create(record.get(NBC_STUD_INJ.OP_CREATE))
-                .nbc_stud_n(record.get(NBC_STUD_INJ.NBC_STUD_N))
-                .nbc_rfp_n(record.get(NBC_STUD_INJ.NBC_RFP_N))
-                .inj_activity_bq(record.get(NBC_STUD_INJ.INJ_ACTIVITY_BQ))
-                .inj_vol_ml(record.get(NBC_STUD_INJ.INJ_VOL_ML))
-                .inj_begin(record.get(NBC_STUD_INJ.INJ_BEGIN))
-                .inj_end(record.get(NBC_STUD_INJ.INJ_END))
+                .n(record.get(STUD_INJ.N))
+                .op_create(record.get(STUD_INJ.OP_CREATE))
+                .studN(record.get(STUD_INJ.STUD_N))
+                .rfpN(record.get(STUD_INJ.RFP_N))
+                .injActivityBq(record.get(STUD_INJ.INJ_ACTIVITY_BQ))
+                .injVolMl(record.get(STUD_INJ.INJ_VOL_ML))
+                .injBegin(record.get(STUD_INJ.INJ_BEGIN))
+                .injEnd(record.get(STUD_INJ.INJ_END))
                 .build());
     }
 }

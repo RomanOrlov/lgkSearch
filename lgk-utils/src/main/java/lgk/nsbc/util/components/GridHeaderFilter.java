@@ -87,15 +87,15 @@ public class GridHeaderFilter {
     }
 
     public static <T, V> void addRadioButtonFilter(HeaderCell cell,
-                                                  ListDataProvider<T> dataProvider,
-                                                  ValueProvider<T, V> valueProvider,
-                                                  Collection<V> options) {
+                                                   ListDataProvider<T> dataProvider,
+                                                   ValueProvider<T, V> valueProvider,
+                                                   Collection<V> options) {
         RadioButtonGroup<V> radioButtonFilterField = getRadioButtonFilterField(options);
         HorizontalLayout components = wrapWithClearButton(radioButtonFilterField);
         cell.setComponent(components);
         radioButtonFilterField.addValueChangeListener(event -> {
             V value = event.getValue();
-            dataProvider.setFilter(valueProvider, v -> value == null || v == null || value.equals(v));
+            dataProvider.setFilter(valueProvider, v -> value != null && value.equals(v));
         });
     }
 
@@ -125,7 +125,7 @@ public class GridHeaderFilter {
 
     private static Button getClearButton() {
         Button clear = new Button();
-        clear.setStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        clear.setStyleName(ValoTheme.BUTTON_TINY);
         clear.setIcon(VaadinIcons.CLOSE_SMALL);
         return clear;
     }
@@ -140,7 +140,7 @@ public class GridHeaderFilter {
 
     private static TextField getColumnNumberFilterField(boolean isFrom) {
         TextField filter = new TextField();
-        filter.setWidth("80px");
+        filter.setWidth("70px");
         filter.addStyleName(ValoTheme.TEXTFIELD_TINY);
         filter.setPlaceholder(isFrom ? "От" : "До");
         return filter;
@@ -163,7 +163,8 @@ public class GridHeaderFilter {
     }
 
     private static <T> RadioButtonGroup<T> getRadioButtonFilterField(Collection<T> options) {
-        RadioButtonGroup<T> radioButtonGroup = new RadioButtonGroup<T>();
+        RadioButtonGroup<T> radioButtonGroup = new RadioButtonGroup<>();
+        radioButtonGroup.setStyleName(ValoTheme.OPTIONGROUP_HORIZONTAL);
         radioButtonGroup.setItems(options);
         return radioButtonGroup;
     }

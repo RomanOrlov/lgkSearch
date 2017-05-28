@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.NbcProcRtDevice.NBC_PROC_RT_DEVICE;
+import static lgk.nsbc.generated.tables.ProcRtDevice.PROC_RT_DEVICE;
 
 @Service
 public class ProcRtDeviceDao implements Serializable {
@@ -25,7 +25,7 @@ public class ProcRtDeviceDao implements Serializable {
 
     @PostConstruct
     void init() {
-        procRtDeviceMap = Collections.unmodifiableMap(context.fetch(NBC_PROC_RT_DEVICE)
+        procRtDeviceMap = Collections.unmodifiableMap(context.fetch(PROC_RT_DEVICE)
                 .stream()
                 .map(ProcRtDevice::buildFromRecord)
                 .collect(toMap(ProcRtDevice::getN, identity()))
