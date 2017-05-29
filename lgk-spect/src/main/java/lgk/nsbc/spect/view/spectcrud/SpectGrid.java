@@ -14,6 +14,7 @@ import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Target;
 import lgk.nsbc.spect.model.SpectDataManager;
+import lgk.nsbc.util.components.GlobalGridFilter;
 import lgk.nsbc.util.components.GridHeaderFilter;
 import lombok.Getter;
 import org.jooq.DSLContext;
@@ -56,6 +57,7 @@ public class SpectGrid extends Grid<SpectGridData> {
     private SpectDataManager spectDataManager;
     @Autowired
     private DSLContext context;
+    private GlobalGridFilter<SpectGridData> globalGridFilter = new GlobalGridFilter<>();
 
     private static final DecimalFormat doubleFormat = new DecimalFormat("###0.00");
 
@@ -230,7 +232,10 @@ public class SpectGrid extends Grid<SpectGridData> {
         // Наведение красоты
         structureTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
         contourTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
-        GridHeaderFilter.addTextFilter(filterHeader.getCell(fullNameColumn), dataProvider, SpectGridData::getSurname);
+        GridHeaderFilter.addTextFilter(filterHeader.getCell(fullNameColumn),
+                dataProvider,
+                SpectGridData::getSurname,
+                globalGridFilter);
         // Заполняем маленькую статистику
         FooterRow footerRow = appendFooterRow();
         dataProvider.addDataProviderListener(event -> {

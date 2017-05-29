@@ -9,8 +9,6 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>lgk-generated</module>
-		<module>lgk-application</module>
-		<module>lgk-domain</module>
         <module>lgk-histology</module>
         <module>lgk-spect</module>
         <module>lgk-model</module>
@@ -58,7 +56,7 @@
 	</developers>
 
 	<properties>
-		<vaadin.version>8.1.0.alpha8</vaadin.version>
+		<vaadin.version>8.1.0.beta1</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 		<project.encoding>UTF-8</project.encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

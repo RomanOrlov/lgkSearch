@@ -16,6 +16,7 @@ import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.SamplePatients;
 import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
 import lgk.nsbc.util.DateUtils;
+import lgk.nsbc.util.components.GlobalGridFilter;
 import lgk.nsbc.util.components.GridHeaderFilter;
 import lgk.nsbc.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,16 @@ import org.vaadin.dialogs.ConfirmDialog;
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static lgk.nsbc.util.components.GridHeaderFilter.addDoubleFilter;
+import static lgk.nsbc.util.components.GridHeaderFilter.addRadioButtonFilter;
 
 @Service
 @VaadinSessionScope
@@ -50,6 +56,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     private Button removeFromSample = new Button("Удалить из выборки");
     private static final DecimalFormat ageFormat = new DecimalFormat("###0");
     private static final DecimalFormat inFormat = new DecimalFormat("##0.00");
+    private final GlobalGridFilter<SampleBind> globalGridFilter = new GlobalGridFilter<>();
 
 
     @PostConstruct
@@ -331,27 +338,96 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         // Настраиваем фильттрацию
         HeaderRow filterHeader = sampleGrid.prependHeaderRow();
         filterHeader.setStyleName("align-center"); // ONG стало лучше выглядеть
-        GridHeaderFilter.addTextFilter(filterHeader.getCell(name), dataProvider, sampleBind -> sampleBind.getPatients().toString());
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(gender), dataProvider, sampleBind -> sampleBind.getPatients().getPeople().getSex(), asList("М", "Ж"));
-        GridHeaderFilter.addIntegerFilter(filterHeader.getCell(fullYearsAtSurgery), dataProvider, SampleBind::getAgeAtSurgery);
-        GridHeaderFilter.addCheckBoxFilter(filterHeader.getCell(includedColumn), dataProvider, SampleBind::getInclusionRepresentation, "Да");
+        GridHeaderFilter.addTextFilter(filterHeader.getCell(name),
+                dataProvider,
+                sampleBind -> sampleBind.getPatients().toString(),
+                globalGridFilter);
 
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect1InEarly), dataProvider, SampleBind::getSpect1InEarly);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect1InLate), dataProvider, SampleBind::getSpect1InLate);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect1InOut), dataProvider, SampleBind::getSpect1InOut);
+        addRadioButtonFilter(filterHeader.getCell(gender),
+                dataProvider,
+                sampleBind -> sampleBind.getPatients().getPeople().getSex(),
+                asList("М", "Ж"),
+                globalGridFilter);
 
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect2InEarly), dataProvider, SampleBind::getSpect2InEarly);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect2InLate), dataProvider, SampleBind::getSpect2InLate);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect2InOut), dataProvider, SampleBind::getSpect2InOut);
+        GridHeaderFilter.addIntegerFilter(filterHeader.getCell(fullYearsAtSurgery),
+                dataProvider,
+                SampleBind::getAgeAtSurgery,
+                globalGridFilter);
 
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InEarly), dataProvider, SampleBind::getSpect3InEarly);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InLate), dataProvider, SampleBind::getSpect3InLate);
-        GridHeaderFilter.addDoubleFilter(filterHeader.getCell(spect3InOut), dataProvider, SampleBind::getSpect3InOut);
+        GridHeaderFilter.addCheckBoxFilter(filterHeader.getCell(includedColumn),
+                dataProvider,
+                SampleBind::getInclusionRepresentation,
+                "Да",
+                globalGridFilter);
 
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic1_2_30), dataProvider, SampleBind::getSpect1_2Dynamic30, asList("пол", "отр"));
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic1_2_60), dataProvider, SampleBind::getSpect1_2Dynamic60, asList("пол", "отр"));
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic2_3_30), dataProvider, SampleBind::getSpect2_3Dynamic30, asList("пол", "отр"));
-        GridHeaderFilter.addRadioButtonFilter(filterHeader.getCell(dynamic2_3_60), dataProvider, SampleBind::getSpect2_3Dynamic60, asList("пол", "отр"));
+        addDoubleFilter(filterHeader.getCell(spect1InEarly),
+                dataProvider,
+                SampleBind::getSpect1InEarly,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect1InLate),
+                dataProvider,
+                SampleBind::getSpect1InLate,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect1InOut),
+                dataProvider,
+                SampleBind::getSpect1InOut,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect2InEarly),
+                dataProvider,
+                SampleBind::getSpect2InEarly,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect2InLate),
+                dataProvider,
+                SampleBind::getSpect2InLate,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect2InOut),
+                dataProvider,
+                SampleBind::getSpect2InOut,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect3InEarly),
+                dataProvider,
+                SampleBind::getSpect3InEarly,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect3InLate),
+                dataProvider,
+                SampleBind::getSpect3InLate,
+                globalGridFilter);
+
+        addDoubleFilter(filterHeader.getCell(spect3InOut),
+                dataProvider,
+                SampleBind::getSpect3InOut,
+                globalGridFilter);
+
+        addRadioButtonFilter(filterHeader.getCell(dynamic1_2_30),
+                dataProvider,
+                SampleBind::getSpect1_2Dynamic30,
+                asList("пол", "отр"),
+                globalGridFilter);
+
+        addRadioButtonFilter(filterHeader.getCell(dynamic1_2_60),
+                dataProvider,
+                SampleBind::getSpect1_2Dynamic60,
+                asList("пол", "отр"),
+                globalGridFilter);
+
+        addRadioButtonFilter(filterHeader.getCell(dynamic2_3_30),
+                dataProvider,
+                SampleBind::getSpect2_3Dynamic30,
+                asList("пол", "отр"),
+                globalGridFilter);
+
+        addRadioButtonFilter(filterHeader.getCell(dynamic2_3_60),
+                dataProvider,
+                SampleBind::getSpect2_3Dynamic60,
+                asList("пол", "отр"),
+                globalGridFilter);
         sampleGrid.setSortOrder(GridSortOrder.asc(name));
     }
 
