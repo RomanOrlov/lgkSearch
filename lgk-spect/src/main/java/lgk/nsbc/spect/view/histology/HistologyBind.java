@@ -1,4 +1,4 @@
-package lgk.nsbc.histology;
+package lgk.nsbc.spect.view.histology;
 
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.dictionary.GenesDao;

@@ -1,4 +1,4 @@
-package lgk.nsbc.util.components;
+package lgk.nsbc.spect.util.components;
 
 import com.vaadin.data.HasValue;
 import com.vaadin.data.ValueProvider;

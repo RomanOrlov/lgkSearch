@@ -4,8 +4,8 @@ import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.SamplePatients;
 import lgk.nsbc.model.dictionary.DicYesNo;
+import lgk.nsbc.spect.util.DateUtils;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
-import lgk.nsbc.util.DateUtils;
 import lombok.*;
 
 import java.io.Serializable;

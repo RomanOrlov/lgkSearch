@@ -14,11 +14,12 @@ import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.SamplePatients;
+import lgk.nsbc.spect.util.DateUtils;
+import lgk.nsbc.spect.util.components.NavigationBar;
 import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
-import lgk.nsbc.util.DateUtils;
-import lgk.nsbc.util.components.GlobalGridFilter;
-import lgk.nsbc.util.components.GridHeaderFilter;
-import lgk.nsbc.util.components.SuggestionCombobox;
+import lgk.nsbc.spect.util.components.GlobalGridFilter;
+import lgk.nsbc.spect.util.components.GridHeaderFilter;
+import lgk.nsbc.spect.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -37,8 +38,8 @@ import static java.util.stream.Collectors.toSet;
 import static lgk.nsbc.spect.view.statistic.Dynamic.NEGATIVE;
 import static lgk.nsbc.spect.view.statistic.Dynamic.POSITIVE;
 import static lgk.nsbc.spect.view.statistic.Dynamic.STABLE;
-import static lgk.nsbc.util.components.GridHeaderFilter.addDoubleFilter;
-import static lgk.nsbc.util.components.GridHeaderFilter.addRadioButtonFilter;
+import static lgk.nsbc.spect.util.components.GridHeaderFilter.addDoubleFilter;
+import static lgk.nsbc.spect.util.components.GridHeaderFilter.addRadioButtonFilter;
 
 @Service
 @VaadinSessionScope
@@ -62,6 +63,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     private static final DecimalFormat inFormat = new DecimalFormat("##0.00");
     private final GlobalGridFilter<SampleBind> globalGridFilter = new GlobalGridFilter<>();
 
+    private NavigationBar navigationBar = new NavigationBar();
 
     @PostConstruct
     public void init() {
@@ -74,7 +76,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         buttons.setComponentAlignment(combobox, Alignment.TOP_CENTER);
         buttons.setWidth("100%");
         buttons.setExpandRatio(combobox, 1.0f);
-        addComponents(buttons, sampleGrid);
+        addComponents(navigationBar, buttons, sampleGrid);
         setExpandRatio(sampleGrid, 1.0f);
     }
 

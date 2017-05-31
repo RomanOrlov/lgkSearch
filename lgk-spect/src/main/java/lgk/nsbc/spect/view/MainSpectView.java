@@ -6,7 +6,8 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
-import lgk.nsbc.histology.HistologyView;
+import lgk.nsbc.spect.view.histology.HistologyView;
+import lgk.nsbc.spect.view.holes.MissingData;
 import lgk.nsbc.spect.view.spectcrud.SpectCRUDView;
 import lgk.nsbc.spect.view.statistic.SampleStatistic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,14 @@ public class MainSpectView extends UI {
     private HistologyView histologyView;
     @Autowired
     private SampleStatistic sampleStatistic;
+    @Autowired
+    private MissingData missingData;
 
     public static final String LOGIN = "login";
     public static final String SPECT_VIEW = "spect";
     public static final String HISTOLOGY_VIEW = "histology";
     public static final String STATISTIC_VIEW = "statistic";
+    public static final String MISSING_DATA = "holes";
 
     private Navigator navigator;
 
@@ -38,6 +42,8 @@ public class MainSpectView extends UI {
         navigator.addView(SPECT_VIEW, spectCRUDView);
         navigator.addView(HISTOLOGY_VIEW, histologyView);
         navigator.addView(STATISTIC_VIEW, sampleStatistic);
+        navigator.addView(MISSING_DATA, missingData);
         navigator.navigateTo(STATISTIC_VIEW);
+        navigator.setErrorView(loginPage);
     }
 }

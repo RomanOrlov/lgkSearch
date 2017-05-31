@@ -11,7 +11,6 @@ import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.model.spect.TargetType;
 import lgk.nsbc.spect.view.spectcrud.SpectGridDBData;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
-import lgk.nsbc.util.DateUtils;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;

@@ -1,4 +1,4 @@
-package lgk.nsbc.histology;
+package lgk.nsbc.spect.view.histology;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
@@ -14,13 +14,13 @@ import com.vaadin.ui.themes.ValoTheme;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
-import lgk.nsbc.model.dao.PatientsDao;
 import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
 import lgk.nsbc.model.dao.dictionary.MutationTypesDao;
 import lgk.nsbc.model.dictionary.Gene;
 import lgk.nsbc.model.histology.Mutation;
-import lgk.nsbc.util.DateUtils;
-import lgk.nsbc.util.components.SuggestionCombobox;
+import lgk.nsbc.spect.util.DateUtils;
+import lgk.nsbc.spect.util.components.NavigationBar;
+import lgk.nsbc.spect.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -51,6 +51,8 @@ public class HistologyView extends VerticalLayout implements View {
     private Binder<HistologyBind> binder = new Binder<>();
     private Boolean editMode = false;
     private HistologyBind selectedToEdit;
+
+    private NavigationBar navigationBar = new NavigationBar();
 
     private void refreshHistology(Patients patients) {
         List<HistologyBind> histologyBindList = histologyManager.getHistology(patients);
@@ -181,7 +183,7 @@ public class HistologyView extends VerticalLayout implements View {
         grids.setWidth("100%");
         grids.setExpandRatio(histologyGrid, 1.0f);
         initMutationGrid();
-        addComponents(tools, grids, histologyParams, comment, mutationGrid, saveChanges);
+        addComponents(navigationBar, tools, grids, histologyParams, comment, mutationGrid, saveChanges);
         setComponentAlignment(saveChanges, Alignment.MIDDLE_CENTER);
         mutations.addAll(HistologyBind.getMutationsTemplate());
         mutationGrid.getDataProvider().refreshAll();

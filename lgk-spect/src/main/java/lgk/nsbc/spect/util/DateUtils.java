@@ -1,4 +1,4 @@
-package lgk.nsbc.util;
+package lgk.nsbc.spect.util;
 
 import java.time.Instant;
 import java.time.LocalDate;

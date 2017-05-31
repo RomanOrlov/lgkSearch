@@ -1,5 +1,6 @@
-package lgk.nsbc.histology;
+package lgk.nsbc.spect.view.histology;
 
+import lgk.nsbc.model.DateUtils;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
@@ -9,7 +10,6 @@ import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
-import lgk.nsbc.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

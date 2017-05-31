@@ -1,4 +1,4 @@
-package lgk.nsbc.util.components;
+package lgk.nsbc.spect.util.components;
 
 import java.util.ArrayList;
 import java.util.List;

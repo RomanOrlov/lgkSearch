@@ -2,7 +2,6 @@ package lgk.nsbc.spect.view.spectcrud;
 
 import lgk.nsbc.model.*;
 import lgk.nsbc.model.dao.dictionary.StudTypeDao;
-import lgk.nsbc.util.DateUtils;
 import lombok.Getter;
 
 import java.util.*;

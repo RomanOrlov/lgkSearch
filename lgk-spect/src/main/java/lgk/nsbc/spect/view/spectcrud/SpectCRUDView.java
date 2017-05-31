@@ -4,11 +4,12 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
-import lgk.nsbc.model.dao.PatientsDao;
+import lgk.nsbc.model.spect.ContourType;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.spect.util.DataMigrationService;
+import lgk.nsbc.spect.util.components.NavigationBar;
 import lgk.nsbc.spect.util.excel.SpectDataExcelExporter;
-import lgk.nsbc.util.components.SuggestionCombobox;
+import lgk.nsbc.spect.util.components.SuggestionCombobox;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -21,9 +22,7 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import static lgk.nsbc.model.spect.ContourType.ISOLYNE10;
-import static lgk.nsbc.model.spect.ContourType.ISOLYNE25;
-import static lgk.nsbc.model.spect.ContourType.ISOLYNE50;
+import static lgk.nsbc.model.spect.ContourType.*;
 
 @Service
 @VaadinSessionScope
@@ -40,6 +39,7 @@ public class SpectCRUDView extends VerticalLayout implements View {
     private SuggestionCombobox combobox;
 
     private Button readAllRecords;
+    private NavigationBar navigationBar = new NavigationBar();
 
     @PostConstruct
     private void init() {
@@ -85,14 +85,12 @@ public class SpectCRUDView extends VerticalLayout implements View {
         instruments.setWidth("100%");
         instruments.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 
-        addComponents(combobox, instruments, spectGrid);
+        addComponents(navigationBar, combobox, instruments, spectGrid);
         setExpandRatio(spectGrid, 1.0f);
 
         // По дефолту что то будет скрыто (Например изолинии, которые не нужны)
-        Set<String> invisibleColumns = new HashSet<>();
-        invisibleColumns.add(ISOLYNE10.getName());
-        invisibleColumns.add(ISOLYNE25.getName());
-        invisibleColumns.add(ISOLYNE50.getName());
+        Set<String> invisibleColumns = new HashSet<>(ContourType.getNames());
+        invisibleColumns.remove(SPHERE.getName());
         twinColSelect.setValue(invisibleColumns);
         combobox.focus();
     }

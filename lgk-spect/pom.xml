@@ -2,22 +2,104 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>search</artifactId>
-        <groupId>lgk.nsbc</groupId>
-        <version>0.0.1-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.3.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>lgk.nsbc</groupId>
     <artifactId>spect</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+        <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
+        <vaadin.version>8.1.0.beta1</vaadin.version>
+        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+        <project.encoding>UTF-8</project.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.source.version>1.8</project.source.version>
+        <project.target.version>1.8</project.target.version>
         <java.version>1.8</java.version>
+        <start-class>lgk.nsbc.spect.SpectApplication</start-class>
+        <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+        <repository>
+            <id>vaadin-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>vaadin-prereleases</id>
+            <name>Vaadin Pre-releases</name>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-push</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-client-compiled</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-themes</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>vaadin-sliderpanel</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+  <!--      <dependency>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>loginform</artifactId>
+            <version>0.6.2</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.vaadin.addon</groupId>
+            <artifactId>confirmdialog</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+<!--        <dependency>
+            <groupId>com.vaadin.addon</groupId>
+            <artifactId>tableexport-for-vaadin</artifactId>
+            <version>1.6.2</version>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -54,125 +136,87 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.firebirdsql.jdbc</groupId>
+            <artifactId>jaybird-jdk18</artifactId>
+            <version>2.2.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jooq</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
     </dependencies>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>vaadin-prereleases</id>
+            <name>Vaadin Pre-releases</name>
+            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
     <build>
-        <!-- Turn on filtering by default for application properties -->
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/application.yml</include>
-                    <include>**/application.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <excludes>
-                    <exclude>**/application.yml</exclude>
-                    <exclude>**/application.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
+
         <plugins>
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.vaadin.addons</groupId>
-                                    <artifactId>vaadin-sliderpanel</artifactId>
-                                    <version>2.0.0-SNAPSHOT</version>
-                                    <type>jar</type>
-                                    <includes>**/sliderpanel/components/*.scss</includes>
-                                    <outputDirectory>${basedir}/src/main/resources</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <id>stylesheet</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <includeProjectDependencies>true</includeProjectDependencies>
-                            <includePluginDependencies>true</includePluginDependencies>
-                            <executableDependency>
-                                <groupId>com.vaadin</groupId>
-                                <artifactId>vaadin-sass-compiler</artifactId>
-                            </executableDependency>
-                            <mainClass>com.vaadin.sass.SassCompiler</mainClass>
-                            <arguments>
-                                <argument>${basedir}/src/main/resources/org/vaadin/sliderpanel/spect/spect.scss
-                                </argument>
-                                <argument>${basedir}/src/main/resources/org/vaadin/sliderpanel/spect/spect.css
-                                </argument>
-                                <argument>${basedir}/src/main/resources/org/vaadin/sliderpanel/spect/spect.css
-                                </argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-sass-compiler</artifactId>
-                        <version>0.9.13</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-
-            <plugin>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.version}</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
                 <configuration>
-                    <extraJvmArgs>-Xmx1g -Xss1024k</extraJvmArgs>
-                    <webappDirectory>${project.build.outputDirectory}/VAADIN/widgetsets</webappDirectory>
-                    <hostedWebapp>${project.build.outputDirectory}/VAADIN/widgetsets</hostedWebapp>
-                    <noServer>true</noServer>
-                    <!-- Remove draftCompile when project is ready -->
-                    <draftCompile>true</draftCompile>
-                    <persistentunitcachedir>${project.build.directory}/gwtdirt</persistentunitcachedir>
-                    <compileReport>false</compileReport>
-                    <style>OBF</style>
-                    <strict>true</strict>
-                    <!-- Symbol maps etc, not needed in vaadin app, just target them outside war -->
-                    <deploy>${project.build.directory}/gwt-deploy</deploy>
+                    <encoding>${project.encoding}</encoding>
+                    <source>${project.source.version}</source>
+                    <target>${project.target.version}</target>
                 </configuration>
-                <executions>
-                    <!-- You are free to mark this as permanently ignored in Eclipse -->
-                    <execution>
-                        <configuration>
-                            <!-- if you don't specify any modules, the plugin will find them -->
-                        </configuration>
-                        <goals>
-                            <goal>clean</goal>
-                            <goal>resources</goal>
-                            <goal>update-widgetset</goal>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>${project.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
             </plugin>
         </plugins>
     </build>
