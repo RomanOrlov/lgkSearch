@@ -60,7 +60,6 @@ public class HistologyView extends VerticalLayout implements View {
 
     @PostConstruct
     public void init() {
-        suggestionCombobox = new SuggestionCombobox();
         suggestionCombobox.focus();
         suggestionCombobox.addValueChangeListener(event -> {
             clearAll();
@@ -94,8 +93,6 @@ public class HistologyView extends VerticalLayout implements View {
         HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology);
         tools.setWidth("100%");
         tools.setExpandRatio(suggestionCombobox, 1.0f);
-        Label patientsName = new Label();
-        suggestionCombobox.addValueChangeListener(event -> patientsName.setValue(event.getValue().toStringWithCaseHistory()));
 
         DateField dateField = new DateField("Дата гистологии");
         dateField.setTextFieldEnabled(false);
@@ -184,7 +181,7 @@ public class HistologyView extends VerticalLayout implements View {
         grids.setWidth("100%");
         grids.setExpandRatio(histologyGrid, 1.0f);
         initMutationGrid();
-        addComponents(tools, patientsName, grids, histologyParams, comment, mutationGrid, saveChanges);
+        addComponents(tools, grids, histologyParams, comment, mutationGrid, saveChanges);
         setComponentAlignment(saveChanges, Alignment.MIDDLE_CENTER);
         mutations.addAll(HistologyBind.getMutationsTemplate());
         mutationGrid.getDataProvider().refreshAll();

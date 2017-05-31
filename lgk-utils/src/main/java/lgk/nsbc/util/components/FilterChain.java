@@ -1,10 +1,9 @@
 package lgk.nsbc.util.components;
 
+import com.vaadin.data.HasItems;
 import com.vaadin.data.HasValue;
 import com.vaadin.data.ValueProvider;
-import com.vaadin.server.SerializableBiFunction;
 import com.vaadin.server.SerializableFunction;
-import com.vaadin.server.SerializablePredicate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
@@ -28,5 +27,12 @@ public class FilterChain<T, V, U> {
         V hasValueConverted = converter.apply(value);
         V providerValue = valueProvider.apply(u);
         return filter.apply(hasValueConverted, providerValue);
+    }
+
+    public void clear() {
+        hasValue.clear();
+        if (hasValue instanceof HasItems) {
+            ((HasItems) hasValue).getDataProvider().refreshAll();
+        }
     }
 }

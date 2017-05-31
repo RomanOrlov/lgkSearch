@@ -4,6 +4,7 @@ import lombok.*;
 import org.jooq.Record;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 import static lgk.nsbc.generated.tables.People.PEOPLE;
@@ -24,6 +25,7 @@ public class People implements Serializable {
     private String sex;
     private Date birthday;
     private String fullName;
+    private LocalDate obit;
 
     public String getFullName() {
         if (fullName != null) return fullName;
@@ -38,6 +40,7 @@ public class People implements Serializable {
                 .patronymic(record.get(PEOPLE.PATRONYMIC))
                 .sex(record.get(PEOPLE.SEX))
                 .birthday(record.get(PEOPLE.BIRTHDAY))
+                .obit(DateUtils.asLocalDate(record.get(PEOPLE.OBIT)))
                 .build();
     }
 }

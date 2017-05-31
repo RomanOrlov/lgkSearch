@@ -94,7 +94,11 @@ public class GridHeaderFilter {
                 valueProvider,
                 globalGridFilter,
                 Objects::equals);
-        listSelect.addValueChangeListener(event -> dataProvider.setFilter(globalGridFilter::test));
+        listSelect.addValueChangeListener(event -> {
+            if (Objects.equals(event.getOldValue(),event.getValue()))
+                return;
+            dataProvider.setFilter(globalGridFilter::test);
+        });
     }
 
     public static <T, V> void addRadioButtonFilter(HeaderCell cell,
@@ -110,7 +114,11 @@ public class GridHeaderFilter {
                 valueProvider,
                 globalGridFilter,
                 Objects::equals);
-        radioButtonFilterField.addValueChangeListener(event -> dataProvider.setFilter(globalGridFilter::test));
+        radioButtonFilterField.addValueChangeListener(event -> {
+            if (Objects.equals(event.getOldValue(),event.getValue()))
+                return;
+            dataProvider.setFilter(globalGridFilter::test);
+        });
     }
 
     public static <T, V> void addCheckBoxFilter(HeaderCell cell,
@@ -162,7 +170,7 @@ public class GridHeaderFilter {
 
     private static TextField getColumnNumberFilterField(boolean isFrom) {
         TextField filter = new TextField();
-        filter.setWidth("70px");
+        filter.setWidth("45px");
         filter.addStyleName(ValoTheme.TEXTFIELD_TINY);
         filter.setPlaceholder(isFrom ? "От" : "До");
         return filter;
@@ -181,6 +189,7 @@ public class GridHeaderFilter {
     private static CheckBox getCheckBoxFilterField() {
         CheckBox checkBox = new CheckBox();
         checkBox.setStyleName(ValoTheme.CHECKBOX_SMALL);
+        checkBox.setIcon(VaadinIcons.FILTER);
         return checkBox;
     }
 

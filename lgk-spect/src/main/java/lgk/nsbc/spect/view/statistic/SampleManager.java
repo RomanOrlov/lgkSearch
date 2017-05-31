@@ -4,6 +4,7 @@ import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.SamplePatients;
 import lgk.nsbc.model.dao.PatientsDao;
+import lgk.nsbc.model.dao.PeopleDao;
 import lgk.nsbc.model.dao.ProcDao;
 import lgk.nsbc.model.dao.SamplePatientsDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
@@ -49,6 +50,8 @@ public class SampleManager implements Serializable {
     private HistologyDao histologyDao;
     @Autowired
     private MutationsDao mutationsDao;
+    @Autowired
+    private PeopleDao peopleDao;
     @Autowired
     private DSLContext context;
 
@@ -224,6 +227,7 @@ public class SampleManager implements Serializable {
     public void updateSamplePatient(SampleBind bean) {
         context.transaction(configuration -> {
             samplePatientsDao.updateSamplePatient(bean.getSamplePatients());
+            peopleDao.updatePeopleObit(bean.getPatients().getPeople());
         });
     }
 

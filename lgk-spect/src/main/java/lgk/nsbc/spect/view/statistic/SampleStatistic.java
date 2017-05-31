@@ -34,6 +34,9 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static lgk.nsbc.spect.view.statistic.Dynamic.NEGATIVE;
+import static lgk.nsbc.spect.view.statistic.Dynamic.POSITIVE;
+import static lgk.nsbc.spect.view.statistic.Dynamic.STABLE;
 import static lgk.nsbc.util.components.GridHeaderFilter.addDoubleFilter;
 import static lgk.nsbc.util.components.GridHeaderFilter.addRadioButtonFilter;
 
@@ -52,8 +55,9 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
     private Button refresh = new Button("Обновить");
     private HorizontalLayout statisticToExcel = new StatisticExcelExporter(sampleGrid, "Данные в Excel");
-    private Button addToSample = new Button("Добавить в выборку");
-    private Button removeFromSample = new Button("Удалить из выборки");
+    private Button addToSample = new Button("Добавить");
+    private Button removeFromSample = new Button("Удалить");
+    private Button clearAllFilters = new Button("Сброс фильтров");
     private static final DecimalFormat ageFormat = new DecimalFormat("###0");
     private static final DecimalFormat inFormat = new DecimalFormat("##0.00");
     private final GlobalGridFilter<SampleBind> globalGridFilter = new GlobalGridFilter<>();
@@ -66,7 +70,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         initButtons();
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-        buttons.addComponents(combobox, refresh, addToSample, removeFromSample, statisticToExcel);
+        buttons.addComponents(combobox, refresh, addToSample, removeFromSample, clearAllFilters, statisticToExcel);
         buttons.setComponentAlignment(combobox, Alignment.TOP_CENTER);
         buttons.setWidth("100%");
         buttons.setExpandRatio(combobox, 1.0f);
@@ -75,6 +79,10 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     }
 
     private void initButtons() {
+        clearAllFilters.addClickListener(event -> {
+            globalGridFilter.clearAllFields();
+            dataProvider.setFilter(sampleBind -> true);
+        });
         refresh.addClickListener(event -> {
             List<SampleBind> spectSample = sampleManager.getSpectSample();
             spectSample.sort(SampleBind::compareTo);
@@ -153,6 +161,13 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
         sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getCaseHistoryNumber())
                 .setCaption("Номер истории болезни")
+                .setHidden(true);
+
+        DateField obitDate = new DateField();
+        sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getPeople().getObit())
+                .setCaption("Смерть")
+                .setEditorComponent(obitDate, (sampleBind, date) -> sampleBind.getPatients().getPeople().setObit(date))
+                .setEditable(true)
                 .setHidden(true);
 
         NativeSelect<String> inclusionEdit = new NativeSelect<>();
@@ -255,7 +270,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setHidden(true);
 
         Grid.Column<SampleBind, Integer> fullYearsAtSurgery = sampleGrid.addColumn(SampleBind::getAgeAtSurgery, new NumberRenderer(ageFormat))
-                .setCaption("Возраст (на момент хирургии)")
+                .setCaption("Возраст")
+                .setDescriptionGenerator(sampleBind -> "Если есть дата хирургии, считается от даты хирургии. Если нет, считается на текущий момент")
                 .setHidden(true);
 
         Grid.Column<SampleBind, Double> recurrencePeriodColumn = sampleGrid.addColumn(SampleBind::getRecurrencePeriod, new NumberRenderer(ageFormat))
@@ -283,19 +299,19 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("Цензурирована ли выживаемость")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, String> dynamic1_2_30 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic30)
+        Grid.Column<SampleBind, Dynamic> dynamic1_2_30 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic30)
                 .setCaption("ОФЕКТ 1 vs 2 30 мин")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, String> dynamic1_2_60 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic60)
+        Grid.Column<SampleBind, Dynamic> dynamic1_2_60 = sampleGrid.addColumn(SampleBind::getSpect1_2Dynamic60)
                 .setCaption("ОФЕКТ 1 vs 2 60 мин")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, String> dynamic2_3_30 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic30)
+        Grid.Column<SampleBind, Dynamic> dynamic2_3_30 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic30)
                 .setCaption("ОФЕКТ 2 vs 3 30 мин")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, String> dynamic2_3_60 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic60)
+        Grid.Column<SampleBind, Dynamic> dynamic2_3_60 = sampleGrid.addColumn(SampleBind::getSpect2_3Dynamic60)
                 .setCaption("ОФЕКТ 2 vs 3 60 мин")
                 .setHidden(true);
 
@@ -405,28 +421,29 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 SampleBind::getSpect3InOut,
                 globalGridFilter);
 
+        List<Dynamic> options = asList(POSITIVE, NEGATIVE, STABLE);
         addRadioButtonFilter(filterHeader.getCell(dynamic1_2_30),
                 dataProvider,
                 SampleBind::getSpect1_2Dynamic30,
-                asList("пол", "отр"),
+                options,
                 globalGridFilter);
 
         addRadioButtonFilter(filterHeader.getCell(dynamic1_2_60),
                 dataProvider,
                 SampleBind::getSpect1_2Dynamic60,
-                asList("пол", "отр"),
+                options,
                 globalGridFilter);
 
         addRadioButtonFilter(filterHeader.getCell(dynamic2_3_30),
                 dataProvider,
                 SampleBind::getSpect2_3Dynamic30,
-                asList("пол", "отр"),
+                options,
                 globalGridFilter);
 
         addRadioButtonFilter(filterHeader.getCell(dynamic2_3_60),
                 dataProvider,
                 SampleBind::getSpect2_3Dynamic60,
-                asList("пол", "отр"),
+                options,
                 globalGridFilter);
         sampleGrid.setSortOrder(GridSortOrder.asc(name));
     }

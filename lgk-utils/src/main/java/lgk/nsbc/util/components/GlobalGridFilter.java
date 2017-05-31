@@ -10,6 +10,10 @@ public class GlobalGridFilter<U> {
         allFilters.add(filterChain);
     }
 
+    public void clearAllFields() {
+        allFilters.forEach(FilterChain::clear);
+    }
+
     public boolean test(U u) {
         for (FilterChain<?,?,U> chain : allFilters) {
             if (!chain.test(u))

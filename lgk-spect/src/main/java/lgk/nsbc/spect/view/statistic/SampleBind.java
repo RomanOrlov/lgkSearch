@@ -12,6 +12,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Period;
 
+import static lgk.nsbc.spect.view.statistic.Dynamic.NEGATIVE;
+import static lgk.nsbc.spect.view.statistic.Dynamic.POSITIVE;
+
 @Getter
 @Setter
 @Builder
@@ -31,6 +34,10 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
     private DicYesNo idh2;
     private DicYesNo mgmt;
     private Integer ageAtSurgery;
+
+    private Causes causes;
+    private Censor censor;
+    private Dynamic dynamic;
 
     public Double getSpect1InEarly() {
         if (spect1 == null) return null;
@@ -118,55 +125,55 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
         return null;
     }
 
-    public String getRecurrenceTimeCensoredStatus() {
-        return "CENSORED";
+    public Censor getRecurrenceTimeCensoredStatus() {
+        return null;
     }
 
-    public String getRecurrenceCause() {
-        return "N/A";
+    public Causes getRecurrenceCause() {
+        return null;
     }
 
     public Double getSurvivalPeriod() {
         return null;
     }
 
-    public String getSurvivalPeriodCensoredStatus() {
-        return "CENSORED";
+    public Censor getSurvivalPeriodCensoredStatus() {
+        return null;
     }
 
-    public String getSurvivalPeriodCause() {
-        return "N/A";
+    public Causes getSurvivalPeriodCause() {
+        return null;
     }
 
-    public String getSpect1_2Dynamic30() {
+    public Dynamic getSpect1_2Dynamic30() {
         Double spect1InEarly = getSpect1InEarly();
         Double spect2InEarly = getSpect2InEarly();
         if (spect1InEarly != null && spect2InEarly != null)
-            return spect1InEarly < spect2InEarly ? "пол" : "отр";
+            return spect1InEarly < spect2InEarly ? POSITIVE : NEGATIVE;
         return null;
     }
 
-    public String getSpect1_2Dynamic60() {
+    public Dynamic getSpect1_2Dynamic60() {
         Double spect1InLate = getSpect1InLate();
         Double spect2InLate = getSpect2InLate();
         if (spect1InLate != null && spect2InLate != null)
-            return spect1InLate < spect2InLate ? "пол" : "отр";
+            return spect1InLate < spect2InLate ? POSITIVE : NEGATIVE;
         return null;
     }
 
-    public String getSpect2_3Dynamic30() {
+    public Dynamic getSpect2_3Dynamic30() {
         Double spect2InEarly = getSpect2InEarly();
         Double spect3InEarly = getSpect3InEarly();
         if (spect2InEarly != null && spect3InEarly != null)
-            return spect2InEarly < spect3InEarly ? "пол" : "отр";
+            return spect2InEarly < spect3InEarly ? POSITIVE : NEGATIVE;
         return null;
     }
 
-    public String getSpect2_3Dynamic60() {
+    public Dynamic getSpect2_3Dynamic60() {
         Double spect2InLate = getSpect2InLate();
         Double spect3InLate = getSpect3InLate();
         if (spect2InLate != null && spect3InLate != null)
-            return spect2InLate < spect3InLate ? "пол" : "отр";
+            return spect2InLate < spect3InLate ? POSITIVE : NEGATIVE;
         return null;
     }
 

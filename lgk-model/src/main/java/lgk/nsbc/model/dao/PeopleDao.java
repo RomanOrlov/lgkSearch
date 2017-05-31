@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,5 +27,12 @@ public class PeopleDao implements Serializable {
         return fetch.stream()
                 .map(People::buildFromRecord)
                 .collect(Collectors.toList());
+    }
+
+    public void updatePeopleObit(People people) {
+        context.update(PEOPLE)
+                .set(PEOPLE.OBIT, people.getObit() == null ? null : Date.valueOf(people.getObit()))
+                .where(PEOPLE.N.eq(people.getN()))
+                .execute();
     }
 }
