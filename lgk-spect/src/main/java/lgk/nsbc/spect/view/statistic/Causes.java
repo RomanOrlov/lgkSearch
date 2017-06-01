@@ -2,8 +2,8 @@ package lgk.nsbc.spect.view.statistic;
 
 public enum Causes {
     DEATH("Смерть"),
-    LAST_HAPPENED_STUDY("Последняя произошедщее исследование"),
-    LAST_HAPPENED_PROCUDERE("Последняя произошедщая процедура"),
+    LAST_HAPPENED_STUDY("Исследование"),
+    LAST_HAPPENED_PROCUDERE("Произошедшая процедура"),
     FOLLOWUP("Контроль");
 
     private final String causeText;

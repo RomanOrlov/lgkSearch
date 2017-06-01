@@ -132,7 +132,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             Notification.show("Пациент с таким же именем уже находится в выборке");
             return;
         }
-        SampleBind simpleBind = sampleManager.getTamplateSimpleBind(selectedPatient);
+        SampleBind simpleBind = sampleManager.getTemplateSimpleBind(selectedPatient);
         sampleBinds.add(simpleBind);
         sampleBinds.sort(SampleBind::compareTo);
         dataProvider.refreshAll();
@@ -173,7 +173,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setHidden(true);
 
         NativeSelect<String> inclusionEdit = new NativeSelect<>();
-        inclusionEdit.setItems(asList("Да", "Нет", "Неизвестно"));
+        inclusionEdit.setItems(asList("Да", "Нет"));
         inclusionEdit.setEmptySelectionAllowed(true);
 
         Grid.Column<SampleBind, String> includedColumn = sampleGrid.addColumn(SampleBind::getInclusionRepresentation)
@@ -271,12 +271,12 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("№3 Вымывание")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Integer> fullYearsAtSurgery = sampleGrid.addColumn(SampleBind::getAgeAtSurgery, new NumberRenderer(ageFormat))
+        Grid.Column<SampleBind, Long> fullYearsAtSurgery = sampleGrid.addColumn(SampleBind::getAgeAtSurgery, new NumberRenderer(ageFormat))
                 .setCaption("Возраст")
                 .setDescriptionGenerator(sampleBind -> "Если есть дата хирургии, считается от даты хирургии. Если нет, считается на текущий момент")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> recurrencePeriodColumn = sampleGrid.addColumn(SampleBind::getRecurrencePeriod, new NumberRenderer(ageFormat))
+        Grid.Column<SampleBind, Long> recurrencePeriodColumn = sampleGrid.addColumn(SampleBind::getRecurrence, new NumberRenderer(ageFormat))
                 .setCaption("Безрецидивидный период")
                 .setHidden(true);
 
@@ -285,19 +285,19 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setHidable(true)
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getRecurrenceTimeCensoredStatus)
+        sampleGrid.addColumn(SampleBind::getRecurrenceCensor)
                 .setCaption("Цензурирован ли рецидив")
                 .setHidden(true);
 
-        Grid.Column<SampleBind, Double> survivalPeriodColumn = sampleGrid.addColumn(SampleBind::getSurvivalPeriod)
+        Grid.Column<SampleBind, Long> survivalPeriodColumn = sampleGrid.addColumn(SampleBind::getSurvival)
                 .setCaption("Выживаемость")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSurvivalPeriodCause)
+        sampleGrid.addColumn(SampleBind::getSurvivalCause)
                 .setCaption("Последний след (выживаемость)")
                 .setHidden(true);
 
-        sampleGrid.addColumn(SampleBind::getSurvivalPeriodCensoredStatus)
+        sampleGrid.addColumn(SampleBind::getSurvivalCensor)
                 .setCaption("Цензурирована ли выживаемость")
                 .setHidden(true);
 
@@ -336,22 +336,21 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             footerRow.getCell(gender).setText(getGenderStats(includedData));
             footerRow.getCell(includedColumn).setText(getIncludedStats(includedData));
 
-            meanColumn(footerRow.getCell(fullYearsAtSurgery), includedData, sampleBind -> sampleBind.getAgeAtSurgery().doubleValue());
-            meanColumn(footerRow.getCell(spect1InEarly), includedData, SampleBind::getSpect1InEarly);
-            meanColumn(footerRow.getCell(spect1InLate), includedData, SampleBind::getSpect1InLate);
-            meanColumn(footerRow.getCell(spect1InOut), includedData, SampleBind::getSpect1InOut);
+            meanLongColumn(footerRow.getCell(fullYearsAtSurgery), includedData, SampleBind::getAgeAtSurgery);
+            meanDoubleColumn(footerRow.getCell(spect1InEarly), includedData, SampleBind::getSpect1InEarly);
+            meanDoubleColumn(footerRow.getCell(spect1InLate), includedData, SampleBind::getSpect1InLate);
+            meanDoubleColumn(footerRow.getCell(spect1InOut), includedData, SampleBind::getSpect1InOut);
 
-            meanColumn(footerRow.getCell(spect2InEarly), includedData, SampleBind::getSpect2InEarly);
-            meanColumn(footerRow.getCell(spect2InLate), includedData, SampleBind::getSpect2InLate);
-            meanColumn(footerRow.getCell(spect2InOut), includedData, SampleBind::getSpect2InOut);
+            meanDoubleColumn(footerRow.getCell(spect2InEarly), includedData, SampleBind::getSpect2InEarly);
+            meanDoubleColumn(footerRow.getCell(spect2InLate), includedData, SampleBind::getSpect2InLate);
+            meanDoubleColumn(footerRow.getCell(spect2InOut), includedData, SampleBind::getSpect2InOut);
 
-            meanColumn(footerRow.getCell(spect3InEarly), includedData, SampleBind::getSpect3InEarly);
-            meanColumn(footerRow.getCell(spect3InLate), includedData, SampleBind::getSpect3InLate);
-            meanColumn(footerRow.getCell(spect3InOut), includedData, SampleBind::getSpect3InOut);
+            meanDoubleColumn(footerRow.getCell(spect3InEarly), includedData, SampleBind::getSpect3InEarly);
+            meanDoubleColumn(footerRow.getCell(spect3InLate), includedData, SampleBind::getSpect3InLate);
+            meanDoubleColumn(footerRow.getCell(spect3InOut), includedData, SampleBind::getSpect3InOut);
 
-            meanColumn(footerRow.getCell(recurrencePeriodColumn), includedData, SampleBind::getRecurrencePeriod);
-            meanColumn(footerRow.getCell(survivalPeriodColumn), includedData, SampleBind::getSurvivalPeriod);
-
+            meanLongColumn(footerRow.getCell(recurrencePeriodColumn), includedData, SampleBind::getRecurrence);
+            meanLongColumn(footerRow.getCell(survivalPeriodColumn), includedData, SampleBind::getSurvival);
         });
         // Настраиваем фильттрацию
         HeaderRow filterHeader = sampleGrid.prependHeaderRow();
@@ -367,7 +366,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 asList("М", "Ж"),
                 globalGridFilter);
 
-        GridHeaderFilter.addIntegerFilter(filterHeader.getCell(fullYearsAtSurgery),
+        GridHeaderFilter.addLongFilter(filterHeader.getCell(fullYearsAtSurgery),
                 dataProvider,
                 SampleBind::getAgeAtSurgery,
                 globalGridFilter);
@@ -470,9 +469,20 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         return String.format(format, malesCount, (100.0d * malesCount) / data.size(), femalesCount, (100.0d * femalesCount) / data.size());
     }
 
-    private void meanColumn(FooterCell footerCell,
-                            List<SampleBind> data,
-                            ValueProvider<SampleBind, Double> valueProvider) {
+    private void meanDoubleColumn(FooterCell footerCell,
+                                  List<SampleBind> data,
+                                  ValueProvider<SampleBind, Double> valueProvider) {
+        double average = data.stream()
+                .map(valueProvider)
+                .filter(Objects::nonNull)
+                .mapToDouble(value -> value)
+                .average().orElse(0.d);
+        footerCell.setText(String.format("Среднее %.1f", average));
+    }
+
+    private void meanLongColumn(FooterCell footerCell,
+                                  List<SampleBind> data,
+                                  ValueProvider<SampleBind, Long> valueProvider) {
         double average = data.stream()
                 .map(valueProvider)
                 .filter(Objects::nonNull)

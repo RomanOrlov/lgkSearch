@@ -35,20 +35,20 @@ public class GridHeaderFilter {
         filterField.addValueChangeListener(event -> dataProvider.setFilter(globalGridFilter::test));
     }
 
-    public static <T> void addIntegerFilter(HeaderCell cell,
-                                            ListDataProvider<T> dataProvider,
-                                            ValueProvider<T, Integer> valueProvider,
-                                            GlobalGridFilter<T> globalGridFilter) {
+    public static <T> void addLongFilter(HeaderCell cell,
+                                         ListDataProvider<T> dataProvider,
+                                         ValueProvider<T, Long> valueProvider,
+                                         GlobalGridFilter<T> globalGridFilter) {
         TextField from = getColumnNumberFilterField(true);
         TextField to = getColumnNumberFilterField(false);
         HorizontalLayout components = wrapWithClearButton(from, to);
         cell.setComponent(components);
-        addIntegerFilterChain(from,
+        addLongFilterChain(from,
                 valueProvider,
                 globalGridFilter,
                 (fromValue, providerValue) -> providerValue != null && fromValue < providerValue
         );
-        addIntegerFilterChain(to,
+        addLongFilterChain(to,
                 valueProvider,
                 globalGridFilter,
                 (toValue, providerValue) -> providerValue != null && toValue > providerValue
@@ -224,13 +224,13 @@ public class GridHeaderFilter {
         globalGridFilter.addFilter(filterChain);
     }
 
-    private static <T> void addIntegerFilterChain(HasValue<String> hasValue,
-                                                  ValueProvider<T, Integer> valueProvider,
-                                                  GlobalGridFilter<T> globalGridFilter,
-                                                  BiFunction<Integer, Integer, Boolean> filter) {
-        FilterChain<String, Integer, T> filterChain = new FilterChain<>(hasValue,
+    private static <T> void addLongFilterChain(HasValue<String> hasValue,
+                                               ValueProvider<T, Long> valueProvider,
+                                               GlobalGridFilter<T> globalGridFilter,
+                                               BiFunction<Long, Long, Boolean> filter) {
+        FilterChain<String, Long, T> filterChain = new FilterChain<>(hasValue,
                 emptyString.and(s -> s.matches(integerRegex)),
-                Integer::valueOf,
+                Long::valueOf,
                 valueProvider,
                 filter);
         globalGridFilter.addFilter(filterChain);

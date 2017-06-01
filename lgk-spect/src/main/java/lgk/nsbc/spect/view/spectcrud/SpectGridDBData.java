@@ -68,7 +68,6 @@ public class SpectGridDBData {
         spectGridData.setSurname(patients.getPeople().getSurname());
         spectGridData.setPatronymic(patients.getPeople().getPatronymic());
         spectGridData.setTarget(target);
-        spectGridData.setCaseHistoryNum(String.valueOf(patients.getCaseHistoryNum()));
         spectGridData.setDose(studInj.getInjActivityBq());
         if (stud != null && stud.getStudyDateTime() != null)
             spectGridData.setStudyDate(DateUtils.asLocalDate(stud.getStudyDateTime()));

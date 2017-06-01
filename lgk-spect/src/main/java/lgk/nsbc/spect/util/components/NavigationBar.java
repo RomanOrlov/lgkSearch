@@ -13,7 +13,8 @@ public class NavigationBar extends HorizontalLayout {
     private Button spectData = new Button("Данные ОФЕКТ");
     private Button histology = new Button("Данные гистологии");
     private Button statistic = new Button("Статистика выборки");
-    private Button holes = new Button("Добавление хирургии/контроля");
+    private Button holes = new Button("Добавление процедур");
+    private Button logout = new Button("Выход");
 
     public NavigationBar() {
         setWidth("100%");
@@ -21,16 +22,27 @@ public class NavigationBar extends HorizontalLayout {
 
         spectData.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(SPECT_VIEW));
         spectData.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        spectData.setWidthUndefined();
 
         histology.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(HISTOLOGY_VIEW));
         histology.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        histology.setWidthUndefined();
 
         statistic.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(STATISTIC_VIEW));
         statistic.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        statistic.setWidthUndefined();
 
         holes.addClickListener(clickEvent -> getUI().getNavigator().navigateTo(MISSING_DATA));
         holes.setStyleName(ValoTheme.BUTTON_FRIENDLY);
+        holes.setWidthUndefined();
 
-        addComponents(spectData, histology, statistic, holes);
+        logout.addClickListener(clickEvent -> {
+            getUI().getNavigator().navigateTo(LOGIN);
+        });
+        logout.setStyleName(ValoTheme.BUTTON_PRIMARY);
+        logout.setIcon(VaadinIcons.EXIT);
+        logout.setWidthUndefined();
+
+        addComponents(spectData, histology, statistic, holes, logout);
     }
 }

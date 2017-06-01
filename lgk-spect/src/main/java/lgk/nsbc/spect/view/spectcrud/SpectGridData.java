@@ -16,7 +16,6 @@ public class SpectGridData {
     private String name;
     private String surname;
     private String patronymic;
-    private String caseHistoryNum;
     private Double dose;
     private LocalDate studyDate;
     private Target target;

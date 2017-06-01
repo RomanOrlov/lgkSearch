@@ -34,6 +34,13 @@ public class ProcDao implements Serializable {
                 .collect(toList());
     }
 
+    public List<Proc> findPatientsProcedures(List<Long> patientsId) {
+        return context.fetch(PROC, PROC.PATIENTS_N.in(patientsId))
+                .stream()
+                .map(Proc::buildFromRecord)
+                .collect(toList());
+    }
+
     public int countProceduresForPatient(Patients patients) {
         return context.fetchCount(PROC, PROC.PATIENTS_N.eq(patients.getN()));
     }

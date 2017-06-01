@@ -44,7 +44,6 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             XSSFCell name = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell surname = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell patronymic = row.createCell(cellIndex++, CellType.STRING);
-            XSSFCell caseHisNum = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell dose = row.createCell(cellIndex++, CellType.STRING);
             XSSFCell studyDate = row.createCell(cellIndex++, CellType.NUMERIC);
             XSSFCell target = row.createCell(cellIndex++, CellType.STRING);
@@ -88,7 +87,6 @@ public class SpectDataExcelExporter extends ExcelExportButton {
             name.setCellValue(spectGridData.getName());
             surname.setCellValue(spectGridData.getSurname());
             patronymic.setCellValue(spectGridData.getPatronymic());
-            caseHisNum.setCellValue(spectGridData.getCaseHistoryNum());
             setCellValue(dose, spectGridData.getDose());
             studyDate.setCellValue(DateUtils.asDate(spectGridData.getStudyDate()));
             setCellValue(target, spectGridData.getTarget());
@@ -138,7 +136,6 @@ public class SpectDataExcelExporter extends ExcelExportButton {
                 mainInfo.createCell(name.getColumnIndex()).setCellValue("Имя");
                 mainInfo.createCell(surname.getColumnIndex()).setCellValue("Фамилия");
                 mainInfo.createCell(patronymic.getColumnIndex()).setCellValue("Отчество");
-                mainInfo.createCell(caseHisNum.getColumnIndex()).setCellValue("Номер истории");
                 mainInfo.createCell(dose.getColumnIndex()).setCellValue("Доза");
                 mainInfo.createCell(studyDate.getColumnIndex()).setCellValue("Дата исследования");
                 mainInfo.createCell(target.getColumnIndex()).setCellValue("Мишень");

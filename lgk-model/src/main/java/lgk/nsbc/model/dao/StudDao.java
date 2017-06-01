@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -70,6 +68,15 @@ public class StudDao implements Serializable {
         Result<StudRecord> result = context.fetch(STUD, STUD.PATIENTS_N.eq(patients.getN()));
         return result.stream()
                 .map(Stud::buildFromRecord)
+                .map(Optional::get)
+                .collect(toList());
+    }
+
+    public List<Stud> findPatientsStuds(Collection<Long> patientsId) {
+        return context.fetch(STUD, STUD.PATIENTS_N.in(patientsId))
+                .stream()
+                .map(Stud::buildFromRecord)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(toList());
     }

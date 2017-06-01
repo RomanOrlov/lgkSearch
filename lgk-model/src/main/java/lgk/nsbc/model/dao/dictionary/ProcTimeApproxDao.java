@@ -17,6 +17,7 @@ import static lgk.nsbc.generated.tables.ProcTimeApprox.PROC_TIME_APPROX;
 @Service
 public class ProcTimeApproxDao implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final long HAPPENED = 3;
 
     @Autowired
     private DSLContext context;

@@ -76,13 +76,9 @@ public class SpectGrid extends Grid<SpectGridData> {
         setSelectionMode(SelectionMode.SINGLE);
 
         // By default all columns is NOT hidable
-        Column<SpectGridData, String> fullNameColumn = addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().getFullName())
+        Column<SpectGridData, String> fullNameColumn = addColumn(spectGridData -> spectGridData.getSpectGridDBData().getPatients().toStringWithCaseHistory())
                 .setCaption("ФИО")
                 .setHidable(true);
-        Column<SpectGridData, String> caseHistoryNum = addColumn(SpectGridData::getCaseHistoryNum)
-                .setCaption("Номер истории")
-                .setHidable(true)
-                .setHidden(true);
         Column<SpectGridData, LocalDate> studyDate = addColumn(SpectGridData::getStudyDate)
                 .setCaption("Дата исследования")
                 .setHidable(true)
@@ -230,8 +226,8 @@ public class SpectGrid extends Grid<SpectGridData> {
         HeaderRow contourTypeHeader = configureContourHeaderRow();
         HeaderRow structureTypeHeader = configureStructureHeaderRow();
         // Наведение красоты
-        structureTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
-        contourTypeHeader.join(caseHistoryNum, studyDate, targetName, doseColumn);
+        structureTypeHeader.join(studyDate, targetName, doseColumn);
+        contourTypeHeader.join(studyDate, targetName, doseColumn);
         GridHeaderFilter.addTextFilter(filterHeader.getCell(fullNameColumn),
                 dataProvider,
                 SpectGridData::getSurname,

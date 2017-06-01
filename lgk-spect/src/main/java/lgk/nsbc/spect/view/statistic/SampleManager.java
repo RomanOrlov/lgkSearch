@@ -3,10 +3,8 @@ package lgk.nsbc.spect.view.statistic;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.SamplePatients;
-import lgk.nsbc.model.dao.PatientsDao;
-import lgk.nsbc.model.dao.PeopleDao;
-import lgk.nsbc.model.dao.ProcDao;
-import lgk.nsbc.model.dao.SamplePatientsDao;
+import lgk.nsbc.model.Stud;
+import lgk.nsbc.model.dao.*;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.dictionary.DicYesNo;
@@ -31,6 +29,11 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
 
+/**
+ * Для вычисления столь большого количества параметров необходимо обойти чуть ли не всю базу
+ * Вместе с тем приходит и сложность выгрузки всех этих данных. (Намного дольше было бы для
+ * каждого пациента выгружать все его процедуры и исследования чем для всех одновременно)
+ */
 @Service
 public class SampleManager implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -53,6 +56,8 @@ public class SampleManager implements Serializable {
     @Autowired
     private PeopleDao peopleDao;
     @Autowired
+    private StudDao studDao;
+    @Autowired
     private DSLContext context;
 
     public List<SampleBind> getSpectSample() {
@@ -66,6 +71,9 @@ public class SampleManager implements Serializable {
         Map<Long, Proc> patientEarlySurgery = getPatientEarlySurgery(samplePatients, patientsId);
         Map<Long, Proc> radiotherapyProc = getPatientsRadiotherapyProc(samplePatients, patientEarlySurgery, patientsId);
         Map<Long, Map<Gene, DicYesNo>> histologyMap = getPatientMutations(samplePatients, patientsId);
+
+        Map<Long, List<Proc>> patientsProcedures = findPatientsProcedures(patientsId);
+        Map<Long, List<Stud>> patientsStudy = findPatientsStuds(patientsId);
 
         // Madness Пытаемся найти данные по id пациента, потом по истории болезни, потом в отчаянии по полному имени
         Map<Long, List<SpectGridData>> patientSpectDataByPatientId = getPatientsSpectData(samplePatients, patientsMap);
@@ -86,7 +94,7 @@ public class SampleManager implements Serializable {
                             patientSpectDataByCaseHistoryNum.getOrDefault(patients.getCaseHistoryNumber(),
                                     patientSpectDataByFullName.getOrDefault(patients.getFullName(), emptyList())));
                     Map<Long, Gene> geneMap = getGenes();
-                    return SampleBind.builder()
+                    SampleBind sampleBind = SampleBind.builder()
                             .patients(patients)
                             .samplePatients(sample)
                             .surgeryProc(patientEarlySurgery.get(patientId))
@@ -97,10 +105,25 @@ public class SampleManager implements Serializable {
                             .spect1(spectGridData.size() > 0 ? spectGridData.get(0) : null)
                             .spect2(spectGridData.size() > 1 ? spectGridData.get(1) : null)
                             .spect3(spectGridData.size() > 2 ? spectGridData.get(2) : null)
+                            .procList(patientsProcedures.computeIfAbsent(patientId, l -> new ArrayList<>()))
+                            .studList(patientsStudy.computeIfAbsent(patientId, l -> new ArrayList<>()))
                             .build();
+                    sampleBind.recalculateSurvivalAndRecurrence();
+                    return sampleBind;
                 })
-                //.filter(sampleBind -> "Y".equals(sampleBind.getSamplePatients().getInclusion()))
                 .collect(toList());
+    }
+
+    private Map<Long, List<Proc>> findPatientsProcedures(List<Long> patientsId) {
+        List<Proc> patientsProcedures = procDao.findPatientsProcedures(patientsId);
+        return patientsId.stream()
+                .collect(toMap(identity(), patientId -> findPatientProcedures(patientsProcedures, patientId)));
+    }
+
+    private Map<Long, List<Stud>> findPatientsStuds(List<Long> patientsId) {
+        List<Stud> patientsProcedures = studDao.findPatientsStuds(patientsId);
+        return patientsId.stream()
+                .collect(toMap(identity(), patientId -> findPatientStuds(patientsProcedures, patientId)));
     }
 
     private Map<Long, List<SpectGridData>> getPatientsSpectData(List<SamplePatients> samplePatients, Map<Long, Patients> patientsMap) {
@@ -171,7 +194,7 @@ public class SampleManager implements Serializable {
     private Map<Long, Proc> getPatientsRadiotherapyProc(List<SamplePatients> samplePatients, Map<Long, Proc> patientEarlySurgery, List<Long> patientsId) {
         List<Proc> patientsRadiotherapy = procDao.findPatientsProcedures(patientsId, radioTherapyProcId);
         return samplePatients.stream()
-                .map(patient -> findPatientsProc(patientsRadiotherapy, patient.getPatientId()))
+                .map(patient -> findPatientProcedures(patientsRadiotherapy, patient.getPatientId()))
                 .filter(procs -> !procs.isEmpty())
                 .map(procs -> findRadiotherapy(procs, patientEarlySurgery.get(procs.get(0).getPatientN())))
                 .filter(Optional::isPresent)
@@ -182,16 +205,22 @@ public class SampleManager implements Serializable {
     private Map<Long, Proc> getPatientEarlySurgery(List<SamplePatients> samplePatients, List<Long> patientsId) {
         List<Proc> patientsSurgery = procDao.findPatientsProcedures(patientsId, surgeryProcedureId);
         return samplePatients.stream()
-                .map(patient -> findPatientsProc(patientsSurgery, patient.getPatientId()))
+                .map(patient -> findPatientProcedures(patientsSurgery, patient.getPatientId()))
                 .map(this::findEarlyProcedure)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toMap(Proc::getPatientN, identity()));
     }
 
-    private List<Proc> findPatientsProc(List<Proc> procedures, Long patientId) {
+    private List<Proc> findPatientProcedures(List<Proc> procedures, Long patientId) {
         return procedures.stream()
                 .filter(proc -> Objects.equals(proc.getPatientN(), patientId))
+                .collect(toList());
+    }
+
+    private List<Stud> findPatientStuds(List<Stud> studs, Long patientId) {
+        return studs.stream()
+                .filter(proc -> Objects.equals(proc.getPatientsN(), patientId))
                 .collect(toList());
     }
 
@@ -239,7 +268,7 @@ public class SampleManager implements Serializable {
         }
     }
 
-    public SampleBind getTamplateSimpleBind(Patients patients) {
+    public SampleBind getTemplateSimpleBind(Patients patients) {
         SamplePatients samplePatients = SamplePatients.builder()
                 .patientId(patients.getN())
                 .inclusion("N")
