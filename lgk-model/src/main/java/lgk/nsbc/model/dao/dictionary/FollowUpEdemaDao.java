@@ -1,6 +1,7 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.ProcType;
+import lgk.nsbc.model.dictionary.FollowUpEdema;
+import lombok.Getter;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,29 +13,27 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.ProcProcType.PROC_PROC_TYPE;
+import static lgk.nsbc.generated.tables.FollowupEdema.FOLLOWUP_EDEMA;
 
 @Service
-public class ProcTypeDao implements Serializable {
+public class FollowUpEdemaDao implements Serializable {
     private static final long serialVersionUID = 1L;
-    public static final Long SURGERY = 10L;
-    public static final Long RT = 7L;
 
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, ProcType> procTypeMap;
+    private static Map<Long, FollowUpEdema> followUpEdemaMap;
 
     @PostConstruct
     void init() {
-        procTypeMap = Collections.unmodifiableMap(context.fetch(PROC_PROC_TYPE)
+        followUpEdemaMap = Collections.unmodifiableMap(context.fetch(FOLLOWUP_EDEMA)
                 .stream()
-                .map(ProcType::buildFromRecord)
-                .collect(toMap(ProcType::getN, identity()))
+                .map(FollowUpEdema::buildFromRecord)
+                .collect(toMap(FollowUpEdema::getN, identity()))
         );
     }
 
-    public static Map<Long, ProcType> getProcTypeMap() {
-        return procTypeMap;
+    public static Map<Long, FollowUpEdema> getFollowUpEdemaMap() {
+        return followUpEdemaMap;
     }
 }

@@ -16,7 +16,6 @@ public class SysAgents implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long n;
-    private Long op_create;
     private String name;
     private String pid;
     private Long people_n;

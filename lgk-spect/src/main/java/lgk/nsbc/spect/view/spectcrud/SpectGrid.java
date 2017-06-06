@@ -199,11 +199,11 @@ public class SpectGrid extends Grid<SpectGridData> {
         mainInfoColumns.addAll(targetsColumns);
 
         // Индекс накопления - генерируемые данные.
-        Column<SpectGridData, Double> inEarly = addColumn(SpectGridData::getInEarly, new NumberRenderer(doubleFormat));
+        Column<SpectGridData, Double> inEarly = addColumn(SpectGridData::getInSphereEarly, new NumberRenderer(doubleFormat));
         inEarly.setCaption(MIN30.getName());
-        Column<SpectGridData, Double> inLate = addColumn(SpectGridData::getInLate, new NumberRenderer(doubleFormat));
+        Column<SpectGridData, Double> inLate = addColumn(SpectGridData::getInSphereLate, new NumberRenderer(doubleFormat));
         inLate.setCaption(MIN60.getName());
-        Column<SpectGridData, Double> inOut = addColumn(SpectGridData::getInOut, new NumberRenderer(doubleFormat));
+        Column<SpectGridData, Double> inOut = addColumn(SpectGridData::getInSphereOut, new NumberRenderer(doubleFormat));
         inOut.setCaption("Вымывание");
         inColumns = Arrays.asList(inEarly, inLate, inOut);
 
@@ -239,9 +239,9 @@ public class SpectGrid extends Grid<SpectGridData> {
                     .fetch(new Query<>())
                     .collect(toList());
             footerRow.getCell(fullNameColumn).setText("Всего " + Integer.toString(data.size()));
-            setMeanInColumn(footerRow.getCell(inEarly), SpectGridData::getInEarly, data);
-            setMeanInColumn(footerRow.getCell(inLate), SpectGridData::getInLate, data);
-            setMeanInColumn(footerRow.getCell(inOut), SpectGridData::getInOut, data);
+            setMeanInColumn(footerRow.getCell(inEarly), SpectGridData::getInSphereEarly, data);
+            setMeanInColumn(footerRow.getCell(inLate), SpectGridData::getInSphereLate, data);
+            setMeanInColumn(footerRow.getCell(inOut), SpectGridData::getInSphereOut, data);
 
             setMeanInColumn(footerRow.getCell(hizSphereVolume), SpectGridData::getHizSphereVolume, data);
             setMeanInColumn(footerRow.getCell(hizSphereMin30), SpectGridData::getHizSphereMin30, data);
@@ -307,7 +307,6 @@ public class SpectGrid extends Grid<SpectGridData> {
                         .n(-1L)
                         .patientsN(-1L)
                         .targetName("Мишень не выбрана")
-                        .targetType(-1L)
                         .build())
                 .bind(SpectGridData::getTarget, SpectGridData::setTarget);
     }

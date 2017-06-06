@@ -1,12 +1,13 @@
 package lgk.nsbc.model;
 
+import lgk.nsbc.model.dictionary.TargetType;
 import lombok.*;
 import org.jooq.Record;
 
 import java.io.Serializable;
 
 import static lgk.nsbc.generated.tables.Target.TARGET;
-import static lgk.nsbc.generated.tables.TargetTargettype.TARGET_TARGETTYPE;
+import static lgk.nsbc.model.dao.dictionary.TargetTypeDao.getTargetTypeMap;
 
 @Getter
 @Setter
@@ -20,20 +21,18 @@ public class Target implements Serializable {
     private Long n;
     private Long patientsN;
     private String targetName;
-    private Long targetType;
-    private String targetTypeText;
+    private TargetType targetType;
 
     public static Target buildFromRecord(Record record) {
         return builder().n(record.get(TARGET.N))
                 .patientsN(record.get(TARGET.PATIENTS_N))
                 .targetName(record.get(TARGET.TARGETNAME))
-                .targetType(record.get(TARGET.TARGETTYPE))
-                .targetTypeText(record.get(TARGET_TARGETTYPE.TEXT))
+                .targetType(getTargetTypeMap().get(record.get(TARGET.TARGETTYPE)))
                 .build();
     }
 
     @Override
     public String toString() {
-        return targetName + " " + targetTypeText;
+        return targetName + " " + (targetType == null ? "" : targetType.getText());
     }
 }

@@ -1,20 +1,20 @@
 package lgk.nsbc.spect.view.statistic;
 
-import lgk.nsbc.model.Patients;
-import lgk.nsbc.model.Proc;
-import lgk.nsbc.model.SamplePatients;
-import lgk.nsbc.model.Stud;
+import lgk.nsbc.model.*;
 import lgk.nsbc.model.dao.*;
+import lgk.nsbc.model.dao.dictionary.ProcTimeApproxDao;
+import lgk.nsbc.model.dao.dictionary.ProcTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.dictionary.DicYesNo;
 import lgk.nsbc.model.dictionary.Gene;
+import lgk.nsbc.model.dictionary.ProcTimeApprox;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.spect.model.SpectDataManager;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
+import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -28,6 +28,9 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
+import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.RT;
+import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.SURGERY;
+import static lgk.nsbc.model.dao.dictionary.StudTypeDao.MRI_TYPE;
 
 /**
  * Для вычисления столь большого количества параметров необходимо обойти чуть ли не всю базу
@@ -35,30 +38,21 @@ import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
  * каждого пациента выгружать все его процедуры и исследования чем для всех одновременно)
  */
 @Service
+@RequiredArgsConstructor
 public class SampleManager implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Long spectSampleId = 41L;
-    private static final Long surgeryProcedureId = 10L;
-    private static final Long radioTherapyProcId = 7L;
 
-    @Autowired
-    private SamplePatientsDao samplePatientsDao;
-    @Autowired
-    private PatientsDao patientsDao;
-    @Autowired
-    private ProcDao procDao;
-    @Autowired
-    private SpectDataManager spectDataManager;
-    @Autowired
-    private HistologyDao histologyDao;
-    @Autowired
-    private MutationsDao mutationsDao;
-    @Autowired
-    private PeopleDao peopleDao;
-    @Autowired
-    private StudDao studDao;
-    @Autowired
-    private DSLContext context;
+    private final SamplePatientsDao samplePatientsDao;
+    private final PatientsDao patientsDao;
+    private final ProcDao procDao;
+    private final SpectDataManager spectDataManager;
+    private final HistologyDao histologyDao;
+    private final MutationsDao mutationsDao;
+    private final PeopleDao peopleDao;
+    private final StudDao studDao;
+    private final DSLContext context;
+    private final FollowUpDao followUpDao;
 
     public List<SampleBind> getSpectSample() {
         List<SamplePatients> samplePatients = samplePatientsDao.findSamplePatients(spectSampleId);
@@ -74,6 +68,7 @@ public class SampleManager implements Serializable {
 
         Map<Long, List<Proc>> patientsProcedures = findPatientsProcedures(patientsId);
         Map<Long, List<Stud>> patientsStudy = findPatientsStuds(patientsId);
+        Map<Long, List<FollowUp>> followUps = findMriFollowUps(patientsStudy);
 
         // Madness Пытаемся найти данные по id пациента, потом по истории болезни, потом в отчаянии по полному имени
         Map<Long, List<SpectGridData>> patientSpectDataByPatientId = getPatientsSpectData(samplePatients, patientsMap);
@@ -94,6 +89,7 @@ public class SampleManager implements Serializable {
                             patientSpectDataByCaseHistoryNum.getOrDefault(patients.getCaseHistoryNumber(),
                                     patientSpectDataByFullName.getOrDefault(patients.getFullName(), emptyList())));
                     Map<Long, Gene> geneMap = getGenes();
+                    List<Stud> studList = patientsStudy.computeIfAbsent(patientId, l -> new ArrayList<>());
                     SampleBind sampleBind = SampleBind.builder()
                             .patients(patients)
                             .samplePatients(sample)
@@ -106,12 +102,38 @@ public class SampleManager implements Serializable {
                             .spect2(spectGridData.size() > 1 ? spectGridData.get(1) : null)
                             .spect3(spectGridData.size() > 2 ? spectGridData.get(2) : null)
                             .procList(patientsProcedures.computeIfAbsent(patientId, l -> new ArrayList<>()))
-                            .studList(patientsStudy.computeIfAbsent(patientId, l -> new ArrayList<>()))
+                            .studList(studList)
+                            .mriFollowUps(getStudsFollowUps(studList, followUps))
                             .build();
                     sampleBind.recalculateSurvivalAndRecurrence();
                     return sampleBind;
                 })
                 .collect(toList());
+    }
+
+    private Map<Stud, List<FollowUp>> getStudsFollowUps(List<Stud> studs, Map<Long, List<FollowUp>> followUps) {
+        return studs.stream()
+                .filter(stud -> stud.getStudType() != null && Objects.equals(MRI_TYPE, stud.getStudType().getN()))
+                .filter(stud -> followUps.containsKey(stud.getN()))
+                .collect(Collectors.toMap(identity(), stud -> followUps.get(stud.getN())));
+    }
+
+    private Map<Long, List<FollowUp>> findMriFollowUps(Map<Long, List<Stud>> patientsStudy) {
+        List<Long> studId = patientsStudy.entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .flatMap(Collection::stream)
+                .filter(stud -> stud.getStudType() != null && Objects.equals(MRI_TYPE, stud.getStudType().getN()))
+                .map(Stud::getN)
+                .distinct()
+                .collect(toList());
+        List<FollowUp> byStuds = followUpDao.findByStuds(studId);
+        Map<Long, List<FollowUp>> map = new HashMap<>();
+        for (FollowUp followUp : byStuds) {
+            List<FollowUp> followUps = map.computeIfAbsent(followUp.getStudN(), l -> new ArrayList<>());
+            followUps.add(followUp);
+        }
+        return map;
     }
 
     private Map<Long, List<Proc>> findPatientsProcedures(List<Long> patientsId) {
@@ -160,7 +182,7 @@ public class SampleManager implements Serializable {
     private Optional<SpectGridData> findPatientSpectByDate(List<SpectGridData> spectGridData, LocalDate localDate) {
         List<SpectGridData> patientSpectAtDateByInEarly = spectGridData.stream()
                 .filter(spect -> localDate.isEqual(spect.getStudyDate()))
-                .sorted(Comparator.comparing(SpectGridData::getInEarly))
+                .sorted(Comparator.comparing(SpectGridData::getInSphereEarly))
                 .collect(toList());
         if (patientSpectAtDateByInEarly.isEmpty())
             return Optional.empty();
@@ -192,7 +214,7 @@ public class SampleManager implements Serializable {
     }
 
     private Map<Long, Proc> getPatientsRadiotherapyProc(List<SamplePatients> samplePatients, Map<Long, Proc> patientEarlySurgery, List<Long> patientsId) {
-        List<Proc> patientsRadiotherapy = procDao.findPatientsProcedures(patientsId, radioTherapyProcId);
+        List<Proc> patientsRadiotherapy = procDao.findPatientsProcedures(patientsId, RT);
         return samplePatients.stream()
                 .map(patient -> findPatientProcedures(patientsRadiotherapy, patient.getPatientId()))
                 .filter(procs -> !procs.isEmpty())
@@ -203,7 +225,7 @@ public class SampleManager implements Serializable {
     }
 
     private Map<Long, Proc> getPatientEarlySurgery(List<SamplePatients> samplePatients, List<Long> patientsId) {
-        List<Proc> patientsSurgery = procDao.findPatientsProcedures(patientsId, surgeryProcedureId);
+        List<Proc> patientsSurgery = procDao.findPatientsProcedures(patientsId, SURGERY);
         return samplePatients.stream()
                 .map(patient -> findPatientProcedures(patientsSurgery, patient.getPatientId()))
                 .map(this::findEarlyProcedure)
@@ -257,6 +279,18 @@ public class SampleManager implements Serializable {
         context.transaction(configuration -> {
             samplePatientsDao.updateSamplePatient(bean.getSamplePatients());
             peopleDao.updatePeopleObit(bean.getPatients().getPeople());
+            Proc surgeryProc = bean.getSurgeryProc();
+            if (surgeryProc == null) {
+                Proc proc = Proc.builder()
+                        .patientN(bean.getPatients().getN())
+                        .procBeginTime(DateUtils.asDate(bean.getSurgeryProcDate()))
+                        .procTimeApprox(ProcTimeApproxDao.getProcTimeApproxMap().get(ProcTimeApproxDao.HAPPENED))
+                        .procType(ProcTypeDao.getProcTypeMap().get(ProcTypeDao.SURGERY))
+                        .build();
+                procDao.saveProc(proc);
+            } else {
+                procDao.updateProcDate(surgeryProc);
+            }
         });
     }
 

@@ -114,7 +114,7 @@ public class HistologyManager {
     private void saveMutations(HistologyBind histologyBind, Stud stud, Histology histology) {
         Set<Mutation> mutations = histologyBind.getMutations()
                 .stream()
-                .filter(mutation -> mutation.getMutationType() != null && mutation.getDicYesNo() != null)
+                .filter(mutation -> mutation.getDicYesNo() != null)
                 .peek(mutation -> mutation.setStudyN(stud.getN()))
                 .peek(mutation -> mutation.setHistologyN(histology.getN()))
                 .sorted()

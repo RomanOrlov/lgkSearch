@@ -52,8 +52,7 @@ public class SpectGridDBData {
                 .build();
         this.target = Target.builder()
                 .patientsN(patients.getN())
-                .targetName("Мишень не")
-                .targetTypeText("выбрана")
+                .targetName("Мишень не выбрана")
                 .build();
         this.dataList = new ArrayList<>();
         this.studInj = StudInj.builder()

@@ -44,4 +44,16 @@ public class ProcDao implements Serializable {
     public int countProceduresForPatient(Patients patients) {
         return context.fetchCount(PROC, PROC.PATIENTS_N.eq(patients.getN()));
     }
+
+    public void saveProc(Proc proc) {
+        context.insertInto(PROC)
+                .columns(PROC.N,
+                        )
+                .values()
+                .returning(PROC.N);
+    }
+
+    public void updateProcDate(Proc surgeryProc) {
+
+    }
 }

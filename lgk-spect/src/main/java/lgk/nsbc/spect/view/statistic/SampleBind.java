@@ -1,9 +1,6 @@
 package lgk.nsbc.spect.view.statistic;
 
-import lgk.nsbc.model.Patients;
-import lgk.nsbc.model.Proc;
-import lgk.nsbc.model.SamplePatients;
-import lgk.nsbc.model.Stud;
+import lgk.nsbc.model.*;
 import lgk.nsbc.model.dao.dictionary.ProcTimeApproxDao;
 import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dictionary.DicYesNo;
@@ -13,7 +10,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,6 +30,7 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
     private static final long serialVersionUID = 1L;
 
     private Proc surgeryProc;
+    private LocalDate surgeryProcDate;
     private Proc radioProc;
     private Patients patients;
     private SamplePatients samplePatients;
@@ -47,6 +44,7 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
 
     private List<Stud> studList;
     private List<Proc> procList;
+    private Map<Stud, List<FollowUp>> mriFollowUps;
 
     private Long survival;
     private String survivalCause;
@@ -56,40 +54,83 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
     private String recurrenceCause;
     private Censor recurrenceCensor;
 
+    public LocalDate getSpect1Date() {
+        return spect1 == null ? null : spect1.getStudyDate();
+    }
+
     public Double getSpect1InEarly() {
-        return spect1 == null ? null : spect1.getInEarly();
+        return spect1 == null ? null : spect1.getInSphereEarly();
     }
 
     public Double getSpect1InLate() {
-        return spect1 == null ? null : spect1.getInLate();
+        return spect1 == null ? null : spect1.getInSphereLate();
     }
 
     public Double getSpect1InOut() {
-        return spect1 == null ? null : spect1.getInOut();
+        return spect1 == null ? null : spect1.getInSphereOut();
+    }
+
+    public LocalDate getSpect2Date() {
+        return spect2 == null ? null : spect2.getStudyDate();
     }
 
     public Double getSpect2InEarly() {
-        return spect2 == null ? null : spect2.getInEarly();
+        return spect2 == null ? null : spect2.getInSphereEarly();
     }
 
     public Double getSpect2InLate() {
-        return spect2 == null ? null : spect2.getInLate();
+        return spect2 == null ? null : spect2.getInSphereLate();
     }
 
     public Double getSpect2InOut() {
-        return spect2 == null ? null : spect2.getInOut();
+        return spect2 == null ? null : spect2.getInSphereOut();
+    }
+
+    public LocalDate getSpect3Date() {
+        return spect3 == null ? null : spect3.getStudyDate();
     }
 
     public Double getSpect3InEarly() {
-        return spect3 == null ? null : spect3.getInEarly();
+        return spect3 == null ? null : spect3.getInSphereEarly();
     }
 
     public Double getSpect3InLate() {
-        return spect3 == null ? null : spect3.getInLate();
+        return spect3 == null ? null : spect3.getInSphereLate();
     }
 
     public Double getSpect3InOut() {
-        return spect3 == null ? null : spect3.getInOut();
+        return spect3 == null ? null : spect3.getInSphereOut();
+    }
+
+    public LocalDate getSurgeryDate() {
+        if (surgeryProcDate != null) return surgeryProcDate;
+        if (surgeryProc != null && surgeryProc.getProcBeginTime() != null) {
+            surgeryProcDate = DateUtils.asLocalDate(surgeryProc.getProcBeginTime());
+        }
+        return surgeryProcDate;
+    }
+
+    public LocalDate getRtBeginDate() {
+        if (radioProc != null && radioProc.getProcBeginTime() != null) {
+            return DateUtils.asLocalDate(radioProc.getProcBeginTime());
+        }
+        return null;
+    }
+
+    public LocalDate getRtEndDate() {
+        if (radioProc != null && radioProc.getProcEndTime() != null) {
+            return DateUtils.asLocalDate(radioProc.getProcEndTime());
+        }
+        return null;
+    }
+
+    public Long getSurgeryRTPeriod() {
+        LocalDate surgeryDate = getSurgeryDate();
+        LocalDate rtDate = getRtBeginDate();
+        if (surgeryDate != null && rtDate != null) {
+            return DAYS.between(surgeryDate, rtDate);
+        }
+        return null;
     }
 
     public String getInclusionRepresentation() {

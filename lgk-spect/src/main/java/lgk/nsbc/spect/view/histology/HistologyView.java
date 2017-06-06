@@ -4,29 +4,34 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.converter.StringToDoubleConverter;
 import com.vaadin.data.provider.GridSortOrder;
+import com.vaadin.data.provider.Query;
 import com.vaadin.data.validator.DoubleRangeValidator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Setter;
 import com.vaadin.spring.annotation.VaadinSessionScope;
 import com.vaadin.ui.*;
+import com.vaadin.ui.components.grid.FooterRow;
 import com.vaadin.ui.themes.ValoTheme;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
-import lgk.nsbc.model.dao.dictionary.MutationTypesDao;
 import lgk.nsbc.model.dictionary.Gene;
 import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.spect.util.DateUtils;
 import lgk.nsbc.spect.util.components.NavigationBar;
 import lgk.nsbc.spect.util.components.SuggestionCombobox;
+import lgk.nsbc.spect.view.spectcrud.SpectGridData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @VaadinSessionScope
@@ -51,6 +56,8 @@ public class HistologyView extends VerticalLayout implements View {
     private Binder<HistologyBind> binder = new Binder<>();
     private Boolean editMode = false;
     private HistologyBind selectedToEdit;
+
+    private NativeSelect<Stud> surgerySelect = new NativeSelect<>();
 
     private NavigationBar navigationBar = new NavigationBar();
 
@@ -221,12 +228,19 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private void initProcGrid() {
+        Grid.Column<Proc, LocalDate> dateColumn = procGrid.addColumn(proc -> DateUtils.asLocalDate(proc.getProcBeginTime()))
+                .setCaption("Дата");
         procGrid.addColumn(Proc::getProcType)
                 .setCaption("Тип");
-        procGrid.addColumn(proc -> DateUtils.asLocalDate(proc.getProcBeginTime()))
-                .setCaption("Дата");
         procGrid.setHeightByRows(3);
         procGrid.setWidth("300px");
+        FooterRow footerRow = procGrid.appendFooterRow();
+        procGrid.getDataProvider().addDataProviderListener(event -> {
+            long count = event.getSource()
+                    .fetch(new Query<>())
+                    .count();
+            footerRow.getCell(dateColumn).setText("Всего " + count);
+        });
     }
 
     private void initHistologyGrid() {
@@ -237,24 +251,26 @@ public class HistologyView extends VerticalLayout implements View {
                 .setCaption("Внутренний Id")
                 .setHidable(true)
                 .setHidden(true);
-        histologyGrid.addColumn(HistologyBind::getHistologyDate)
+        Grid.Column<HistologyBind, LocalDate> dateColumn = histologyGrid.addColumn(HistologyBind::getHistologyDate)
                 .setCaption("Дата");
         histologyGrid.addColumn(HistologyBind::getComment)
                 .setCaption("Комментарий");
         histologyGrid.addColumn(histologyBind -> Objects.equals(histologyBind.getBurdenkoVerification(), true) ? "Да" : "Нет")
                 .setCaption("Верификация Бурденко");
+        FooterRow footerRow = histologyGrid.appendFooterRow();
+        histologyGrid.getDataProvider().addDataProviderListener(event -> {
+            long count = event.getSource()
+                    .fetch(new Query<>())
+                    .count();
+            footerRow.getCell(dateColumn).setText("Всего " + count);
+        });
     }
 
     private void initMutationGrid() {
         Grid.Column<Mutation, Gene> geneColumn = mutationGrid.addColumn(Mutation::getGene)
                 .setCaption("Ген");
-        mutationGrid.addColumn(Mutation::getMutationType)
-                .setCaption("Тип мутации")
-                .setEditorBinding(getEditorBind(mutationGrid,
-                        new NativeSelect<>("Тип мутации", MutationTypesDao.getMutationTypes().values()),
-                        Mutation::getMutationType,
-                        Mutation::setMutationType)
-                );
+        mutationGrid.addColumn(mutation -> mutation.getGene() == null ? null : mutation.getGene().getMutationType())
+                .setCaption("Тип мутации");
         mutationGrid.addColumn(Mutation::getDicYesNo)
                 .setCaption("Наличие")
                 .setEditorBinding(getEditorBind(mutationGrid,
@@ -278,11 +294,18 @@ public class HistologyView extends VerticalLayout implements View {
 
     private void initStudGrid() {
         studGrid.setHeightByRows(3);
-        studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudyDateTime()))
+        Grid.Column<Stud, LocalDate> dateColumn = studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudyDateTime()))
                 .setCaption("Дата");
         studGrid.addColumn(Stud::getStudType)
                 .setCaption("Тип");
         studGrid.setWidth("300px");
+        FooterRow footerRow = studGrid.appendFooterRow();
+        studGrid.getDataProvider().addDataProviderListener(event -> {
+            long count = event.getSource()
+                    .fetch(new Query<>())
+                    .count();
+            footerRow.getCell(dateColumn).setText("Всего " + count);
+        });
     }
 
     private <T> Binder.Binding<Mutation, T> getEditorBind(Grid<Mutation> mutationGrid, NativeSelect<T> editSelect, ValueProvider<Mutation, T> getter, Setter<Mutation, T> setter) {

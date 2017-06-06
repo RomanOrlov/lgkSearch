@@ -43,7 +43,7 @@ public class MainSpectView extends UI {
         navigator.addView(HISTOLOGY_VIEW, histologyView);
         navigator.addView(STATISTIC_VIEW, sampleStatistic);
         navigator.addView(MISSING_DATA, missingData);
-        navigator.navigateTo(STATISTIC_VIEW);
         navigator.setErrorView(loginPage);
+        navigator.navigateTo(LOGIN);
     }
 }

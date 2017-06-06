@@ -44,6 +44,13 @@ public class FollowUpDao implements Serializable {
         followUp.setN(geberatedId);
     }
 
+    public List<FollowUp> findByStuds(List<Long> studId) {
+        return context.fetch(FOLLOWUP, FOLLOWUP.STUD_N.in(studId))
+                .stream()
+                .map(FollowUp::buildFromRecord)
+                .collect(toList());
+    }
+
     public List<FollowUp> findByStudy(Stud stud) {
         return findByStudy(stud.getN());
     }

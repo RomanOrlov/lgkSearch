@@ -1,5 +1,6 @@
 package lgk.nsbc.model.dictionary;
 
+import lgk.nsbc.model.dao.dictionary.GenesDao;
 import lombok.*;
 import org.jooq.Record;
 
@@ -19,6 +20,8 @@ public class Gene implements Serializable {
     private String name;
     private String text;
     private String description;
+    @Setter
+    private MutationType mutationType; // Каждый ген обладает определенным типом мутации (коделеця, метелирование, мутация)
 
     public static Gene buildFromRecord(Record record) {
         return builder().n(record.get(GENES.N))

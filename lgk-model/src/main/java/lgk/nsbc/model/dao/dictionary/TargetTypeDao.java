@@ -1,6 +1,6 @@
 package lgk.nsbc.model.dao.dictionary;
 
-import lgk.nsbc.model.dictionary.ProcType;
+import lgk.nsbc.model.dictionary.TargetType;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,29 +12,27 @@ import java.util.Map;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static lgk.nsbc.generated.tables.ProcProcType.PROC_PROC_TYPE;
+import static lgk.nsbc.generated.tables.TargetTargettype.TARGET_TARGETTYPE;
 
 @Service
-public class ProcTypeDao implements Serializable {
+public class TargetTypeDao implements Serializable {
     private static final long serialVersionUID = 1L;
-    public static final Long SURGERY = 10L;
-    public static final Long RT = 7L;
 
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, ProcType> procTypeMap;
+    private static Map<Long, TargetType> targetTypeMap;
 
     @PostConstruct
     void init() {
-        procTypeMap = Collections.unmodifiableMap(context.fetch(PROC_PROC_TYPE)
+        targetTypeMap = Collections.unmodifiableMap(context.fetch(TARGET_TARGETTYPE)
                 .stream()
-                .map(ProcType::buildFromRecord)
-                .collect(toMap(ProcType::getN, identity()))
+                .map(TargetType::buildFromRecord)
+                .collect(toMap(TargetType::getN, identity()))
         );
     }
 
-    public static Map<Long, ProcType> getProcTypeMap() {
-        return procTypeMap;
+    public static Map<Long, TargetType> getTargetTypeMap() {
+        return targetTypeMap;
     }
 }

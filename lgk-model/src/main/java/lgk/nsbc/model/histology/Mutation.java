@@ -25,7 +25,6 @@ public class Mutation implements Serializable, Comparable<Mutation> {
     private Long n;
     private Long histologyN;
     private Long studyN;
-    private MutationType mutationType;
     private Gene gene;
     private DicYesNo dicYesNo;
 
@@ -33,7 +32,6 @@ public class Mutation implements Serializable, Comparable<Mutation> {
         return builder().n(record.get(HISTOLOGY_MUTATION.N))
                 .histologyN(record.get(HISTOLOGY_MUTATION.HISTOLOGY_N))
                 .studyN(record.get(HISTOLOGY_MUTATION.STUD_N))
-                .mutationType(getMutationTypes().get(record.get(HISTOLOGY_MUTATION.MUTATION_TYPES_N)))
                 .gene(getGenes().get(record.get(HISTOLOGY_MUTATION.GENES_N)))
                 .dicYesNo(DicYesNoDao.getDicYesNo().get(record.get(HISTOLOGY_MUTATION.DIC_YES_NO_N)))
                 .build();

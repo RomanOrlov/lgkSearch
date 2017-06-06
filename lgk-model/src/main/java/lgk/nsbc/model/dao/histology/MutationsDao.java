@@ -70,7 +70,7 @@ public class MutationsDao implements Serializable {
                     val(mutation.getStudyN()),
                     val(mutation.getDicYesNo() == null ? null : mutation.getDicYesNo().getN()),
                     val(mutation.getGene() == null ? null : mutation.getGene().getN()),
-                    val(mutation.getMutationType() == null ? null : mutation.getMutationType().getN()));
+                    val(mutation.getGene() == null ? null : mutation.getGene().getMutationType().getN()));
         }
         columns.execute();
     }

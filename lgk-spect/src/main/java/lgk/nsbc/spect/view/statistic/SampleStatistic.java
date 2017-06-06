@@ -15,11 +15,11 @@ import com.vaadin.ui.renderers.NumberRenderer;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.SamplePatients;
 import lgk.nsbc.spect.util.DateUtils;
-import lgk.nsbc.spect.util.components.NavigationBar;
-import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
 import lgk.nsbc.spect.util.components.GlobalGridFilter;
 import lgk.nsbc.spect.util.components.GridHeaderFilter;
+import lgk.nsbc.spect.util.components.NavigationBar;
 import lgk.nsbc.spect.util.components.SuggestionCombobox;
+import lgk.nsbc.spect.util.excel.StatisticExcelExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -35,11 +35,9 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static lgk.nsbc.spect.view.statistic.Dynamic.NEGATIVE;
-import static lgk.nsbc.spect.view.statistic.Dynamic.POSITIVE;
-import static lgk.nsbc.spect.view.statistic.Dynamic.STABLE;
 import static lgk.nsbc.spect.util.components.GridHeaderFilter.addDoubleFilter;
 import static lgk.nsbc.spect.util.components.GridHeaderFilter.addRadioButtonFilter;
+import static lgk.nsbc.spect.view.statistic.Dynamic.*;
 
 @Service
 @VaadinSessionScope
@@ -148,7 +146,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             dataProvider.refreshItem(bean);
             sampleManager.updateSamplePatient(bean);
         });
-        // ФИО
+
         Grid.Column<SampleBind, String> name = sampleGrid.addColumn(sampleBind -> sampleBind.getPatients().getFullName())
                 .setCaption("ФИО")
                 .setHidable(true);
@@ -191,22 +189,22 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("Дата рождения")
                 .setHidden(true);
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getSurgeryProc() == null) return null;
-            return DateUtils.asLocalDate(sampleBind.getSurgeryProc().getProcBeginTime());
-        })
-                .setCaption("Дата хирургии");
+        DateField surgeryDateField = new DateField();
+        surgeryDateField.setTextFieldEnabled(false);
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getRadioProc() == null) return null;
-            return DateUtils.asLocalDate(sampleBind.getRadioProc().getProcBeginTime());
-        }).setCaption("Начало ЛТ")
+        sampleGrid.addColumn(SampleBind::getSurgeryDate)
+                .setCaption("Дата хирургии")
+                .setEditorComponent(surgeryDateField, SampleBind::setSurgeryProcDate);
+
+        Grid.Column<SampleBind, Long> surgeryRtPeriodColumn = sampleGrid.addColumn(SampleBind::getSurgeryRTPeriod)
+                .setCaption("Время между хирургией и ЛТ");
+
+        sampleGrid.addColumn(SampleBind::getRtBeginDate)
+                .setCaption("Начало ЛТ")
                 .setHidden(true);
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getRadioProc() == null) return null;
-            return DateUtils.asLocalDate(sampleBind.getRadioProc().getProcEndTime());
-        }).setCaption("Конец ЛТ")
+        sampleGrid.addColumn(SampleBind::getRtEndDate)
+                .setCaption("Конец ЛТ")
                 .setHidden(true);
 
         sampleGrid.addColumn(SampleBind::getMgmt)
@@ -221,10 +219,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("IDH2")
                 .setHidden(true);
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getSpect1() == null) return null;
-            return sampleBind.getSpect1().getStudyDate();
-        }).setCaption("№1 ОФЕКТ");
+        sampleGrid.addColumn(SampleBind::getSpect1Date)
+                .setCaption("№1 ОФЕКТ");
 
         Grid.Column<SampleBind, Double> spect1InEarly = sampleGrid.addColumn(SampleBind::getSpect1InEarly, new NumberRenderer(inFormat))
                 .setCaption("№1 ИН 30");
@@ -235,10 +231,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
         Grid.Column<SampleBind, Double> spect1InOut = sampleGrid.addColumn(SampleBind::getSpect1InOut, new NumberRenderer(inFormat))
                 .setCaption("№1 Вымывание");
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getSpect2() == null) return null;
-            return sampleBind.getSpect2().getStudyDate();
-        }).setCaption("№2 ОФЕКТ")
+        sampleGrid.addColumn(SampleBind::getSpect2Date)
+                .setCaption("№2 ОФЕКТ")
                 .setHidden(true);
 
         Grid.Column<SampleBind, Double> spect2InEarly = sampleGrid.addColumn(SampleBind::getSpect2InEarly, new NumberRenderer(inFormat))
@@ -253,10 +247,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("№2 Вымывание")
                 .setHidden(true);
 
-        sampleGrid.addColumn(sampleBind -> {
-            if (sampleBind.getSpect3() == null) return null;
-            return sampleBind.getSpect3().getStudyDate();
-        }).setCaption("№3 ОФЕКТ")
+        sampleGrid.addColumn(SampleBind::getSpect3Date)
+                .setCaption("№3 ОФЕКТ")
                 .setHidden(true);
 
         Grid.Column<SampleBind, Double> spect3InEarly = sampleGrid.addColumn(SampleBind::getSpect3InEarly, new NumberRenderer(inFormat))
@@ -328,7 +320,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
             List<SampleBind> allData = event.getSource()
                     .fetch(new Query<>())
                     .collect(toList());
-
+            // Нас интересует статистика только включенных в выборку
             List<SampleBind> includedData = allData.stream()
                     .filter(sampleBind -> Objects.equals("Y", sampleBind.getSamplePatients().getInclusion()))
                     .collect(toList());
@@ -351,6 +343,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
             meanLongColumn(footerRow.getCell(recurrencePeriodColumn), includedData, SampleBind::getRecurrence);
             meanLongColumn(footerRow.getCell(survivalPeriodColumn), includedData, SampleBind::getSurvival);
+            meanLongColumn(footerRow.getCell(survivalPeriodColumn), includedData, SampleBind::getSurgeryRTPeriod);
         });
         // Настраиваем фильттрацию
         HeaderRow filterHeader = sampleGrid.prependHeaderRow();
@@ -481,8 +474,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
     }
 
     private void meanLongColumn(FooterCell footerCell,
-                                  List<SampleBind> data,
-                                  ValueProvider<SampleBind, Long> valueProvider) {
+                                List<SampleBind> data,
+                                ValueProvider<SampleBind, Long> valueProvider) {
         double average = data.stream()
                 .map(valueProvider)
                 .filter(Objects::nonNull)
