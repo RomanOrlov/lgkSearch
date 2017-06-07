@@ -2,6 +2,7 @@ package lgk.nsbc.model.dao;
 
 import lgk.nsbc.generated.Sequences;
 import lgk.nsbc.generated.tables.records.StudRecord;
+import lgk.nsbc.model.DateUtils;
 import lgk.nsbc.model.Patients;
 import lgk.nsbc.model.Stud;
 import org.jooq.DSLContext;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -40,11 +44,7 @@ public class StudDao implements Serializable {
     }
 
     public void createStud(Stud stud) {
-        Timestamp timestamp;
-        if (stud.getStudyDateTime() != null)
-            timestamp = new Timestamp(stud.getStudyDateTime().getTime());
-        else
-            timestamp = null;
+        Timestamp timestamp = DateUtils.fromDateToTimestamp(stud.getStudyDateTime());
         Result<StudRecord> result = context.insertInto(STUD)
                 .columns(STUD.N,
                         STUD.OP_CREATE,
@@ -117,13 +117,10 @@ public class StudDao implements Serializable {
     }
 
     public void updateStudy(Stud stud) {
-        Timestamp timestamp;
-        if (stud.getStudyDateTime() != null)
-            timestamp = new Timestamp(stud.getStudyDateTime().getTime());
-        else
-            timestamp = null;
+        Timestamp timestamp = DateUtils.fromDateToTimestamp(stud.getStudyDateTime());
         context.update(STUD)
                 .set(STUD.STUDYDATETIME, timestamp)
+                .set(STUD.PROCEDURES_N, stud.getProceduresN())
                 .where(STUD.N.eq(stud.getN()))
                 .execute();
     }

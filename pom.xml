@@ -13,8 +13,9 @@
         <module>lgk-model</module>
         <module>lgk-generator-strategy</module>
     </modules>
+
 	<name>Search</name>
-	<description>LGK database interface</description>
+	<description>LGK database interface for SPECT grant</description>
 
 	<properties>
 		<project.encoding>UTF-8</project.encoding>
@@ -29,6 +30,7 @@
 		<developer>
 			<name>Roman Orlov</name>
 			<email>asindor@gmail.com</email>
+			<organization>MEPHI</organization>
 		</developer>
 	</developers>
 

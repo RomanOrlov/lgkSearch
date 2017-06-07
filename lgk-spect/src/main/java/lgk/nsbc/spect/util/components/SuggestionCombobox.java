@@ -32,6 +32,7 @@ public class SuggestionCombobox extends ComboBox<Patients> {
         setCaption("Поиск пациента");
         setWidth("100%");
         setEmptySelectionAllowed(false);
+        setItemCaptionGenerator(Patients::toStringWithCaseHistory);
         addValueChangeListener(valueChangeEvent -> setCaption("Выбран пациент " + valueChangeEvent.getValue().toStringWithCaseHistory()));
     }
 

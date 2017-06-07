@@ -22,6 +22,8 @@ public class SysAgents implements Serializable {
     private Long nbc_org_n_default;
 
     public static SysAgents buildFromRecord(Record record) {
+        if (record == null)
+            return null;
         return builder()
                 .n(record.get(SYS_AGENTS.N))
                 .name(record.get(SYS_AGENTS.NAME))

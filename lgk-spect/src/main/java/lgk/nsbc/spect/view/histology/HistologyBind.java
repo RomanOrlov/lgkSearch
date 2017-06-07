@@ -1,5 +1,6 @@
 package lgk.nsbc.spect.view.histology;
 
+import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.dictionary.GenesDao;
 import lgk.nsbc.model.dictionary.Gene;
@@ -30,6 +31,7 @@ public class HistologyBind {
     private Set<Mutation> mutations;
 
     private LocalDate histologyDate;
+    private Proc connectedProc;
     private Boolean burdenkoVerification;
     private Double ki67From;
     private Double ki67To;

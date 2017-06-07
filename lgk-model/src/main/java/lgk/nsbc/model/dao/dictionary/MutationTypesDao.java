@@ -21,15 +21,11 @@ public class MutationTypesDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    private static Map<Long, MutationType> mutationTypes;
+    static Map<Long, MutationType> mutationTypes;
 
     @PostConstruct
-    void init() {
-        mutationTypes = Collections.unmodifiableMap(context.fetch(MUTATION_TYPES)
-                .stream()
-                .map(MutationType::buildFromRecord)
-                .collect(toMap(MutationType::getN, identity()))
-        );
+    public void init() {
+            // See GenesDao
     }
 
     public static Map<Long, MutationType> getMutationTypes() {

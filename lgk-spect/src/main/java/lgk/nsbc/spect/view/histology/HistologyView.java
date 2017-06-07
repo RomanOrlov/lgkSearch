@@ -22,7 +22,6 @@ import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.spect.util.DateUtils;
 import lgk.nsbc.spect.util.components.NavigationBar;
 import lgk.nsbc.spect.util.components.SuggestionCombobox;
-import lgk.nsbc.spect.view.spectcrud.SpectGridData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.dialogs.ConfirmDialog;
@@ -30,8 +29,6 @@ import org.vaadin.dialogs.ConfirmDialog;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.*;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @VaadinSessionScope
@@ -57,7 +54,7 @@ public class HistologyView extends VerticalLayout implements View {
     private Boolean editMode = false;
     private HistologyBind selectedToEdit;
 
-    private NativeSelect<Stud> surgerySelect = new NativeSelect<>();
+    private NativeSelect<Proc> connectedProcs = new NativeSelect<>();
 
     private NavigationBar navigationBar = new NavigationBar();
 
@@ -81,8 +78,6 @@ public class HistologyView extends VerticalLayout implements View {
         Button showSelectedHistology = new Button("Просмотр");
         showSelectedHistology.addClickListener(event -> edit());
 
-        Button addHistology = new Button("Добавить");
-
         Button removeHistology = new Button("Удалить");
         removeHistology.addClickListener(event -> {
             if (histologyGrid.asSingleSelect().isEmpty()) {
@@ -99,20 +94,27 @@ public class HistologyView extends VerticalLayout implements View {
             });
         });
 
-        HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology);
-        tools.setWidth("100%");
-        tools.setExpandRatio(suggestionCombobox, 1.0f);
-
         DateField dateField = new DateField("Дата гистологии");
         dateField.setTextFieldEnabled(false);
         CheckBox burdenkoVerification = new CheckBox("Верификация Бурденко");
         TextField ki67From = new TextField("Ki-67,% от");
         TextField ki67To = new TextField("Ki-67,% до");
 
-        HorizontalLayout histologyParams = new HorizontalLayout(dateField, ki67From, ki67To, burdenkoVerification);
+        HorizontalLayout histologyParams = new HorizontalLayout(connectedProcs, dateField, ki67From, ki67To, burdenkoVerification);
         histologyParams.setComponentAlignment(burdenkoVerification, Alignment.MIDDLE_CENTER);
+        histologyParams.setExpandRatio(connectedProcs, 1.0f);
+
+        connectedProcs.setItems(procList);
+        connectedProcs.setEmptySelectionAllowed(true);
+        connectedProcs.addValueChangeListener(event -> {
+            Proc selectedProc = event.getValue();
+            if (selectedProc != null)
+                dateField.setValue(DateUtils.asLocalDate(selectedProc.getProcBeginTime()));
+        });
+
         TextArea comment = new TextArea("Гистологическое заключение");
         comment.setWidth("100%");
+        comment.setRows(5);
 
         Button saveChanges = new Button("Сохранить изменения");
         saveChanges.addClickListener(event -> {
@@ -129,6 +131,7 @@ public class HistologyView extends VerticalLayout implements View {
                 HistologyBind bean = binder.getBean();
                 bean.setHistology(selectedToEdit.getHistology());
                 bean.setMutations(new TreeSet<>(mutations));
+                bean.setConnectedProc(connectedProcs.getValue());
                 histology.remove(selectedToEdit);
                 histology.add(bean);
                 histologyManager.updateHistology(bean, suggestionCombobox.getValue());
@@ -136,6 +139,7 @@ public class HistologyView extends VerticalLayout implements View {
             } else {
                 HistologyBind histologyBind = binder.getBean();
                 histologyBind.setMutations(new TreeSet<>(mutations));
+                histologyBind.setConnectedProc(connectedProcs.getValue());
                 histologyManager.createNewHistology(histologyBind, suggestionCombobox.getValue());
                 histology.add(histologyBind);
                 editMode = true; // Сразу после создания переключаемся в режим редактирования
@@ -145,6 +149,7 @@ public class HistologyView extends VerticalLayout implements View {
             histologyGrid.getDataProvider().refreshAll();
         });
 
+        Button addHistology = new Button("Добавить");
         addHistology.addClickListener(event -> {
             if (suggestionCombobox.isEmpty()) {
                 Notification.show("Не выбран пациент");
@@ -153,6 +158,7 @@ public class HistologyView extends VerticalLayout implements View {
             editMode = false;
             selectedToEdit = null;
             // bind не работает для очистки полей!
+            connectedProcs.setSelectedItem(null);
             histologyGrid.deselectAll();
             cleanCurrentHistology();
             dateField.clear();
@@ -163,8 +169,13 @@ public class HistologyView extends VerticalLayout implements View {
             binder.setBean(new HistologyBind());
         });
 
+        HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology);
+        tools.setWidth("100%");
+        tools.setExpandRatio(suggestionCombobox, 1.0f);
+
         dateField.setRequiredIndicatorVisible(true);
         binder.forField(dateField)
+                .asRequired("Укажите дату гистологии")
                 .bind(HistologyBind::getHistologyDate, HistologyBind::setHistologyDate);
         binder.forField(burdenkoVerification)
                 .bind(HistologyBind::getBurdenkoVerification, HistologyBind::setBurdenkoVerification);
@@ -181,6 +192,8 @@ public class HistologyView extends VerticalLayout implements View {
         binder.forField(comment)
                 .withNullRepresentation("")
                 .bind(HistologyBind::getComment, HistologyBind::setComment);
+        binder.forField(connectedProcs)
+                .bind(HistologyBind::getConnectedProc, HistologyBind::setConnectedProc);
 
         saveChanges.setStyleName(ValoTheme.BUTTON_PRIMARY);
         initHistologyGrid();
@@ -202,6 +215,7 @@ public class HistologyView extends VerticalLayout implements View {
         studGrid.getDataProvider().refreshAll();
         procList.clear();
         procList.addAll(histologyManager.getPatientsProc(patients));
+        connectedProcs.getDataProvider().refreshAll();
         procGrid.getDataProvider().refreshAll();
     }
 
@@ -319,6 +333,7 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private void clearAll() {
+        connectedProcs.clear();
         studList.clear();
         studGrid.getDataProvider().refreshAll();
         procList.clear();

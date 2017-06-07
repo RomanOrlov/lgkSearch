@@ -7,9 +7,11 @@ import com.vaadin.ui.LoginForm;
 import com.vaadin.ui.Notification;
 import lgk.nsbc.model.dao.sys.SysAgentsDao;
 import lgk.nsbc.model.sys.SysAgents;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -20,6 +22,7 @@ import static lgk.nsbc.spect.view.MainSpectView.SPECT_VIEW;
 public class LoginPage extends LoginForm implements View {
     @Autowired
     private SysAgentsDao sysAgentsDao;
+
     public LoginPage() {
         /*
         1. Проверяем не в системе ли пользователь.
@@ -31,7 +34,7 @@ public class LoginPage extends LoginForm implements View {
             String password = event.getLoginParameter("password").trim();
             String pid = getPid(username, password);
             SysAgents sysAgents = sysAgentsDao.findByPid(pid);
-            if (sysAgents.getName().equals(username)) {
+            if (sysAgents != null && sysAgents.getName().equals(username)) {
                 getUI().getNavigator().navigateTo(SPECT_VIEW);
             } else {
                 Notification.show("Неверный логин/пароль",
@@ -49,9 +52,9 @@ public class LoginPage extends LoginForm implements View {
     private String getPid(String name, String pass) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
-            byte[] digest = md5.digest((name + pass).getBytes());
-            return new String(digest);
-        } catch (NoSuchAlgorithmException e) {
+            byte[] digest = md5.digest((name + pass).getBytes("UTF-8"));
+            return Hex.encodeHexString(digest);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return null;

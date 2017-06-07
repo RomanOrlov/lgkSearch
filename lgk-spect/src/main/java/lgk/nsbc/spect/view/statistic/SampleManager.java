@@ -289,6 +289,7 @@ public class SampleManager implements Serializable {
                         .build();
                 procDao.saveProc(proc);
             } else {
+                surgeryProc.setProcBeginTime(DateUtils.asDate(bean.getSurgeryDate()));
                 procDao.updateProcDate(surgeryProc);
             }
         });

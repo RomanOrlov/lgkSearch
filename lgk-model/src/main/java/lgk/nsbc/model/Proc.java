@@ -19,6 +19,7 @@ import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.getProcTypeMap;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(of = "n")
 public class Proc implements Serializable {
     private static final long serialVersionUID = 1L;
 

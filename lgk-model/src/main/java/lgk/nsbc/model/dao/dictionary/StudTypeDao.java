@@ -18,6 +18,7 @@ import static lgk.nsbc.generated.tables.StudStudyType.STUD_STUDY_TYPE;
 public class StudTypeDao implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final long MRI_TYPE = 1L;
+    public static final long BIOPSY_TYPE = 8L;
 
     @Autowired
     private DSLContext context;

@@ -1,5 +1,6 @@
 package lgk.nsbc.model;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,5 +31,10 @@ public class DateUtils {
         if (date == null)
             return null;
         return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public static Timestamp fromDateToTimestamp(Date date) {
+        if (date==null) return null;
+        return new Timestamp(date.getTime());
     }
 }

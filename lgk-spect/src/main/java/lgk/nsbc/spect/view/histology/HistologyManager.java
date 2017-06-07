@@ -6,10 +6,12 @@ import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.ProcDao;
 import lgk.nsbc.model.dao.StudDao;
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
+import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.*;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
+import static lgk.nsbc.model.dao.dictionary.StudTypeDao.BIOPSY_TYPE;
 import static lgk.nsbc.model.dao.dictionary.StudTypeDao.getStudTypeMap;
 
 @Service
@@ -29,6 +32,8 @@ public class HistologyManager {
     private MutationsDao mutationsDao;
     @Autowired
     private ProcDao procDao;
+    @Autowired
+    private DSLContext context;
 
     public List<HistologyBind> getHistology(Patients patients) {
         List<Histology> histologyList = histologyDao.findByPatient(patients);
@@ -43,7 +48,7 @@ public class HistologyManager {
         List<HistologyBind> histologyBindList = histologyList.stream()
                 .map(this::toHistologyBind)
                 .collect(toList());
-        histologyBindList.forEach(histologyBind -> {
+        for (HistologyBind histologyBind : histologyBindList) {
             Histology histology = histologyBind.getHistology();
             Set<Mutation> mutationsTemplate = HistologyBind.getMutationsTemplate();
             List<Mutation> mutations = mutationsMap.get(histology.getN());
@@ -56,7 +61,7 @@ public class HistologyManager {
             histologyBind.setStud(stud);
             if (stud != null && stud.getStudyDateTime() != null)
                 histologyBind.setHistologyDate(DateUtils.asLocalDate(stud.getStudyDateTime()));
-        });
+        }
         return histologyBindList;
     }
 
@@ -92,23 +97,27 @@ public class HistologyManager {
     }
 
     public void updateHistology(HistologyBind histologyBind, Patients patients) {
-        Stud stud = getStud(histologyBind, patients);
-        histologyBind.setStud(stud);
-        Histology histology = toHistology(histologyBind, stud);
-        histology.setN(histologyBind.getHistology().getN());
-        histologyDao.updateHistology(histology);
-        mutationsDao.deleteMutationsByHistology(histologyBind.getHistology());
-        saveMutations(histologyBind, stud, histologyBind.getHistology());
+        context.transaction(configuration -> {
+            Stud stud = getStud(histologyBind, patients);
+            histologyBind.setStud(stud);
+            Histology histology = toHistology(histologyBind, stud);
+            histology.setN(histologyBind.getHistology().getN());
+            histologyDao.updateHistology(histology);
+            mutationsDao.deleteMutationsByHistology(histologyBind.getHistology());
+            saveMutations(histologyBind, stud, histologyBind.getHistology());
+        });
     }
 
     public void createNewHistology(HistologyBind histologyBind, Patients patients) {
-        Stud stud = getStud(histologyBind, patients);
-        histologyBind.setStud(stud);
-        Histology histology = toHistology(histologyBind, stud);
-        histology.setPatientsN(patients.getN());
-        histologyBind.setHistology(histology);
-        histologyDao.saveHistology(histology);
-        saveMutations(histologyBind, stud, histology);
+        context.transaction(configuration -> {
+            Stud stud = getStud(histologyBind, patients);
+            histologyBind.setStud(stud);
+            Histology histology = toHistology(histologyBind, stud);
+            histology.setPatientsN(patients.getN());
+            histologyBind.setHistology(histology);
+            histologyDao.saveHistology(histology);
+            saveMutations(histologyBind, stud, histology);
+        });
     }
 
     private void saveMutations(HistologyBind histologyBind, Stud stud, Histology histology) {
@@ -125,8 +134,9 @@ public class HistologyManager {
     private Stud getStud(HistologyBind histologyBind, Patients patients) {
         Stud stud = Stud.builder()
                 .patientsN(patients.getN())
-                .studType(getStudTypeMap().get(8L))
+                .studType(getStudTypeMap().get(BIOPSY_TYPE))
                 .studyDateTime(DateUtils.asDate(histologyBind.getHistologyDate()))
+                .proceduresN(histologyBind.getConnectedProc() == null ? null : histologyBind.getConnectedProc().getN())
                 .build();
         if (histologyBind.getStud() != null && histologyBind.getStud().getN() != null) {
             stud.setN(histologyBind.getStud().getN());
@@ -135,9 +145,17 @@ public class HistologyManager {
         }
         if (histologyBind.getHistologyDate() != null) {
             // Пытаемся найти stud
-            Optional<Stud> studyByDate = studDao.findStudyByDate(patients, DateUtils.asDate(histologyBind.getHistologyDate()), 8L);
-            if (studyByDate.isPresent())
-                return studyByDate.get();
+            Optional<Stud> studyByDate = studDao.findStudyByDate(patients, DateUtils.asDate(histologyBind.getHistologyDate()), BIOPSY_TYPE);
+            if (studyByDate.isPresent()) {
+                Stud findedStud = studyByDate.get();
+                // Обновили ссылку а процедуру
+                if (!(stud.getProceduresN()== null && findedStud.getProceduresN() == null) &&
+                        !Objects.equals(findedStud.getProceduresN(), stud.getProceduresN())) {
+                    findedStud.setProceduresN(stud.getProceduresN());
+                    studDao.updateStudy(findedStud);
+                }
+                return findedStud;
+            }
         }
         studDao.createStud(stud);
         return stud;
@@ -151,7 +169,7 @@ public class HistologyManager {
         return histologyDao.isExist(n);
     }
 
-    public Collection<? extends Proc> getPatientsProc(Patients patients) {
+    public Collection<Proc> getPatientsProc(Patients patients) {
         return procDao.findPatientProc(patients);
     }
 }
