@@ -8,10 +8,10 @@ import lgk.nsbc.model.Proc;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.util.calendar.BaseCalendar;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -77,5 +77,12 @@ public class ProcDao implements Serializable {
                 .set(PROC.PROCBEGINTIME, procBeginTime)
                 .where(PROC.N.eq(surgeryProc.getN()))
                 .execute();
+    }
+
+    public List<Proc> findById(Collection<Long> id) {
+        return context.fetch(PROC, PROC.N.in(id))
+                .stream()
+                .map(Proc::buildFromRecord)
+                .collect(toList());
     }
 }

@@ -6,7 +6,6 @@ import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.ProcDao;
 import lgk.nsbc.model.dao.StudDao;
-import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
@@ -45,6 +44,13 @@ public class HistologyManager {
         Map<Long, Stud> studMap = studDao.findById(studId)
                 .stream()
                 .collect(toMap(Stud::getN, identity()));
+        Set<Long> procId = studMap.values()
+                .stream()
+                .map(Stud::getProceduresN)
+                .collect(toSet());
+        Map<Long, Proc> studProc = procDao.findById(procId)
+                .stream()
+                .collect(toMap(Proc::getN, identity()));
         List<HistologyBind> histologyBindList = histologyList.stream()
                 .map(this::toHistologyBind)
                 .collect(toList());
@@ -61,6 +67,14 @@ public class HistologyManager {
             histologyBind.setStud(stud);
             if (stud != null && stud.getStudyDateTime() != null)
                 histologyBind.setHistologyDate(DateUtils.asLocalDate(stud.getStudyDateTime()));
+            if (stud != null && stud.getProceduresN() != null) {
+                Proc connectedProc = studProc.get(stud.getProceduresN());
+                if (stud.getStudyDateTime() == null) {
+                    stud.setStudyDateTime(connectedProc.getProcBeginTime());
+                    histologyBind.setHistologyDate(DateUtils.asLocalDate(connectedProc.getProcBeginTime()));
+                }
+                histologyBind.setConnectedProc(connectedProc);
+            }
         }
         return histologyBindList;
     }
@@ -149,7 +163,7 @@ public class HistologyManager {
             if (studyByDate.isPresent()) {
                 Stud findedStud = studyByDate.get();
                 // Обновили ссылку а процедуру
-                if (!(stud.getProceduresN()== null && findedStud.getProceduresN() == null) &&
+                if (!(stud.getProceduresN() == null && findedStud.getProceduresN() == null) &&
                         !Objects.equals(findedStud.getProceduresN(), stud.getProceduresN())) {
                     findedStud.setProceduresN(stud.getProceduresN());
                     studDao.updateStudy(findedStud);

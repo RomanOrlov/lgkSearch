@@ -18,6 +18,7 @@ import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.dictionary.DicYesNoDao;
 import lgk.nsbc.model.dictionary.Gene;
+import lgk.nsbc.model.dictionary.ProcType;
 import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.spect.util.DateUtils;
 import lgk.nsbc.spect.util.components.NavigationBar;
@@ -54,7 +55,7 @@ public class HistologyView extends VerticalLayout implements View {
     private Boolean editMode = false;
     private HistologyBind selectedToEdit;
 
-    private NativeSelect<Proc> connectedProcs = new NativeSelect<>();
+    private NativeSelect<Proc> connectedProcs = new NativeSelect<>("Привязать процедуру", procList);
 
     private NavigationBar navigationBar = new NavigationBar();
 
@@ -73,6 +74,8 @@ public class HistologyView extends VerticalLayout implements View {
             refreshHistology(patients);
             refreshStudy(patients);
             binder.setBean(HistologyBind.builder().build()); // Пустая
+            editMode = false;
+            selectedToEdit = null;
         });
 
         Button showSelectedHistology = new Button("Просмотр");
@@ -103,18 +106,25 @@ public class HistologyView extends VerticalLayout implements View {
         HorizontalLayout histologyParams = new HorizontalLayout(connectedProcs, dateField, ki67From, ki67To, burdenkoVerification);
         histologyParams.setComponentAlignment(burdenkoVerification, Alignment.MIDDLE_CENTER);
         histologyParams.setExpandRatio(connectedProcs, 1.0f);
+        histologyParams.setWidth("100%");
 
-        connectedProcs.setItems(procList);
+        connectedProcs.setWidth("100%");
         connectedProcs.setEmptySelectionAllowed(true);
         connectedProcs.addValueChangeListener(event -> {
             Proc selectedProc = event.getValue();
             if (selectedProc != null)
                 dateField.setValue(DateUtils.asLocalDate(selectedProc.getProcBeginTime()));
         });
+        connectedProcs.setItemCaptionGenerator(proc -> {
+            if (proc == null) return null;
+            ProcType procType = proc.getProcType();
+            LocalDate date = DateUtils.asLocalDate(proc.getProcBeginTime());
+            return (procType == null ? "" : procType.toString()) + " " + (date == null ? "" : date.toString());
+        });
 
         TextArea comment = new TextArea("Гистологическое заключение");
         comment.setWidth("100%");
-        comment.setRows(5);
+        comment.setRows(4);
 
         Button saveChanges = new Button("Сохранить изменения");
         saveChanges.addClickListener(event -> {
@@ -132,10 +142,12 @@ public class HistologyView extends VerticalLayout implements View {
                 bean.setHistology(selectedToEdit.getHistology());
                 bean.setMutations(new TreeSet<>(mutations));
                 bean.setConnectedProc(connectedProcs.getValue());
+                bean.setStud(selectedToEdit.getStud());
                 histology.remove(selectedToEdit);
                 histology.add(bean);
                 histologyManager.updateHistology(bean, suggestionCombobox.getValue());
                 selectedToEdit = bean; // Все еще в режиме редактирования
+                connectedProcs.setSelectedItem(bean.getConnectedProc());
             } else {
                 HistologyBind histologyBind = binder.getBean();
                 histologyBind.setMutations(new TreeSet<>(mutations));
@@ -144,7 +156,9 @@ public class HistologyView extends VerticalLayout implements View {
                 histology.add(histologyBind);
                 editMode = true; // Сразу после создания переключаемся в режим редактирования
                 selectedToEdit = histologyBind;
+                connectedProcs.getDataProvider().refreshAll();
             }
+            refreshConnnectedProc(selectedToEdit);
             refreshStudy(suggestionCombobox.getValue());
             histologyGrid.getDataProvider().refreshAll();
         });
@@ -170,6 +184,9 @@ public class HistologyView extends VerticalLayout implements View {
         });
 
         HorizontalLayout tools = new HorizontalLayout(suggestionCombobox, showSelectedHistology, addHistology, removeHistology);
+        tools.setComponentAlignment(showSelectedHistology, Alignment.BOTTOM_CENTER);
+        tools.setComponentAlignment(addHistology, Alignment.BOTTOM_CENTER);
+        tools.setComponentAlignment(removeHistology, Alignment.BOTTOM_CENTER);
         tools.setWidth("100%");
         tools.setExpandRatio(suggestionCombobox, 1.0f);
 
@@ -238,10 +255,23 @@ public class HistologyView extends VerticalLayout implements View {
         HistologyBind selectedHistology = histologyGrid.asSingleSelect().getValue();
         selectedToEdit = selectedHistology;
         binder.readBean(selectedHistology);
+        refreshConnnectedProc(selectedHistology);
         refreshMutations(selectedToEdit);
     }
 
+    private void refreshConnnectedProc(HistologyBind selectedHistology) {
+        Optional<Proc> first = connectedProcs.getDataProvider()
+                .fetch(new Query<>())
+                .filter(proc -> Objects.equals(proc, selectedHistology.getConnectedProc()))
+                .findFirst();
+        first.ifPresent(proc -> connectedProcs.setSelectedItem(proc));
+    }
+
     private void initProcGrid() {
+        procGrid.addColumn(Proc::getN)
+                .setCaption("Внутренний id")
+                .setHidable(true)
+                .setHidden(true);
         Grid.Column<Proc, LocalDate> dateColumn = procGrid.addColumn(proc -> DateUtils.asLocalDate(proc.getProcBeginTime()))
                 .setCaption("Дата");
         procGrid.addColumn(Proc::getProcType)
@@ -307,6 +337,10 @@ public class HistologyView extends VerticalLayout implements View {
     }
 
     private void initStudGrid() {
+        studGrid.addColumn(Stud::getN)
+                .setCaption("Внутренний id")
+                .setHidable(true)
+                .setHidden(true);
         studGrid.setHeightByRows(3);
         Grid.Column<Stud, LocalDate> dateColumn = studGrid.addColumn(stud -> DateUtils.asLocalDate(stud.getStudyDateTime()))
                 .setCaption("Дата");

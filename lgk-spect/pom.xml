@@ -14,6 +14,7 @@
     <groupId>lgk.nsbc</groupId>
     <artifactId>spect</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
