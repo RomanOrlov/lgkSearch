@@ -42,7 +42,9 @@ public class HistologyManager {
         Map<Long, Stud> studMap = patientsBiopsyStuds.stream()
                 .collect(toMap(Stud::getN, identity()));
 
-        histologyDao.findByStuds()
+        List<Histology> histByStuds = histologyDao.findByStuds(studMap.keySet());
+        histologyList.addAll(histByStuds);
+
         Map<Long, List<Mutation>> mutationsMap = mutationsDao.findMutationsByHistologyList(histologyList);
         Set<Long> procId = studMap.values()
                 .stream()
@@ -91,6 +93,7 @@ public class HistologyManager {
 
     private Histology toHistology(HistologyBind histologyBind, Stud stud) {
         return Histology.builder()
+                .patientsN(stud.getPatientsN())
                 .studN(stud.getN())
                 .histVerifBurd(HistologyBind.getStringBurdenkoVerification(histologyBind.getBurdenkoVerification()))
                 .ki67From(histologyBind.getKi67From())
@@ -115,6 +118,7 @@ public class HistologyManager {
             Stud stud = getStud(histologyBind, patients);
             histologyBind.setStud(stud);
             Histology histology = toHistology(histologyBind, stud);
+            histology.setPatientsN(patients.getN());
             histology.setN(histologyBind.getHistology().getN());
             histologyDao.updateHistology(histology);
             mutationsDao.deleteMutationsByHistology(histologyBind.getHistology());

@@ -26,6 +26,9 @@ public class MissingData extends VerticalLayout implements View {
     @PostConstruct
     void init() {
         suggestionCombobox.focus();
+        suggestionCombobox.addValueChangeListener(event -> {
+
+        });
         addComponents(navigationBar, suggestionCombobox);
     }
 

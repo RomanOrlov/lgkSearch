@@ -11,6 +11,7 @@ import lgk.nsbc.spect.view.holes.MissingData;
 import lgk.nsbc.spect.view.spectcrud.SpectCRUDView;
 import lgk.nsbc.spect.view.statistic.SampleStatistic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
 
 @Title("Грант ОФЕКТ")
 @Theme("valo")

@@ -19,6 +19,7 @@ public class StudTypeDao implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final long MRI_TYPE = 1L;
     public static final long BIOPSY_TYPE = 8L;
+    public static final long ANAMNEZ_TYPE = 9L;
 
     @Autowired
     private DSLContext context;

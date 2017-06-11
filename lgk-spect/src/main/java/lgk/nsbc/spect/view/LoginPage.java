@@ -29,6 +29,8 @@ public class LoginPage extends LoginForm implements View {
         2. Если в системе, переводим на главную страницу (ну и вытаскиваем сессию)
         3. Если не в системе, переводим на страницу авторизации, авторизуемся, регистрируем сессию.
          */
+        setUsernameCaption("Пользователь");
+        setPasswordCaption("Пароль");
         addLoginListener(event -> {
             String username = event.getLoginParameter("username").trim();
             String password = event.getLoginParameter("password").trim();

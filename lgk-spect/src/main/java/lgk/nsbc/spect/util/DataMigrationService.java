@@ -24,7 +24,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 
 @Service
-@VaadinSessionScope
+//@VaadinSessionScope
 @RequiredArgsConstructor
 public class DataMigrationService implements Serializable{
     private final ParserService parserService;

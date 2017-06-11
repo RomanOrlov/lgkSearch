@@ -3,6 +3,7 @@ package lgk.nsbc.spect.util.components;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ public class NavigationBar extends HorizontalLayout {
     private Button histology = new Button("Данные гистологии");
     private Button statistic = new Button("Статистика выборки");
     private Button holes = new Button("Добавление процедур");
-    private Button logout = new Button("Выход");
+    private Button logout = new Button("Выход!");
 
     public NavigationBar() {
         setWidth("100%");
@@ -37,7 +38,9 @@ public class NavigationBar extends HorizontalLayout {
         holes.setWidthUndefined();
 
         logout.addClickListener(clickEvent -> {
-            getUI().getNavigator().navigateTo(LOGIN);
+            UI.getCurrent().getSession().close();
+            UI.getCurrent().getPage().setUriFragment("#!login");
+            //getUI().getNavigator().navigateTo(LOGIN);
         });
         logout.setStyleName(ValoTheme.BUTTON_PRIMARY);
         logout.setIcon(VaadinIcons.EXIT);

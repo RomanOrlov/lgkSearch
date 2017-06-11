@@ -27,6 +27,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static lgk.nsbc.model.dao.StudDao.ANAMNEZ_STUD;
 import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
 import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.RT;
 import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.SURGERY;
@@ -62,12 +63,15 @@ public class SampleManager implements Serializable {
         Map<Long, Patients> patientsMap = patientsDao.findPatientsWithIdIn(patientsId)
                 .stream()
                 .collect(toMap(Patients::getN, identity()));
-        Map<Long, Proc> patientEarlySurgery = getPatientEarlySurgery(samplePatients, patientsId);
-        Map<Long, Proc> radiotherapyProc = getPatientsRadiotherapyProc(samplePatients, patientEarlySurgery, patientsId);
-        Map<Long, Map<Gene, DicYesNo>> histologyMap = getPatientMutations(samplePatients, patientsId);
 
         Map<Long, List<Proc>> patientsProcedures = findPatientsProcedures(patientsId);
         Map<Long, List<Stud>> patientsStudy = findPatientsStuds(patientsId);
+
+        Map<Long, Proc> patientEarlySurgery = getPatientEarlySurgery(samplePatients, patientsId, patientsProcedures);
+        Map<Long, Proc> radiotherapyProc = getPatientsRadiotherapyProc(samplePatients, patientEarlySurgery, patientsId, patientsProcedures);
+        Map<Long, Integer> karnofskyGrade = getPatientsKarnofskyGrade(samplePatients, patientsProcedures, patientsStudy);
+        Map<Long, Map<Gene, DicYesNo>> histologyMap = getPatientMutations(samplePatients, patientsId);
+
         Map<Long, List<FollowUp>> followUps = findMriFollowUps(patientsStudy);
 
         // Madness Пытаемся найти данные по id пациента, потом по истории болезни, потом в отчаянии по полному имени
@@ -108,6 +112,31 @@ public class SampleManager implements Serializable {
                     sampleBind.recalculateSurvivalAndRecurrence();
                     return sampleBind;
                 })
+                .collect(toList());
+    }
+
+    /**
+     * Скорее всего это невозможно, данные слишком корявые.
+     * @param samplePatients
+     * @param patientsProcedures
+     * @param patientsStudy
+     * @return
+     */
+    private Map<Long, Integer> getPatientsKarnofskyGrade(List<SamplePatients> samplePatients, Map<Long, List<Proc>> patientsProcedures, Map<Long, List<Stud>> patientsStudy) {
+        for (SamplePatients patient : samplePatients) {
+            List<Stud> studs = patientsStudy.computeIfAbsent(patient.getPatientId(), p -> emptyList());
+            List<Stud> anamnezStuds = getAnamnezStuds(studs);
+        }
+        samplePatients.stream()
+                .map(patient -> patientsStudy.computeIfAbsent(patient.getPatientId(), p -> emptyList()))
+                .map(this::getAnamnezStuds);
+        return null;
+    }
+
+    private List<Stud> getAnamnezStuds(List<Stud> studs) {
+        return studs.stream()
+                .filter(stud -> stud.getStudType() != null)
+                .filter(stud -> stud.getStudType().getN().equals(ANAMNEZ_STUD))
                 .collect(toList());
     }
 
@@ -213,10 +242,10 @@ public class SampleManager implements Serializable {
                 .collect(toList());
     }
 
-    private Map<Long, Proc> getPatientsRadiotherapyProc(List<SamplePatients> samplePatients, Map<Long, Proc> patientEarlySurgery, List<Long> patientsId) {
-        List<Proc> patientsRadiotherapy = procDao.findPatientsProcedures(patientsId, RT);
+    private Map<Long, Proc> getPatientsRadiotherapyProc(List<SamplePatients> samplePatients, Map<Long, Proc> patientEarlySurgery, List<Long> patientsId, Map<Long, List<Proc>> patientsProcedures) {
         return samplePatients.stream()
-                .map(patient -> findPatientProcedures(patientsRadiotherapy, patient.getPatientId()))
+                .map(patient -> patientsProcedures.computeIfAbsent(patient.getPatientId(), p -> emptyList()))
+                .map(procs -> getProceduresByType(procs, RT))
                 .filter(procs -> !procs.isEmpty())
                 .map(procs -> findRadiotherapy(procs, patientEarlySurgery.get(procs.get(0).getPatientN())))
                 .filter(Optional::isPresent)
@@ -224,10 +253,17 @@ public class SampleManager implements Serializable {
                 .collect(toMap(Proc::getPatientN, identity()));
     }
 
-    private Map<Long, Proc> getPatientEarlySurgery(List<SamplePatients> samplePatients, List<Long> patientsId) {
-        List<Proc> patientsSurgery = procDao.findPatientsProcedures(patientsId, SURGERY);
+    private List<Proc> getProceduresByType(List<Proc> procs, Long procType) {
+        return procs.stream()
+                .filter(proc -> proc.getProcType() != null)
+                .filter(proc -> proc.getProcType().getN().equals(procType))
+                .collect(toList());
+    }
+
+    private Map<Long, Proc> getPatientEarlySurgery(List<SamplePatients> samplePatients, List<Long> patientsId, Map<Long, List<Proc>> patientsProcedures) {
         return samplePatients.stream()
-                .map(patient -> findPatientProcedures(patientsSurgery, patient.getPatientId()))
+                .map(patient -> patientsProcedures.computeIfAbsent(patient.getPatientId(), p -> emptyList()))
+                .map(procs -> getProceduresByType(procs, SURGERY))
                 .map(this::findEarlyProcedure)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

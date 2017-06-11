@@ -109,6 +109,7 @@ public class HistologyDao implements Serializable {
     public void updateHistology(Histology histology) {
         // Обновляем так, чтобы не убить что то, заданное в основном интерфейсе
         context.update(HISTOLOGY)
+                .set(HISTOLOGY.PATIENTS_N, histology.getPatientsN())
                 .set(HISTOLOGY.STUD_N, histology.getStudN())
                 .set(HISTOLOGY.COMMENTARY, histology.getCommentary())
                 .set(HISTOLOGY.KI67_FROM, histology.getKi67From())
