@@ -12,6 +12,7 @@ import static lgk.nsbc.generated.tables.Histology.HISTOLOGY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = "n")
 public class Histology implements Serializable {
     private static final long serialVersionUID = 1L;
 

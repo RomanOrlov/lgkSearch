@@ -26,7 +26,7 @@ public class MissingData extends VerticalLayout implements View {
     @PostConstruct
     void init() {
         suggestionCombobox.focus();
-        addComponents(suggestionCombobox, navigationBar);
+        addComponents(navigationBar, suggestionCombobox);
     }
 
     @Override

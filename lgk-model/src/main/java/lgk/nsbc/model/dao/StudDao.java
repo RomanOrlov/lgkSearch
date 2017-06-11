@@ -72,6 +72,14 @@ public class StudDao implements Serializable {
                 .collect(toList());
     }
 
+    public List<Stud> findPatientsStuds(Patients patients, Long studyType) {
+        Result<StudRecord> result = context.fetch(STUD, STUD.PATIENTS_N.eq(patients.getN()).and(STUD.STUDY_TYPE.eq(studyType)));
+        return result.stream()
+                .map(Stud::buildFromRecord)
+                .map(Optional::get)
+                .collect(toList());
+    }
+
     public List<Stud> findPatientsStuds(Collection<Long> patientsId) {
         return context.fetch(STUD, STUD.PATIENTS_N.in(patientsId))
                 .stream()

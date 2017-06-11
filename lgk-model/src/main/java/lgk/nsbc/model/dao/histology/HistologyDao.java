@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,13 @@ public class HistologyDao implements Serializable {
 
     public List<Histology> findByStudy(Stud stud) {
         Result<HistologyRecord> result = context.fetch(HISTOLOGY, HISTOLOGY.STUD_N.eq(stud.getN()));
+        return result.stream()
+                .map(Histology::buildFromRecord)
+                .collect(Collectors.toList());
+    }
+
+    public List<Histology> findByStuds(Collection<Long> studsId) {
+        Result<HistologyRecord> result = context.fetch(HISTOLOGY, HISTOLOGY.STUD_N.in(studsId));
         return result.stream()
                 .map(Histology::buildFromRecord)
                 .collect(Collectors.toList());

@@ -6,6 +6,7 @@ import lgk.nsbc.model.Proc;
 import lgk.nsbc.model.Stud;
 import lgk.nsbc.model.dao.ProcDao;
 import lgk.nsbc.model.dao.StudDao;
+import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.histology.Histology;
@@ -35,15 +36,14 @@ public class HistologyManager {
     private DSLContext context;
 
     public List<HistologyBind> getHistology(Patients patients) {
-        List<Histology> histologyList = histologyDao.findByPatient(patients);
-        Map<Long, List<Mutation>> mutationsMap = mutationsDao.findMutationsByHistologyList(histologyList);
-        List<Long> studId = histologyList.stream()
-                .map(Histology::getStudN)
-                .filter(Objects::nonNull)
-                .collect(toList());
-        Map<Long, Stud> studMap = studDao.findById(studId)
-                .stream()
+        Set<Histology> histologyList = new HashSet<>(histologyDao.findByPatient(patients));
+
+        List<Stud> patientsBiopsyStuds = studDao.findPatientsStuds(patients, StudTypeDao.BIOPSY_TYPE);
+        Map<Long, Stud> studMap = patientsBiopsyStuds.stream()
                 .collect(toMap(Stud::getN, identity()));
+
+        histologyDao.findByStuds()
+        Map<Long, List<Mutation>> mutationsMap = mutationsDao.findMutationsByHistologyList(histologyList);
         Set<Long> procId = studMap.values()
                 .stream()
                 .map(Stud::getProceduresN)

@@ -27,7 +27,7 @@ public class MutationsDao implements Serializable {
     @Autowired
     private DSLContext context;
 
-    public Map<Long, List<Mutation>> findMutationsByHistologyList(List<Histology> histologyList) {
+    public Map<Long, List<Mutation>> findMutationsByHistologyList(Collection<Histology> histologyList) {
         Set<Long> histologyIdSet = histologyList.stream()
                 .map(Histology::getN)
                 .collect(Collectors.toSet());

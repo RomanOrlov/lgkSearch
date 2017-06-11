@@ -14,10 +14,9 @@
     <groupId>lgk.nsbc</groupId>
     <artifactId>spect</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
-        <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
         <vaadin.version>8.1.0.beta1</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <project.encoding>UTF-8</project.encoding>
@@ -27,7 +26,6 @@
         <project.target.version>1.8</project.target.version>
         <java.version>1.8</java.version>
         <start-class>lgk.nsbc.spect.SpectApplication</start-class>
-        <vaadin.widgetset.mode>local</vaadin.widgetset.mode>
     </properties>
 
     <repositories>
@@ -147,6 +145,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <!--<scope>provided</scope>-->
+        </dependency>
     </dependencies>
 
     <pluginRepositories>
@@ -159,7 +163,7 @@
 
 
     <build>
-
+        <finalName>spect</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
