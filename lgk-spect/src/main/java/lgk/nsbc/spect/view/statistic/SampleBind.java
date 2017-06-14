@@ -2,7 +2,6 @@ package lgk.nsbc.spect.view.statistic;
 
 import lgk.nsbc.model.*;
 import lgk.nsbc.model.dao.dictionary.ProcTimeApproxDao;
-import lgk.nsbc.model.dao.dictionary.StudTypeDao;
 import lgk.nsbc.model.dictionary.DicYesNo;
 import lgk.nsbc.spect.util.DateUtils;
 import lgk.nsbc.spect.view.spectcrud.SpectGridData;
@@ -49,6 +48,9 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
     private Long survival;
     private String survivalCause;
     private Censor survivalCensor;
+
+    private LocalDate lastDate;
+    private String isReccurance;
 
     private Long recurrence;
     private String recurrenceCause;
@@ -274,10 +276,15 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
      * 3.
      */
     private void recalculateRecurrence() {
-        studList.stream()
+        /*studList.stream()
                 .filter(Objects::nonNull)
                 .filter(stud -> stud.getStudyDateTime() != null)
-                .filter(stud -> Objects.equals(stud.getStudType().getN(), StudTypeDao.MRI_TYPE));
+                .filter(stud -> Objects.equals(stud.getStudType().getN(), StudTypeDao.MRI_TYPE));*/
+        LocalDate surgeryDate = getSurgeryDate();
+        if (surgeryDate != null && lastDate != null) {
+            recurrence = DAYS.between(surgeryDate, lastDate);
+            recurrenceCensor = isReccurance.equals("y") ? NOT_CENSORED : CENSORED;
+        }
     }
 
 

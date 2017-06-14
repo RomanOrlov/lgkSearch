@@ -1,5 +1,6 @@
 package lgk.nsbc.spect.view.statistic;
 
+import lgk.nsbc.generated.tables.records.ReccuranceRecord;
 import lgk.nsbc.model.*;
 import lgk.nsbc.model.dao.*;
 import lgk.nsbc.model.dao.dictionary.ProcTimeApproxDao;
@@ -8,7 +9,6 @@ import lgk.nsbc.model.dao.histology.HistologyDao;
 import lgk.nsbc.model.dao.histology.MutationsDao;
 import lgk.nsbc.model.dictionary.DicYesNo;
 import lgk.nsbc.model.dictionary.Gene;
-import lgk.nsbc.model.dictionary.ProcTimeApprox;
 import lgk.nsbc.model.histology.Histology;
 import lgk.nsbc.model.histology.Mutation;
 import lgk.nsbc.spect.model.SpectDataManager;
@@ -27,6 +27,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static lgk.nsbc.generated.tables.Reccurance.RECCURANCE;
 import static lgk.nsbc.model.dao.StudDao.ANAMNEZ_STUD;
 import static lgk.nsbc.model.dao.dictionary.GenesDao.getGenes;
 import static lgk.nsbc.model.dao.dictionary.ProcTypeDao.RT;
@@ -67,6 +68,10 @@ public class SampleManager implements Serializable {
         Map<Long, List<Proc>> patientsProcedures = findPatientsProcedures(patientsId);
         Map<Long, List<Stud>> patientsStudy = findPatientsStuds(patientsId);
 
+        Map<Long, ReccuranceRecord> reccuranceRecordMap = context.fetch(RECCURANCE)
+                .stream()
+                .collect(toMap(o -> o.getPatientid(), identity()));
+
         Map<Long, Proc> patientEarlySurgery = getPatientEarlySurgery(samplePatients, patientsId, patientsProcedures);
         Map<Long, Proc> radiotherapyProc = getPatientsRadiotherapyProc(samplePatients, patientEarlySurgery, patientsId, patientsProcedures);
         Map<Long, Integer> karnofskyGrade = getPatientsKarnofskyGrade(samplePatients, patientsProcedures, patientsStudy);
@@ -76,12 +81,12 @@ public class SampleManager implements Serializable {
 
         // Madness Пытаемся найти данные по id пациента, потом по истории болезни, потом в отчаянии по полному имени
         Map<Long, List<SpectGridData>> patientSpectDataByPatientId = getPatientsSpectData(samplePatients, patientsMap);
-        Map<String, List<SpectGridData>> patientSpectDataByCaseHistoryNum = patientSpectDataByPatientId.entrySet()
+        /*Map<String, List<SpectGridData>> patientSpectDataByCaseHistoryNum = patientSpectDataByPatientId.entrySet()
                 .stream()
-                .collect(toMap(o -> o.getValue().get(0).getSpectGridDBData().getPatients().getCaseHistoryNumber(), Map.Entry::getValue));
-        Map<String, List<SpectGridData>> patientSpectDataByFullName = patientSpectDataByPatientId.entrySet()
+                .collect(toMap(o -> o.getValue().get(0).getSpectGridDBData().getPatients().getCaseHistoryNumber(), Map.Entry::getValue));*/
+        /*Map<String, List<SpectGridData>> patientSpectDataByFullName = patientSpectDataByPatientId.entrySet()
                 .stream()
-                .collect(toMap(o -> o.getValue().get(0).getSpectGridDBData().getPatients().getFullName(), Map.Entry::getValue));
+                .collect(toMap(o -> o.getValue().get(0).getSpectGridDBData().getPatients().getFullName(), Map.Entry::getValue));*/
         return samplePatients
                 .stream()
                 .filter(samplePatient -> patientsMap.get(samplePatient.getPatientId()) != null)
@@ -89,11 +94,10 @@ public class SampleManager implements Serializable {
                     Long patientId = sample.getPatientId();
                     Patients patients = patientsMap.get(patientId);
                     Map<Gene, DicYesNo> genes = histologyMap.getOrDefault(patientId, emptyMap());
-                    List<SpectGridData> spectGridData = patientSpectDataByPatientId.getOrDefault(patientId,
-                            patientSpectDataByCaseHistoryNum.getOrDefault(patients.getCaseHistoryNumber(),
-                                    patientSpectDataByFullName.getOrDefault(patients.getFullName(), emptyList())));
+                    List<SpectGridData> spectGridData = patientSpectDataByPatientId.getOrDefault(patientId, emptyList());
                     Map<Long, Gene> geneMap = getGenes();
                     List<Stud> studList = patientsStudy.computeIfAbsent(patientId, l -> new ArrayList<>());
+                    ReccuranceRecord reccuranceRecord = reccuranceRecordMap.get(patientId);
                     SampleBind sampleBind = SampleBind.builder()
                             .patients(patients)
                             .samplePatients(sample)
@@ -109,6 +113,10 @@ public class SampleManager implements Serializable {
                             .studList(studList)
                             .mriFollowUps(getStudsFollowUps(studList, followUps))
                             .build();
+                    if (reccuranceRecord != null) {
+                        sampleBind.setLastDate(DateUtils.asLocalDate(reccuranceRecord.getLastdate()));
+                        sampleBind.setIsReccurance(reccuranceRecord.getStatus());
+                    }
                     sampleBind.recalculateSurvivalAndRecurrence();
                     return sampleBind;
                 })
@@ -117,6 +125,7 @@ public class SampleManager implements Serializable {
 
     /**
      * Скорее всего это невозможно, данные слишком корявые.
+     *
      * @param samplePatients
      * @param patientsProcedures
      * @param patientsStudy
@@ -180,11 +189,16 @@ public class SampleManager implements Serializable {
     private Map<Long, List<SpectGridData>> getPatientsSpectData(List<SamplePatients> samplePatients, Map<Long, Patients> patientsMap) {
         List<SpectGridData> spectData = spectDataManager.findAllData();
         spectData.sort(Comparator.comparing(SpectGridData::getStudyDate));
-        return samplePatients.stream()
+        List<List<SpectGridData>> collect1 = samplePatients.stream()
                 .map(patients -> findPatientSpect(spectData, patientsMap.get(patients.getPatientId())))
                 .filter(spectGridData -> !spectGridData.isEmpty())
+                .collect(toList());
+
+        List<List<SpectGridData>> collect = collect1.stream()
                 .map(this::splitPatientSpectDataByData)
-                .collect(toMap(o -> o.get(0).getSpectGridDBData().getPatients().getN(), identity()));
+                .collect(toList());
+        return collect.stream()
+                .collect(toMap(o -> o.get(0).getSpectGridDBData().getPatients().getN(), identity(), (s1, s2) -> s1));
     }
 
     /**
@@ -211,6 +225,7 @@ public class SampleManager implements Serializable {
     private Optional<SpectGridData> findPatientSpectByDate(List<SpectGridData> spectGridData, LocalDate localDate) {
         List<SpectGridData> patientSpectAtDateByInEarly = spectGridData.stream()
                 .filter(spect -> localDate.isEqual(spect.getStudyDate()))
+                .filter(spectGridData1 -> spectGridData1.getInSphereEarly() != null)
                 .sorted(Comparator.comparing(SpectGridData::getInSphereEarly))
                 .collect(toList());
         if (patientSpectAtDateByInEarly.isEmpty())
@@ -286,9 +301,7 @@ public class SampleManager implements Serializable {
         return spectDatа.stream()
                 .filter(spectGridData -> {
                     Patients patient = spectGridData.getSpectGridDBData().getPatients();
-                    return Objects.equals(patient.getN(), patients.getN())
-                            || Objects.equals(patient.getFullName(), patients.getFullName())
-                            || Objects.equals(patient.getCaseHistoryNumber(), patients.getCaseHistoryNumber());
+                    return Objects.equals(patient.getN(), patients.getN());
                 })
                 .filter(spectGridData -> spectGridData.getStudyDate() != null)
                 .collect(toList());
