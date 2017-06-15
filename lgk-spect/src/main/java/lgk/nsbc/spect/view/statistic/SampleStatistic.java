@@ -176,7 +176,7 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
         Grid.Column<SampleBind, String> includedColumn = sampleGrid.addColumn(SampleBind::getInclusionRepresentation)
                 .setCaption("Включен")
-                .setHidden(true)
+                .setHidden(false)
                 .setEditorComponent(inclusionEdit, SampleBind::setInclusionRepresentation)
                 .setEditable(true);
 
@@ -197,7 +197,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setEditorComponent(surgeryDateField, SampleBind::setSurgeryProcDate);
 
         Grid.Column<SampleBind, Long> surgeryRtPeriodColumn = sampleGrid.addColumn(SampleBind::getSurgeryRTPeriod)
-                .setCaption("Время между хирургией и ЛТ");
+                .setCaption("Время между хирургией и ЛТ")
+                .setHidden(true);
 
         sampleGrid.addColumn(SampleBind::getRtBeginDate)
                 .setCaption("Начало ЛТ")
@@ -229,7 +230,8 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
                 .setCaption("№1 ИН 60");
 
         Grid.Column<SampleBind, Double> spect1InOut = sampleGrid.addColumn(SampleBind::getSpect1InOut, new NumberRenderer(inFormat))
-                .setCaption("№1 Вымывание");
+                .setCaption("№1 Вымывание")
+                .setHidden(true);
 
         sampleGrid.addColumn(SampleBind::getSpect2Date)
                 .setCaption("№2 ОФЕКТ")
@@ -261,6 +263,55 @@ public class SampleStatistic extends VerticalLayout implements View, Serializabl
 
         Grid.Column<SampleBind, Double> spect3InOut = sampleGrid.addColumn(SampleBind::getSpect3InOut, new NumberRenderer(inFormat))
                 .setCaption("№3 Вымывание")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In30Isoline10, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 30 Изолиния 10")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In60Isoline10, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 60 Изолиния 10")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In30Isoline25, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 30 Изолиния 25")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In60Isoline25, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 60 Изолиния 25")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In30Isoline50, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 30 Изолиния 50")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect1In60Isoline50, new NumberRenderer(inFormat))
+                .setCaption("№1 ИН 60 Изолиния 50")
+                .setHidden(true);
+
+
+        sampleGrid.addColumn(SampleBind::getSpect2In30Isoline10, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 30 Изолиния 10")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect2In60Isoline10, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 60 Изолиния 10")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect2In30Isoline25, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 30 Изолиния 25")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect2In60Isoline25, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 60 Изолиния 25")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect2In30Isoline50, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 30 Изолиния 50")
+                .setHidden(true);
+
+        sampleGrid.addColumn(SampleBind::getSpect2In60Isoline50, new NumberRenderer(inFormat))
+                .setCaption("№2 ИН 60 Изолиния 50")
                 .setHidden(true);
 
         Grid.Column<SampleBind, Long> fullYearsAtSurgery = sampleGrid.addColumn(SampleBind::getAgeAtSurgery, new NumberRenderer(ageFormat))

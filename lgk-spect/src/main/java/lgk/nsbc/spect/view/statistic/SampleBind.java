@@ -104,6 +104,54 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
         return spect3 == null ? null : spect3.getInSphereOut();
     }
 
+    public Double getSpect1In30Isoline10() {
+        return spect1 == null ? null : spect1.getInIsoline10Early();
+    }
+
+    public Double getSpect1In60Isoline10() {
+        return spect1 == null ? null : spect1.getInIsoline10Late();
+    }
+
+    public Double getSpect1In30Isoline25() {
+        return spect1 == null ? null : spect1.getInIsoline25Early();
+    }
+
+    public Double getSpect1In60Isoline25() {
+        return spect1 == null ? null : spect1.getInIsoline25Late();
+    }
+
+    public Double getSpect1In30Isoline50() {
+        return spect1 == null ? null : spect1.getInIsoline50Early();
+    }
+
+    public Double getSpect1In60Isoline50() {
+        return spect1 == null ? null : spect1.getInIsoline50Late();
+    }
+
+    public Double getSpect2In30Isoline10() {
+        return spect2 == null ? null : spect2.getInIsoline10Early();
+    }
+
+    public Double getSpect2In60Isoline10() {
+        return spect2 == null ? null : spect2.getInIsoline10Late();
+    }
+
+    public Double getSpect2In30Isoline25() {
+        return spect2 == null ? null : spect2.getInIsoline25Early();
+    }
+
+    public Double getSpect2In60Isoline25() {
+        return spect2 == null ? null : spect2.getInIsoline25Late();
+    }
+
+    public Double getSpect2In30Isoline50() {
+        return spect2 == null ? null : spect2.getInIsoline50Early();
+    }
+
+    public Double getSpect2In60Isoline50() {
+        return spect2 == null ? null : spect2.getInIsoline50Late();
+    }
+
     public LocalDate getSurgeryDate() {
         if (surgeryProcDate != null) return surgeryProcDate;
         if (surgeryProc != null && surgeryProc.getProcBeginTime() != null) {
@@ -236,7 +284,8 @@ public class SampleBind implements Serializable, Comparable<SampleBind> {
                 .filter(stud -> stud.getStudType() != null)
                 .collect(Collectors.toMap(
                         stud -> LAST_HAPPENED_STUDY + " типа " + stud.getStudType().toString() + " от " + DateUtils.asLocalDate(stud.getStudyDateTime()),
-                        Stud::getStudyDateTime
+                        Stud::getStudyDateTime,
+                        (date, date2) -> date
                 ));
 
         Map<String, Date> procedures = procList.stream()
